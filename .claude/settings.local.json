@@ -39,7 +39,27 @@
       "Bash(firebase projects:list:*)",
       "Bash(firebase auth:import:*)",
       "Bash(firebase firestore:databases:list:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(git config:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(sleep:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(cd:*)",
+      "Bash(which:*)",
+      "Bash(ps:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(touch:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)"
     ],
     "deny": []
   }

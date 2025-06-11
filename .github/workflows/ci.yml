@@ -95,7 +95,7 @@ jobs:
       
       - name: Build mobile app
         working-directory: ./apps/mobile
-        run: npx expo export:web
+        run: npx expo export --platform web
       
       - name: Build Functions
         working-directory: ./functions
