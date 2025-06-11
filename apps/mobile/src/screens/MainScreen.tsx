@@ -19,11 +19,13 @@ import { Language } from '../types';
 import { sampleTasks } from '../data/sampleTasks';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-  addDailyTaskHistory, 
   getUserTaskHistory,
-  getGlobalCounter,
-  incrementGlobalCounter 
+  getGlobalCounter
 } from '../services/firestore';
+import { 
+  getTodayTask, 
+  completeTask 
+} from '../services/cloudFunctions';
 import { testFirestoreConnection } from '../services/testFirestore';
 
 const { height } = Dimensions.get('window');
@@ -55,25 +57,33 @@ export const MainScreen: React.FC = () => {
           });
         }
 
-        // Check if user completed today's task
-        if (user) {
-          const today = new Date().toISOString().split('T')[0];
-          const todayHistory = await getUserTaskHistory(user.id, today);
-          setIsCompleted(!!todayHistory);
+        // Get today's task using Cloud Functions
+        if (firebaseUser) {
+          try {
+            const todayTaskData = await getTodayTask();
+            setCurrentTask(todayTaskData.task);
+            setIsCompleted(todayTaskData.completed);
+          } catch (error) {
+            console.error('Error getting today task:', error);
+            // Fallback to sample task
+            const randomIndex = Math.floor(Math.random() * sampleTasks.length);
+            setCurrentTask(sampleTasks[randomIndex]);
+          }
+        } else {
+          // Not authenticated, show sample task
+          const randomIndex = Math.floor(Math.random() * sampleTasks.length);
+          setCurrentTask(sampleTasks[randomIndex]);
         }
-
-        // Pick random task for the day
-        const randomIndex = Math.floor(Math.random() * sampleTasks.length);
-        setCurrentTask(sampleTasks[randomIndex]);
+        
+        // Test Firestore connection
+        await testFirestoreConnection();
       } catch (error) {
         console.error('Initialization error:', error);
       }
     };
 
-    if (user) {
-      initializeApp();
-    }
-  }, [user]);
+    initializeApp();
+  }, [user, firebaseUser]);
 
   const handleRefreshTask = () => {
     if (!refreshUsed) {
@@ -86,23 +96,13 @@ export const MainScreen: React.FC = () => {
   };
 
   const handleDonePress = async () => {
-    if (!user) return;
+    if (!firebaseUser) return;
     
     setIsLoading(true);
     
     try {
-      const today = new Date().toISOString().split('T')[0];
-      
-      // Add task history
-      await addDailyTaskHistory({
-        userId: user.id,
-        taskId: currentTask.id,
-        completedAt: new Date(),
-        date: today
-      });
-
-      // Update global counter
-      await incrementGlobalCounter();
+      // Complete task using Cloud Functions
+      await completeTask();
 
       // Load updated counter
       const counter = await getGlobalCounter();
