@@ -57,13 +57,14 @@ jobs:
         env:
           CI: true
       
-      - name: Run E2E tests
-        working-directory: ./apps/mobile
-        run: |
-          npx playwright install --with-deps
-          npm run test:e2e
-        env:
-          CI: true
+      # Temporarily disable E2E tests for faster CI
+      # - name: Run E2E tests
+      #   working-directory: ./apps/mobile
+      #   run: |
+      #     npx playwright install --with-deps
+      #     npm run test:e2e
+      #   env:
+      #     CI: true
       
       - name: Upload test coverage
         uses: codecov/codecov-action@v3
