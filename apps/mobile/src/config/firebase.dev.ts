@@ -2,14 +2,14 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
-// Development Firebase config (you can use dummy values for emulator)
+// Development Firebase config (real project ID for emulator)
 const firebaseConfig = {
   apiKey: "demo-api-key",
-  authDomain: "demo-project.firebaseapp.com",
-  projectId: "demo-project",
-  storageBucket: "demo-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123def456"
+  authDomain: "ichizen-daily-good-deeds.firebaseapp.com",
+  projectId: "ichizen-daily-good-deeds",
+  storageBucket: "ichizen-daily-good-deeds.firebasestorage.app",
+  messagingSenderId: "179557978249",
+  appId: "1:179557978249:web:abc123def456"
 };
 
 const app = initializeApp(firebaseConfig);

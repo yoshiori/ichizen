@@ -3,13 +3,13 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  // Development Firebase config (use real config in production)
-  apiKey: "demo-api-key",
-  authDomain: "demo-project.firebaseapp.com",
-  projectId: "demo-ichizen-project",
-  storageBucket: "demo-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123def456"
+  apiKey: "AIzaSyAH5s9WzkRGioFhBFAVPlSgTcWT1eY62_k",
+  authDomain: "ichizen-daily-good-deeds.firebaseapp.com",
+  projectId: "ichizen-daily-good-deeds",
+  storageBucket: "ichizen-daily-good-deeds.firebasestorage.app",
+  messagingSenderId: "179557978249",
+  appId: "1:179557978249:web:08a1c5539a35eae9a03658",
+  measurementId: "G-09FFCDS3PG"
 };
 
 const app = initializeApp(firebaseConfig);

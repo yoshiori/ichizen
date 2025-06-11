@@ -14,7 +14,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "lint": "echo \"No linting configured yet\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "npx tsx scripts/seed-data.ts"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
@@ -44,6 +45,7 @@
     "metro-react-native-babel-preset": "^0.77.0",
     "react-test-renderer": "^19.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.1",
     "typescript": "~5.8.3"
   },
   "private": true
