@@ -14,9 +14,21 @@ module.exports = {
     '<rootDir>/node_modules/'
   ],
   collectCoverageFrom: [
-    '**/*.{ts,tsx}',
+    'src/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
-    '!**/__tests__/**'
-  ]
+    '!**/__tests__/**',
+    '!**/coverage/**',
+    '!src/types/**'
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  }
 };

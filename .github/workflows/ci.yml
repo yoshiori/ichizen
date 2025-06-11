@@ -1,0 +1,125 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test and Type Check
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install root dependencies
+        run: npm ci
+      
+      - name: Install mobile app dependencies
+        working-directory: ./apps/mobile
+        run: npm ci
+      
+      - name: Install Functions dependencies
+        working-directory: ./functions
+        run: npm ci
+      
+      - name: Setup Firebase CLI
+        run: npm install -g firebase-tools
+      
+      - name: Start Firebase Emulators
+        working-directory: ./
+        run: |
+          firebase emulators:start --only auth,firestore --project demo-project &
+          sleep 10
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      
+      - name: Run type check
+        working-directory: ./apps/mobile
+        run: npm run typecheck
+      
+      - name: Run unit tests
+        working-directory: ./apps/mobile
+        run: npm test -- --watchAll=false --coverage
+        env:
+          CI: true
+      
+      - name: Run E2E tests
+        working-directory: ./apps/mobile
+        run: |
+          npx playwright install --with-deps
+          npm run test:e2e
+        env:
+          CI: true
+      
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./apps/mobile/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        working-directory: ./apps/mobile
+        run: npm ci
+      
+      - name: Build mobile app
+        working-directory: ./apps/mobile
+        run: npx expo export:web
+      
+      - name: Build Functions
+        working-directory: ./functions
+        run: |
+          npm ci
+          npm run build
+
+  security:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Run security audit
+        working-directory: ./apps/mobile
+        run: npm audit --audit-level moderate
+      
+      - name: Run Functions security audit
+        working-directory: ./functions
+        run: npm audit --audit-level moderate
