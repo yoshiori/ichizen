@@ -16,4 +16,19 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Connect to emulators in development (check if running on localhost)
+if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  try {
+    import('firebase/auth').then(({ connectAuthEmulator }) => {
+      connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+    });
+    import('firebase/firestore').then(({ connectFirestoreEmulator }) => {
+      connectFirestoreEmulator(db, 'localhost', 8080);
+    });
+  } catch (error) {
+    console.log('Emulator connection:', error);
+  }
+}
+
 export { app };

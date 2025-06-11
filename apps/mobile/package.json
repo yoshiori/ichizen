@@ -10,6 +10,9 @@
     "web": "expo start --web",
     "build": "expo export",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
     "lint": "echo \"No linting configured yet\"",
     "typecheck": "tsc --noEmit"
   },
@@ -30,6 +33,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/preset-typescript": "^7.27.1",
+    "@playwright/test": "^1.53.0",
     "@testing-library/jest-native": "^5.4.1",
     "@testing-library/react-native": "^13.2.0",
     "@types/jest": "^29.5.14",
@@ -39,6 +43,7 @@
     "jest-expo": "^53.0.7",
     "metro-react-native-babel-preset": "^0.77.0",
     "react-test-renderer": "^19.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.3"
   },
   "private": true

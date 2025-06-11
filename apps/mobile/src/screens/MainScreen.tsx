@@ -24,6 +24,7 @@ import {
   getGlobalCounter,
   incrementGlobalCounter 
 } from '../services/firestore';
+import { testFirestoreConnection } from '../services/testFirestore';
 
 const { height } = Dimensions.get('window');
 
@@ -166,6 +167,11 @@ export const MainScreen: React.FC = () => {
         <View style={styles.header}>
           <Text style={styles.title}>今日の小さな善行</Text>
           <Text style={styles.subtitle}>Today's Small Good Deed</Text>
+          <DoneButton
+            onPress={() => testFirestoreConnection()}
+            loading={false}
+            disabled={false}
+          />
         </View>
 
         {/* Global Counter */}
