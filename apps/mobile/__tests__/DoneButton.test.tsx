@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import { DoneButton } from '../components/DoneButton';
+import { DoneButton } from '../src/components/DoneButton';
 
 describe('DoneButton', () => {
   it('should render DONE! button', () => {
@@ -21,10 +21,10 @@ describe('DoneButton', () => {
 
   it('should be disabled when loading', () => {
     const mockOnPress = jest.fn();
-    const { getByText } = render(<DoneButton onPress={mockOnPress} loading={true} />);
+    const { getByTestId } = render(<DoneButton onPress={mockOnPress} loading={true} />);
     
-    const button = getByText('DONE!');
-    fireEvent.press(button);
+    const loadingIndicator = getByTestId('loading-indicator');
+    fireEvent.press(loadingIndicator.parent);
     
     expect(mockOnPress).not.toHaveBeenCalled();
   });

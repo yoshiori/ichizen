@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { GlobalCounter } from '../components/GlobalCounter';
+import { GlobalCounter } from '../src/components/GlobalCounter';
 
 describe('GlobalCounter', () => {
   it('should render total count', () => {

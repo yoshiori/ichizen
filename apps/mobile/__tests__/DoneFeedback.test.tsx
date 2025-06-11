@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { DoneFeedback } from '../components/DoneFeedback';
+import { DoneFeedback } from '../src/components/DoneFeedback';
 
 describe('DoneFeedback', () => {
   it('should not render when not visible', () => {
