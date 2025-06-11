@@ -35,5 +35,33 @@
     "monthlyStats": "Monthly Statistics",
     "total": "Total",
     "completionRate": "Completion Rate"
+  },
+  "follow": {
+    "title": "Follow",
+    "fullTitle": "Follow Management",
+    "yourId": "Your User ID",
+    "shareIdHint": "Share this ID with friends to let them follow you",
+    "followUser": "Follow User",
+    "enterUserId": "Enter User ID",
+    "follow": "Follow",
+    "following": "Following",
+    "noFollowing": "No users being followed",
+    "followedAt": "Followed at",
+    "unfollow": "Unfollow",
+    "confirmUnfollow": "Unfollow",
+    "confirmUnfollowMessage": "Are you sure you want to unfollow this user?",
+    "success": "Success",
+    "error": "Error",
+    "followSuccess": "User followed successfully",
+    "followError": "Failed to follow user",
+    "unfollowError": "Failed to unfollow user",
+    "loadError": "Failed to load following list",
+    "userNotFound": "User not found",
+    "alreadyFollowing": "Already following this user",
+    "selfFollowError": "You cannot follow yourself",
+    "authRequired": "Login required"
+  },
+  "common": {
+    "cancel": "Cancel"
   }
 }

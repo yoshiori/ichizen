@@ -40,13 +40,14 @@ export const DoneButton: React.FC<DoneButtonProps> = ({
       onPress={handlePress}
       activeOpacity={0.8}
       disabled={loading || disabled}
+      testID="done-button"
     >
       {loading ? (
         <View style={styles.loadingContainer} testID="loading-indicator">
           <ActivityIndicator color="#fff" size="large" />
         </View>
       ) : (
-        <Text style={styles.buttonText}>{t('common.done')}</Text>
+        <Text style={styles.buttonText} testID="done-button-text">{t('common.done')}</Text>
       )}
     </TouchableOpacity>
   );

@@ -10,10 +10,11 @@ import {
   orderBy, 
   limit,
   updateDoc,
-  increment
+  increment,
+  deleteDoc
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { User, Task, DailyTaskHistory, GlobalCounter } from '../types/firebase';
+import { User, Task, DailyTaskHistory, GlobalCounter, Follow } from '../types/firebase';
 
 // Users collection
 export const createUser = async (userId: string, userData: Omit<User, 'id'>) => {
@@ -27,6 +28,10 @@ export const getUser = async (userId: string): Promise<User | null> => {
 
 export const updateUser = async (userId: string, updates: Partial<User>) => {
   await updateDoc(doc(db, 'users', userId), updates);
+};
+
+export const updateUserFCMToken = async (userId: string, fcmToken: string) => {
+  await updateDoc(doc(db, 'users', userId), { fcmToken });
 };
 
 // Tasks collection
@@ -112,4 +117,75 @@ export const incrementGlobalCounter = async () => {
       lastUpdated: new Date()
     });
   }
+};
+
+// Follow functionality
+export const followUser = async (followerId: string, followingId: string) => {
+  // Check if already following
+  const existingFollow = await query(
+    collection(db, 'follows'),
+    where('followerId', '==', followerId),
+    where('followingId', '==', followingId)
+  );
+  
+  const snapshot = await getDocs(existingFollow);
+  if (!snapshot.empty) {
+    throw new Error('Already following this user');
+  }
+
+  // Create follow relationship
+  await addDoc(collection(db, 'follows'), {
+    followerId,
+    followingId,
+    createdAt: new Date()
+  });
+};
+
+export const unfollowUser = async (followerId: string, followingId: string) => {
+  const followQuery = query(
+    collection(db, 'follows'),
+    where('followerId', '==', followerId),
+    where('followingId', '==', followingId)
+  );
+  
+  const snapshot = await getDocs(followQuery);
+  if (snapshot.empty) {
+    throw new Error('Not following this user');
+  }
+
+  // Remove follow relationship
+  await deleteDoc(snapshot.docs[0].ref);
+};
+
+export const getFollowing = async (userId: string): Promise<Follow[]> => {
+  const followingQuery = query(
+    collection(db, 'follows'),
+    where('followerId', '==', userId),
+    orderBy('createdAt', 'desc')
+  );
+  
+  const snapshot = await getDocs(followingQuery);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Follow));
+};
+
+export const getFollowers = async (userId: string): Promise<Follow[]> => {
+  const followersQuery = query(
+    collection(db, 'follows'),
+    where('followingId', '==', userId),
+    orderBy('createdAt', 'desc')
+  );
+  
+  const snapshot = await getDocs(followersQuery);
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Follow));
+};
+
+export const isFollowing = async (followerId: string, followingId: string): Promise<boolean> => {
+  const followQuery = query(
+    collection(db, 'follows'),
+    where('followerId', '==', followerId),
+    where('followingId', '==', followingId)
+  );
+  
+  const snapshot = await getDocs(followQuery);
+  return !snapshot.empty;
 };

@@ -10,8 +10,9 @@ import { useTranslation } from 'react-i18next';
 
 import { MainScreen } from '../screens/MainScreen';
 import { HistoryScreen } from '../screens/HistoryScreen';
+import { FollowScreen } from '../screens/FollowScreen';
 
-type TabType = 'home' | 'history';
+type TabType = 'home' | 'history' | 'follow';
 
 interface Tab {
   key: TabType;
@@ -33,6 +34,11 @@ export const TabNavigation: React.FC = () => {
       key: 'history',
       title: t('history.title', '履歴'),
       icon: '📊'
+    },
+    {
+      key: 'follow',
+      title: t('follow.title', 'フォロー'),
+      icon: '👥'
     }
   ];
 
@@ -42,6 +48,8 @@ export const TabNavigation: React.FC = () => {
         return <MainScreen />;
       case 'history':
         return <HistoryScreen />;
+      case 'follow':
+        return <FollowScreen />;
       default:
         return <MainScreen />;
     }

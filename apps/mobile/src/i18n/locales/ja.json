@@ -35,5 +35,33 @@
     "monthlyStats": "今月の統計",
     "total": "総数",
     "completionRate": "達成率"
+  },
+  "follow": {
+    "title": "フォロー",
+    "fullTitle": "フォロー管理",
+    "yourId": "あなたのユーザーID",
+    "shareIdHint": "このIDを友達に共有してフォローしてもらいましょう",
+    "followUser": "ユーザーをフォロー",
+    "enterUserId": "ユーザーIDを入力",
+    "follow": "フォローする",
+    "following": "フォロー中",
+    "noFollowing": "フォロー中のユーザーはいません",
+    "followedAt": "フォロー開始",
+    "unfollow": "フォロー解除",
+    "confirmUnfollow": "フォロー解除",
+    "confirmUnfollowMessage": "このユーザーのフォローを解除しますか？",
+    "success": "成功",
+    "error": "エラー",
+    "followSuccess": "ユーザーをフォローしました",
+    "followError": "フォローに失敗しました",
+    "unfollowError": "フォロー解除に失敗しました",
+    "loadError": "フォロー一覧の読み込みに失敗しました",
+    "userNotFound": "ユーザーが見つかりません",
+    "alreadyFollowing": "すでにフォローしています",
+    "selfFollowError": "自分をフォローすることはできません",
+    "authRequired": "ログインが必要です"
+  },
+  "common": {
+    "cancel": "キャンセル"
   }
 }

@@ -1,20 +1,22 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { DoneButton } from '../src/components/DoneButton';
+import '../src/i18n/test';
 
 describe('DoneButton', () => {
   it('should render DONE! button', () => {
     const mockOnPress = jest.fn();
-    const { getByText } = render(<DoneButton onPress={mockOnPress} />);
+    const { getByTestId } = render(<DoneButton onPress={mockOnPress} />);
     
-    expect(getByText('DONE!')).toBeTruthy();
+    expect(getByTestId('done-button-text')).toBeTruthy();
   });
 
   it('should call onPress when button is tapped', () => {
     const mockOnPress = jest.fn();
-    const { getByText } = render(<DoneButton onPress={mockOnPress} />);
+    const { getByTestId } = render(<DoneButton onPress={mockOnPress} />);
     
-    fireEvent.press(getByText('DONE!'));
+    const button = getByTestId('done-button');
+    fireEvent.press(button);
     
     expect(mockOnPress).toHaveBeenCalledTimes(1);
   });
@@ -23,8 +25,8 @@ describe('DoneButton', () => {
     const mockOnPress = jest.fn();
     const { getByTestId } = render(<DoneButton onPress={mockOnPress} loading={true} />);
     
-    const loadingIndicator = getByTestId('loading-indicator');
-    fireEvent.press(loadingIndicator.parent);
+    const button = getByTestId('done-button');
+    fireEvent.press(button);
     
     expect(mockOnPress).not.toHaveBeenCalled();
   });

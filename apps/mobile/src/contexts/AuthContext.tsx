@@ -2,6 +2,15 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User as FirebaseUser } from 'firebase/auth';
 import { onAuthStateChange, signInAnonymous, initializeUser } from '../services/auth';
 import { User } from '../types/firebase';
+import { 
+  requestNotificationPermission, 
+  setupTokenRefreshListener, 
+  setupForegroundMessageListener,
+  setupBackgroundMessageListener,
+  getInitialNotification,
+  setupNotificationOpenedListener
+} from '../services/messaging';
+import { updateUserFCMToken } from '../services/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -48,6 +57,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
           const userData = await initializeUser(firebaseUser);
           setUser(userData);
+          
+          // Setup FCM after user is authenticated
+          await setupFCMForUser(firebaseUser.uid);
         } catch (error) {
           console.error('User initialization error:', error);
           setUser(null);
@@ -59,8 +71,54 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     });
 
+    // Setup background message handler
+    setupBackgroundMessageListener();
+
     return unsubscribe;
   }, []);
+
+  const setupFCMForUser = async (userId: string) => {
+    try {
+      // Request notification permission and get token
+      const token = await requestNotificationPermission();
+      if (token) {
+        await updateUserFCMToken(userId, token);
+      }
+
+      // Setup token refresh listener
+      const unsubscribeTokenRefresh = setupTokenRefreshListener(async (newToken) => {
+        console.log('FCM token refreshed:', newToken);
+        await updateUserFCMToken(userId, newToken);
+      });
+
+      // Setup foreground message listener
+      const unsubscribeForeground = setupForegroundMessageListener((message) => {
+        console.log('Foreground message:', message);
+        // Handle foreground notification display
+      });
+
+      // Setup notification opened listener
+      const unsubscribeOpened = setupNotificationOpenedListener((message) => {
+        console.log('Notification opened app:', message);
+        // Handle navigation or actions when notification is tapped
+      });
+
+      // Check for initial notification (app opened from notification)
+      const initialNotification = await getInitialNotification();
+      if (initialNotification) {
+        console.log('Initial notification:', initialNotification);
+        // Handle initial notification
+      }
+
+      return () => {
+        unsubscribeTokenRefresh();
+        unsubscribeForeground();
+        unsubscribeOpened();
+      };
+    } catch (error) {
+      console.error('FCM setup error:', error);
+    }
+  };
 
   const value = {
     user,

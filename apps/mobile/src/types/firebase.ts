@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   language: 'en' | 'ja';
+  fcmToken?: string;
   createdAt: Date;
   lastActiveAt: Date;
 }
@@ -32,4 +33,11 @@ export interface GlobalCounter {
   totalCompleted: number;
   todayCompleted: number;
   lastUpdated: Date | { seconds: number; nanoseconds: number };
+}
+
+export interface Follow {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: Date;
 }
