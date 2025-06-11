@@ -98,3 +98,100 @@
 * （シンプルさを保ちつつ）ユーザーが自身のお題を登録できる機能や、特定のテーマ（例：環境チャレンジ週）など、期間限定のイベント要素の追加も検討の余地あり。
 
 ---
+
+## 🚀 現在の開発進捗状況（2025年6月11日時点）
+
+### ✅ 完了済み（フェーズ1: プロトタイプ開発）
+
+#### 1. 基盤構築
+- **モノレポ初期化** ✅ - apps/mobile/ 構成完了
+- **React Native + TypeScript 環境** ✅ - Expo 53.0.11 ベース
+- **テスト環境** ✅ - Jest + React Native Testing Library
+- **多言語化** ✅ - react-i18next + 日本語・英語対応
+
+#### 2. コアコンポーネント（TDD実装）
+- **DoneButton** ✅ - ローディング・無効化状態対応
+- **DoneFeedback** ✅ - キラキラアニメーション + 多言語メッセージ
+- **DailyTask** ✅ - カテゴリ表示・お題変更・多言語対応
+- **GlobalCounter** ✅ - 地球アニメーション・カウンター表示
+
+#### 3. 完全動作デモアプリ
+- **MainScreen** ✅ - 全コンポーネント統合
+- **サンプルデータ** ✅ - 8種類の善行タスク
+- **完全なUXフロー** ✅ - お題変更→DONE!→フィードバック→カウンター更新
+- **Web動作確認済み** ✅ - http://localhost:8081
+
+#### 4. 品質保証
+- **テストカバレッジ** ✅ - 20/20 テストがパス
+- **TypeScript型安全性** ✅ - 完全型定義
+- **多言語対応** ✅ - UI・データ構造両方対応
+
+### 📋 次回開始時のタスク（優先度順）
+
+#### 【高優先度】Firebase連携 
+1. **Firebase プロジェクト作成・設定**
+   - Firebase Authentication セットアップ
+   - Cloud Firestore データベース設計
+   - Firebase SDK 導入・設定
+
+2. **基本データモデル実装**
+   - users コレクション（ユーザー情報・言語設定）
+   - tasks コレクション（多言語お題データ）
+   - daily_task_history コレクション（善行履歴）
+
+3. **認証フロー実装**
+   - 匿名認証 or 簡易サインアップ
+   - ユーザー状態管理
+
+#### 【中優先度】Cloud Functions
+1. **毎日のお題選定ロジック**
+   - 日替わりお題自動選定
+   - ユーザー個別のお題管理
+   
+2. **グローバルカウンター集計**
+   - リアルタイム善行カウンター
+   - 日別・累計カウント
+
+#### 【低優先度】拡張機能
+1. **フォロー機能**
+   - 一方向フォロー実装
+   - 友達善行通知
+
+2. **履歴機能**
+   - カレンダー表示
+   - 過去のお題確認
+
+### 🛠 開発環境・コマンド
+
+#### アプリ起動
+```bash
+cd /home/yoshiori/src/github.com/yoshiori/ichizen/apps/mobile
+npx expo start --web  # Web版
+npx expo start        # モバイル版（QRコード）
+```
+
+#### テスト実行
+```bash
+npm test              # 全テスト実行
+npm run typecheck     # 型チェック
+```
+
+#### Git状態
+- **最新コミット**: fc3c369 "Create fully functional demo app with integrated components"
+- **ブランチ**: main
+- **未追跡ファイル**: node_modules/, package-lock.json
+
+### 🗂 重要なファイルパス
+```
+apps/mobile/
+├── src/
+│   ├── components/      # 実装済みコンポーネント
+│   ├── screens/         # MainScreen
+│   ├── data/           # サンプルタスクデータ
+│   ├── i18n/           # 多言語設定
+│   └── types/          # TypeScript型定義
+├── __tests__/          # テストファイル（20個）
+└── App.tsx            # エントリーポイント
+```
+
+---
