@@ -28,7 +28,18 @@
       "Bash(npx playwright:*)",
       "WebFetch(domain:docs.anthropic.com)",
       "Bash(echo $SHELL)",
-      "Bash(direnv allow:*)"
+      "Bash(direnv allow:*)",
+      "Bash(firebase login:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(npm run seed:*)",
+      "Bash(firebase emulators:start:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(npm run web:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(firebase auth:import:*)",
+      "Bash(firebase firestore:databases:list:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

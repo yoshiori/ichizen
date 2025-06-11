@@ -26,15 +26,15 @@ jobs:
           cache: 'npm'
       
       - name: Install root dependencies
-        run: npm ci
+        run: npm install
       
       - name: Install mobile app dependencies
         working-directory: ./apps/mobile
-        run: npm ci
+        run: npm install
       
       - name: Install Functions dependencies
         working-directory: ./functions
-        run: npm ci
+        run: npm install
       
       - name: Setup Firebase CLI
         run: npm install -g firebase-tools
@@ -90,7 +90,7 @@ jobs:
       
       - name: Install dependencies
         working-directory: ./apps/mobile
-        run: npm ci
+        run: npm install
       
       - name: Build mobile app
         working-directory: ./apps/mobile
@@ -99,7 +99,7 @@ jobs:
       - name: Build Functions
         working-directory: ./functions
         run: |
-          npm ci
+          npm install
           npm run build
 
   security:
