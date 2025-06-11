@@ -1,0 +1,29 @@
+{
+  "common": {
+    "done": "DONE!",
+    "loading": "Loading...",
+    "refresh": "Change",
+    "today": "Today"
+  },
+  "categories": {
+    "relationships": "Relationships",
+    "environment": "Environment",
+    "selfcare": "Self Care",
+    "community": "Community",
+    "kindness": "Kindness"
+  },
+  "feedback": {
+    "celebration": "Well done!",
+    "impact": "Your action has brought a little smile to the world.",
+    "worldConnection": "Small acts of kindness are the beginning of great change."
+  },
+  "counter": {
+    "totalTitle": "Global Good Deeds",
+    "todayTitle": "Today's Good Deeds",
+    "loading": "Counting..."
+  },
+  "task": {
+    "refreshUsed": "Daily refresh has been used",
+    "refreshAvailable": "You can change once per day"
+  }
+}
