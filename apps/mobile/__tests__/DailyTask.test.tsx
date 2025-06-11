@@ -8,7 +8,10 @@ const mockTask = {
     ja: 'ありがとうを言う',
     en: 'Say thank you'
   },
-  category: 'relationships',
+  category: {
+    ja: '人間関係',
+    en: 'Relationships'
+  },
   icon: '💝'
 };
 

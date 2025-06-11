@@ -1,4 +1,4 @@
-import { Task } from '../types';
+import { Task } from '../types/firebase';
 
 export const sampleTasks: Task[] = [
   {
@@ -7,7 +7,10 @@ export const sampleTasks: Task[] = [
       ja: 'ありがとうを言う',
       en: 'Say thank you'
     },
-    category: 'relationships',
+    category: {
+      ja: '人間関係',
+      en: 'Relationships'
+    },
     icon: '💝'
   },
   {
@@ -16,7 +19,10 @@ export const sampleTasks: Task[] = [
       ja: 'ゴミを一個拾う',
       en: 'Pick up one piece of trash'
     },
-    category: 'environment',
+    category: {
+      ja: '環境',
+      en: 'Environment'
+    },
     icon: '🌱'
   },
   {
@@ -25,7 +31,10 @@ export const sampleTasks: Task[] = [
       ja: '机を掃除する',
       en: 'Clean your desk'
     },
-    category: 'selfcare',
+    category: {
+      ja: 'セルフケア',
+      en: 'Self Care'
+    },
     icon: '✨'
   },
   {
@@ -34,7 +43,10 @@ export const sampleTasks: Task[] = [
       ja: '近所の人に挨拶をする',
       en: 'Greet your neighbors'
     },
-    category: 'community',
+    category: {
+      ja: 'コミュニティ',
+      en: 'Community'
+    },
     icon: '👋'
   },
   {
@@ -43,7 +55,10 @@ export const sampleTasks: Task[] = [
       ja: '誰かの手伝いをする',
       en: 'Help someone'
     },
-    category: 'kindness',
+    category: {
+      ja: '親切',
+      en: 'Kindness'
+    },
     icon: '🤝'
   },
   {
@@ -52,7 +67,10 @@ export const sampleTasks: Task[] = [
       ja: '深呼吸を3回する',
       en: 'Take 3 deep breaths'
     },
-    category: 'selfcare',
+    category: {
+      ja: 'セルフケア',
+      en: 'Self Care'
+    },
     icon: '🧘‍♀️'
   },
   {
@@ -61,7 +79,10 @@ export const sampleTasks: Task[] = [
       ja: '植物に水をあげる',
       en: 'Water a plant'
     },
-    category: 'environment',
+    category: {
+      ja: '環境',
+      en: 'Environment'
+    },
     icon: '🪴'
   },
   {
@@ -70,7 +91,10 @@ export const sampleTasks: Task[] = [
       ja: '笑顔で過ごす',
       en: 'Smile more today'
     },
-    category: 'kindness',
+    category: {
+      ja: '親切',
+      en: 'Kindness'
+    },
     icon: '😊'
   }
 ];

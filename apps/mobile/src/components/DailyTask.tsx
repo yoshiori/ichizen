@@ -7,7 +7,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Task, Language } from '../types';
+import { Task } from '../types/firebase';
+import { Language } from '../types';
 
 interface DailyTaskProps {
   task: Task;
@@ -33,7 +34,7 @@ export const DailyTask: React.FC<DailyTaskProps> = ({
   };
 
   const getCategoryLabel = (category: Task['category']) => {
-    return t(`categories.${category}`);
+    return category[language];
   };
 
   return (

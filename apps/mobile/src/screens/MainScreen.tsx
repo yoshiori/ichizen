@@ -14,13 +14,22 @@ import { DailyTask } from '../components/DailyTask';
 import { DoneButton } from '../components/DoneButton';
 import { DoneFeedback } from '../components/DoneFeedback';
 import { GlobalCounter } from '../components/GlobalCounter';
-import { Task, Language } from '../types';
+import { Task } from '../types/firebase';
+import { Language } from '../types';
 import { sampleTasks } from '../data/sampleTasks';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  addDailyTaskHistory, 
+  getUserTaskHistory,
+  getGlobalCounter,
+  incrementGlobalCounter 
+} from '../services/firestore';
 
 const { height } = Dimensions.get('window');
 
 export const MainScreen: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { user, firebaseUser, loading: authLoading, signIn } = useAuth();
   const [currentTask, setCurrentTask] = useState<Task>(sampleTasks[0]);
   const [refreshUsed, setRefreshUsed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,20 +40,39 @@ export const MainScreen: React.FC = () => {
     todayCount: 1246
   });
 
-  const currentLanguage = i18n.language as Language;
+  const currentLanguage = (user?.language || i18n.language) as Language;
 
   useEffect(() => {
-    // Reset daily state (simulate new day)
-    const resetDailyState = () => {
-      setRefreshUsed(false);
-      setIsCompleted(false);
-      // Pick random task for the day
-      const randomIndex = Math.floor(Math.random() * sampleTasks.length);
-      setCurrentTask(sampleTasks[randomIndex]);
+    const initializeApp = async () => {
+      try {
+        // Load global counter
+        const counter = await getGlobalCounter();
+        if (counter) {
+          setGlobalCounters({
+            totalCount: counter.totalCompleted,
+            todayCount: counter.todayCompleted
+          });
+        }
+
+        // Check if user completed today's task
+        if (user) {
+          const today = new Date().toISOString().split('T')[0];
+          const todayHistory = await getUserTaskHistory(user.id, today);
+          setIsCompleted(!!todayHistory);
+        }
+
+        // Pick random task for the day
+        const randomIndex = Math.floor(Math.random() * sampleTasks.length);
+        setCurrentTask(sampleTasks[randomIndex]);
+      } catch (error) {
+        console.error('Initialization error:', error);
+      }
     };
 
-    resetDailyState();
-  }, []);
+    if (user) {
+      initializeApp();
+    }
+  }, [user]);
 
   const handleRefreshTask = () => {
     if (!refreshUsed) {
@@ -56,26 +84,75 @@ export const MainScreen: React.FC = () => {
     }
   };
 
-  const handleDonePress = () => {
+  const handleDonePress = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     
-    // Simulate network request
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Add task history
+      await addDailyTaskHistory({
+        userId: user.id,
+        taskId: currentTask.id,
+        completedAt: new Date(),
+        date: today
+      });
+
+      // Update global counter
+      await incrementGlobalCounter();
+
+      // Load updated counter
+      const counter = await getGlobalCounter();
+      if (counter) {
+        setGlobalCounters({
+          totalCount: counter.totalCompleted,
+          todayCount: counter.todayCompleted
+        });
+      }
+
       setIsCompleted(true);
       setShowFeedback(true);
       
-      // Update counters
-      setGlobalCounters(prev => ({
-        totalCount: prev.totalCount + 1,
-        todayCount: prev.todayCount + 1
-      }));
-    }, 1500);
+    } catch (error) {
+      console.error('Done press error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFeedbackComplete = () => {
     setShowFeedback(false);
   };
+
+  // Show loading screen while authenticating
+  if (authLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Show sign in button if no user
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.authContainer}>
+          <Text style={styles.title}>今日の小さな善行</Text>
+          <Text style={styles.subtitle}>Today's Small Good Deed</Text>
+          <DoneButton
+            onPress={signIn}
+            loading={isLoading}
+            disabled={false}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -191,5 +268,20 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 18,
+    color: '#666',
+  },
+  authContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 });
