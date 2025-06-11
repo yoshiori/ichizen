@@ -22,8 +22,10 @@ export interface DailyTaskHistory {
   id: string;
   userId: string;
   taskId: string;
-  completedAt: Date;
   date: string; // YYYY-MM-DD format
+  completed: boolean;
+  selectedAt: Date;
+  completedAt?: Date;
 }
 
 export interface GlobalCounter {

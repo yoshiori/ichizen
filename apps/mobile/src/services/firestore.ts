@@ -68,6 +68,18 @@ export const getUserTaskHistoryRange = async (userId: string, startDate: string,
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyTaskHistory));
 };
 
+export const getUserTaskHistoryWithTasks = async (userId: string, startDate: string, endDate: string): Promise<(DailyTaskHistory & { task?: Task })[]> => {
+  const history = await getUserTaskHistoryRange(userId, startDate, endDate);
+  
+  // タスクの詳細情報を並行取得
+  const tasksPromises = history.map(async (historyItem) => {
+    const task = await getTask(historyItem.taskId);
+    return { ...historyItem, task: task || undefined };
+  });
+  
+  return Promise.all(tasksPromises);
+};
+
 // Global counter
 export const getGlobalCounter = async (): Promise<GlobalCounter | null> => {
   const counterDoc = await getDoc(doc(db, 'global', 'counter'));

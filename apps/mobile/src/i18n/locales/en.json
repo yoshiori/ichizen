@@ -25,5 +25,15 @@
   "task": {
     "refreshUsed": "Daily refresh has been used",
     "refreshAvailable": "You can change once per day"
+  },
+  "history": {
+    "title": "Your Good Deeds History",
+    "loading": "Loading history...",
+    "completed": "Completed",
+    "incomplete": "Incomplete",
+    "completedAt": "Completed at",
+    "monthlyStats": "Monthly Statistics",
+    "total": "Total",
+    "completionRate": "Completion Rate"
   }
 }

@@ -1,12 +1,12 @@
 import React from 'react';
 import './src/i18n';
 import { AuthProvider } from './src/contexts/AuthContext';
-import { MainScreen } from './src/screens/MainScreen';
+import { TabNavigation } from './src/components/TabNavigation';
 
 export default function App() {
   return (
     <AuthProvider>
-      <MainScreen />
+      <TabNavigation />
     </AuthProvider>
   );
 }
