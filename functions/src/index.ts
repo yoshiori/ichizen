@@ -196,6 +196,9 @@ export const completeTask = onCall({
       completed: true,
       completedAt: admin.firestore.FieldValue.serverTimestamp()
     });
+
+    // フォロワーに通知を送信
+    await sendFollowerNotifications(userId);
     
     return {
       success: true,
@@ -207,3 +210,92 @@ export const completeTask = onCall({
     throw error;
   }
 });
+
+/**
+ * フォロワーに通知を送信する関数
+ */
+async function sendFollowerNotifications(userId: string) {
+  try {
+    // ユーザー情報を取得
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      console.log('User not found:', userId);
+      return;
+    }
+
+    const userData = userDoc.data();
+    const userLanguage = userData?.language || 'ja';
+
+    // このユーザーをフォローしているユーザーを取得
+    const followersSnapshot = await db.collection('follows')
+      .where('followingId', '==', userId)
+      .get();
+
+    if (followersSnapshot.empty) {
+      console.log('No followers found for user:', userId);
+      return;
+    }
+
+    // フォロワーのFCMトークンとユーザー情報を取得
+    const followers = [];
+    for (const doc of followersSnapshot.docs) {
+      const followerId = doc.data().followerId;
+      const followerDoc = await db.collection('users').doc(followerId).get();
+      
+      if (followerDoc.exists && followerDoc.data()?.fcmToken) {
+        followers.push({
+          id: followerId,
+          fcmToken: followerDoc.data()?.fcmToken,
+          language: followerDoc.data()?.language || 'ja'
+        });
+      }
+    }
+
+    if (followers.length === 0) {
+      console.log('No followers with FCM tokens found');
+      return;
+    }
+
+    // 通知メッセージの多言語対応
+    const notificationMessages = {
+      ja: {
+        title: '🌟 善行達成！',
+        body: `お疲れさまでした！今日の小さな善行を達成しました。`
+      },
+      en: {
+        title: '🌟 Good Deed Completed!',
+        body: `Well done! A good deed has been completed today.`
+      }
+    };
+
+    // 各フォロワーに通知を送信
+    const promises = followers.map(async (follower) => {
+      const message = notificationMessages[follower.language as keyof typeof notificationMessages] || notificationMessages.ja;
+      
+      try {
+        await admin.messaging().send({
+          token: follower.fcmToken,
+          notification: {
+            title: message.title,
+            body: message.body
+          },
+          data: {
+            type: 'task_completed',
+            userId: userId,
+            timestamp: new Date().toISOString()
+          }
+        });
+        
+        console.log(`Notification sent to follower: ${follower.id}`);
+      } catch (error) {
+        console.error(`Failed to send notification to ${follower.id}:`, error);
+      }
+    });
+
+    await Promise.all(promises);
+    console.log(`Notifications sent to ${followers.length} followers`);
+
+  } catch (error) {
+    console.error('Error sending follower notifications:', error);
+  }
+}
