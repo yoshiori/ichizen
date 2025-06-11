@@ -3,7 +3,32 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx create-expo-app:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "Bash(npm start)",
+      "Bash(npx expo install:*)",
+      "Bash(npx expo start:*)",
+      "Bash(gh:*)",
+      "Bash(git push:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npx firebase:*)",
+      "Bash(nvm:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(rm:*)",
+      "Bash(pkill:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx playwright:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(echo $SHELL)",
+      "Bash(direnv allow:*)"
     ],
     "deny": []
   }
