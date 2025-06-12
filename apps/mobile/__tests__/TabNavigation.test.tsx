@@ -5,23 +5,26 @@ import '../src/i18n/test';
 
 // Mock the screen components
 jest.mock('../src/screens/MainScreen', () => {
+  const React = require('react');
   const { Text } = require('react-native');
   return {
-    MainScreen: () => Text({ testID: 'main-screen', children: 'MainScreen' })
+    MainScreen: () => React.createElement(Text, { testID: 'main-screen' }, 'MainScreen')
   };
 });
 
 jest.mock('../src/screens/HistoryScreen', () => {
+  const React = require('react');
   const { Text } = require('react-native');
   return {
-    HistoryScreen: () => Text({ testID: 'history-screen', children: 'HistoryScreen' })
+    HistoryScreen: () => React.createElement(Text, { testID: 'history-screen' }, 'HistoryScreen')
   };
 });
 
 jest.mock('../src/screens/FollowScreen', () => {
+  const React = require('react');
   const { Text } = require('react-native');
   return {
-    FollowScreen: () => Text({ testID: 'follow-screen', children: 'FollowScreen' })
+    FollowScreen: () => React.createElement(Text, { testID: 'follow-screen' }, 'FollowScreen')
   };
 });
 
@@ -53,7 +56,7 @@ describe('TabNavigation', () => {
 
     // Check tab titles
     expect(getByText('今日')).toBeTruthy();
-    expect(getByText('履歴')).toBeTruthy();
+    expect(getByText('あなたの善行履歴')).toBeTruthy();
     expect(getByText('フォロー')).toBeTruthy();
 
     // Check tab icons
@@ -71,7 +74,7 @@ describe('TabNavigation', () => {
   it('should switch to history screen when history tab is pressed', () => {
     const { getByText, getByTestId, queryByTestId } = render(<TabNavigation />);
 
-    const historyTab = getByText('履歴');
+    const historyTab = getByText('あなたの善行履歴');
     fireEvent.press(historyTab);
 
     expect(getByTestId('history-screen')).toBeTruthy();
@@ -94,7 +97,7 @@ describe('TabNavigation', () => {
     const { getByText, getByTestId, queryByTestId } = render(<TabNavigation />);
 
     // Switch to history first
-    const historyTab = getByText('履歴');
+    const historyTab = getByText('あなたの善行履歴');
     fireEvent.press(historyTab);
     expect(getByTestId('history-screen')).toBeTruthy();
 
@@ -135,7 +138,7 @@ describe('TabNavigation', () => {
     const { getByText } = render(<TabNavigation />);
 
     // History tab should be inactive by default
-    const historyTab = getByText('履歴');
+    const historyTab = getByText('あなたの善行履歴');
     const historyIcon = getByText('📊');
     
     // Check if inactive styles are applied
@@ -159,7 +162,7 @@ describe('TabNavigation', () => {
     const { getByText } = render(<TabNavigation />);
 
     // Switch to history tab
-    const historyTab = getByText('履歴');
+    const historyTab = getByText('あなたの善行履歴');
     fireEvent.press(historyTab);
 
     // History tab should now be active
@@ -205,7 +208,7 @@ describe('TabNavigation', () => {
     expect(getByTestId('main-screen')).toBeTruthy();
 
     // Switch to history
-    fireEvent.press(getByText('履歴'));
+    fireEvent.press(getByText('あなたの善行履歴'));
     expect(getByTestId('history-screen')).toBeTruthy();
 
     // Switch to follow
@@ -229,7 +232,7 @@ describe('TabNavigation', () => {
     
     // The component should render without crashing and show the expected content
     expect(getByText('今日')).toBeTruthy();
-    expect(getByText('履歴')).toBeTruthy();
+    expect(getByText('あなたの善行履歴')).toBeTruthy();
     expect(getByText('フォロー')).toBeTruthy();
   });
 
@@ -237,7 +240,7 @@ describe('TabNavigation', () => {
     const { getByText, getByTestId, rerender } = render(<TabNavigation />);
 
     // Switch to history tab
-    fireEvent.press(getByText('履歴'));
+    fireEvent.press(getByText('あなたの善行履歴'));
     expect(getByTestId('history-screen')).toBeTruthy();
 
     // Re-render component

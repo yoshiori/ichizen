@@ -97,7 +97,7 @@ const mockDocSnapshot = (exists: boolean, data?: any, id: string = 'test-id') =>
 const mockQuerySnapshot = (docs: any[]) => ({
   empty: docs.length === 0,
   docs: docs.map((doc, index) => ({
-    id: `test-id-${index}`,
+    id: doc.id || `test-id-${index}`,
     data: () => doc,
     ref: {}
   }))
@@ -173,7 +173,7 @@ describe('Firestore Service', () => {
 
       expect(mockCollection).toHaveBeenCalledWith(db, 'tasks');
       expect(mockGetDocs).toHaveBeenCalled();
-      expect(result).toEqual([{ ...mockTask, id: 'test-id-0' }]);
+      expect(result).toEqual([{ ...mockTask, id: mockTask.id }]);
     });
 
     it('should get single task', async () => {
@@ -221,7 +221,7 @@ describe('Firestore Service', () => {
       expect(mockWhere).toHaveBeenCalledWith('userId', '==', 'test-user-id');
       expect(mockWhere).toHaveBeenCalledWith('date', '==', '2023-01-01');
       expect(mockLimit).toHaveBeenCalledWith(1);
-      expect(result).toEqual({ ...mockDailyTaskHistory, id: 'test-id-0' });
+      expect(result).toEqual({ ...mockDailyTaskHistory, id: mockDailyTaskHistory.id });
     });
 
     it('should return null when no history found', async () => {
@@ -241,7 +241,7 @@ describe('Firestore Service', () => {
       expect(mockWhere).toHaveBeenCalledWith('date', '>=', '2023-01-01');
       expect(mockWhere).toHaveBeenCalledWith('date', '<=', '2023-01-31');
       expect(mockOrderBy).toHaveBeenCalledWith('date', 'desc');
-      expect(result).toEqual([{ ...mockDailyTaskHistory, id: 'test-id-0' }]);
+      expect(result).toEqual([{ ...mockDailyTaskHistory, id: mockDailyTaskHistory.id }]);
     });
 
     it('should get user task history with task details', async () => {
@@ -256,7 +256,7 @@ describe('Firestore Service', () => {
       expect(result).toEqual([
         {
           ...mockDailyTaskHistory,
-          id: 'test-id-0',
+          id: mockDailyTaskHistory.id,
           task: { ...mockTask, id: 'test-task-id' }
         }
       ]);
@@ -366,24 +366,24 @@ describe('Firestore Service', () => {
     });
 
     it('should get following list', async () => {
-      const followData = { followerId: 'user-id', followingId: 'other-id' };
+      const followData = { id: 'follow-1', followerId: 'user-id', followingId: 'other-id' };
       mockGetDocs.mockResolvedValue(mockQuerySnapshot([followData]) as any);
 
       const result = await getFollowing('user-id');
 
       expect(mockWhere).toHaveBeenCalledWith('followerId', '==', 'user-id');
       expect(mockOrderBy).toHaveBeenCalledWith('createdAt', 'desc');
-      expect(result).toEqual([{ ...followData, id: 'test-id-0' }]);
+      expect(result).toEqual([{ ...followData, id: followData.id }]);
     });
 
     it('should get followers list', async () => {
-      const followData = { followerId: 'other-id', followingId: 'user-id' };
+      const followData = { id: 'follow-2', followerId: 'other-id', followingId: 'user-id' };
       mockGetDocs.mockResolvedValue(mockQuerySnapshot([followData]) as any);
 
       const result = await getFollowers('user-id');
 
       expect(mockWhere).toHaveBeenCalledWith('followingId', '==', 'user-id');
-      expect(result).toEqual([{ ...followData, id: 'test-id-0' }]);
+      expect(result).toEqual([{ ...followData, id: followData.id }]);
     });
 
     it('should check if following - true', async () => {
