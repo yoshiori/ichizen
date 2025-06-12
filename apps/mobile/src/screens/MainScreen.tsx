@@ -47,9 +47,18 @@ export const MainScreen: React.FC = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
+      console.log('🚀 Initializing app...', {
+        environment: __DEV__ ? 'development' : 'production',
+        user: firebaseUser?.uid,
+        hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
+      });
+      
       try {
         // Load global counter
+        console.log('📊 Loading global counter...');
         const counter = await getGlobalCounter();
+        console.log('📊 Global counter loaded:', counter);
+        
         if (counter) {
           setGlobalCounters({
             totalCount: counter.totalCompleted,
@@ -60,11 +69,13 @@ export const MainScreen: React.FC = () => {
         // Get today's task using Cloud Functions
         if (firebaseUser) {
           try {
+            console.log('📡 Getting today task from Cloud Functions...');
             const todayTaskData = await getTodayTask();
+            console.log('✅ Today task loaded:', todayTaskData);
             setCurrentTask(todayTaskData.task);
             setIsCompleted(todayTaskData.completed);
           } catch (error) {
-            console.error('Error getting today task:', error);
+            console.error('❌ Error getting today task:', error);
             // Fallback to sample task
             const randomIndex = Math.floor(Math.random() * sampleTasks.length);
             setCurrentTask(sampleTasks[randomIndex]);
@@ -76,9 +87,11 @@ export const MainScreen: React.FC = () => {
         }
         
         // Test Firestore connection
+        console.log('🔥 Testing Firestore connection...');
         await testFirestoreConnection();
+        console.log('✅ Firestore connection test completed');
       } catch (error) {
-        console.error('Initialization error:', error);
+        console.error('❌ Initialization error:', error);
       }
     };
 
@@ -98,14 +111,24 @@ export const MainScreen: React.FC = () => {
   const handleDonePress = async () => {
     if (!firebaseUser) return;
     
+    console.log('🚀 Starting task completion...', {
+      user: firebaseUser.uid,
+      environment: __DEV__ ? 'development' : 'production'
+    });
+    
     setIsLoading(true);
     
     try {
       // Complete task using Cloud Functions
-      await completeTask();
+      console.log('📡 Calling completeTask Cloud Function...');
+      const result = await completeTask();
+      console.log('✅ completeTask result:', result);
 
       // Load updated counter
+      console.log('📊 Loading global counter...');
       const counter = await getGlobalCounter();
+      console.log('📊 Global counter:', counter);
+      
       if (counter) {
         setGlobalCounters({
           totalCount: counter.totalCompleted,
@@ -117,7 +140,9 @@ export const MainScreen: React.FC = () => {
       setShowFeedback(true);
       
     } catch (error) {
-      console.error('Done press error:', error);
+      console.error('❌ Done press error:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Error: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }

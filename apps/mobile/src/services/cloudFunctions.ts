@@ -7,22 +7,37 @@ import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/
 import { app } from '../config/firebase';
 import { Task } from '../types/firebase';
 
-const functions = getFunctions(app, 'asia-northeast1');
+// 関数インスタンスを遅延初期化
+let functions: ReturnType<typeof getFunctions> | null = null;
 
-// 開発環境でエミュレータに接続
-if (__DEV__) {
-  try {
-    connectFunctionsEmulator(functions, 'localhost', 5001);
-  } catch (error) {
-    console.log('Functions emulator already connected:', error);
+const getFunctionsInstance = () => {
+  if (!functions) {
+    functions = getFunctions(app, 'asia-northeast1');
+    
+    // 開発環境でエミュレータに接続（Web上のlocalhostでのみ）
+    const USE_EMULATOR = __DEV__ && (typeof window !== 'undefined' && window.location.hostname === 'localhost');
+    
+    if (USE_EMULATOR) {
+      try {
+        connectFunctionsEmulator(functions, 'localhost', 5001);
+        console.log('🔧 Connected to Cloud Functions emulator (port 5001)');
+      } catch (error) {
+        console.log('Functions emulator already connected:', error);
+      }
+    } else {
+      console.log('🚀 Connected to production Cloud Functions (asia-northeast1)');
+    }
   }
-}
+  return functions;
+};
 
 // Cloud Functions の型定義
 interface GetTodayTaskResponse {
-  task: Task;
+  task: Task & { id: string };
   completed: boolean;
   selectedAt: Date;
+  simplified?: boolean;
+  historyId?: string;
 }
 
 interface CompleteTaskResponse {
@@ -34,8 +49,9 @@ interface CompleteTaskResponse {
  * 今日のお題を取得
  */
 export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
+  const functionsInstance = getFunctionsInstance();
   const getTodayTaskFunction = httpsCallable<void, GetTodayTaskResponse>(
-    functions, 
+    functionsInstance, 
     'getTodayTask'
   );
   
@@ -52,8 +68,9 @@ export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
  * タスクを完了状態にする
  */
 export const completeTask = async (): Promise<CompleteTaskResponse> => {
+  const functionsInstance = getFunctionsInstance();
   const completeTaskFunction = httpsCallable<void, CompleteTaskResponse>(
-    functions,
+    functionsInstance,
     'completeTask'
   );
   

@@ -17,18 +17,24 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Connect to emulators in development (check if running on localhost)
-if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+// Connect to emulators in development
+// Use Firestore emulator on port 8081 (updated from 8080)
+const USE_EMULATOR = __DEV__ && (typeof window !== 'undefined' && window.location.hostname === 'localhost');
+
+if (USE_EMULATOR) {
   try {
     import('firebase/auth').then(({ connectAuthEmulator }) => {
       connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
     });
     import('firebase/firestore').then(({ connectFirestoreEmulator }) => {
-      connectFirestoreEmulator(db, 'localhost', 8080);
+      connectFirestoreEmulator(db, 'localhost', 8081);
     });
+    console.log('🔧 Connected to Firebase emulators (Auth: 9099, Firestore: 8081)');
   } catch (error) {
     console.log('Emulator connection:', error);
   }
+} else {
+  console.log('🚀 Connected to production Firebase (Project: ichizen-daily-good-deeds)');
 }
 
 export { app };

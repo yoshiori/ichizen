@@ -17,7 +17,7 @@ service cloud.firestore {
     }
     
     // Global counter is readable by all authenticated users
-    match /global/{document=**} {
+    match /global_counters/{counterId} {
       allow read: if request.auth != null;
       allow write: if false; // Only Cloud Functions can write to global counters
     }
