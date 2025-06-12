@@ -202,7 +202,7 @@ export const FollowScreen: React.FC = () => {
             disabled={!followingId.trim() || loading}
           >
             {loading ? (
-              <ActivityIndicator color="#ffffff" size="small" />
+              <ActivityIndicator color="#ffffff" size="small" testID="activity-indicator" />
             ) : (
               <Text style={styles.buttonText}>
                 {t('follow.follow', 'フォローする')}

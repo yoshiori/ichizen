@@ -22,16 +22,18 @@ describe('DoneFeedback', () => {
     expect(getByTestId('celebration-animation')).toBeTruthy();
   });
 
-  it.skip('should call onComplete when animation finishes', (done) => {
-    // TODO: Animation completion callback test - mocked Animated environment doesn't trigger actual callbacks
-    const mockOnComplete = jest.fn(() => done());
+  it.skip('should call onComplete when animation finishes', () => {
+    // TODO: Animation completion callback test - complex Animated mocking required
+    // The onComplete callback is triggered by Animated.parallel().start() callback,
+    // which requires sophisticated mocking of React Native's Animated API
+    jest.useFakeTimers();
+    const mockOnComplete = jest.fn();
     
     render(<DoneFeedback visible={true} onComplete={mockOnComplete} />);
     
-    // Animation should complete after a delay
-    setTimeout(() => {
-      expect(mockOnComplete).toHaveBeenCalledTimes(1);
-      done();
-    }, 3000);
+    jest.advanceTimersByTime(2500);
+    expect(mockOnComplete).toHaveBeenCalledTimes(1);
+    
+    jest.useRealTimers();
   });
 });
