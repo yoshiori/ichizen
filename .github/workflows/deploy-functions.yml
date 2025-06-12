@@ -81,25 +81,36 @@ jobs:
 
     - name: Authenticate to Firebase
       env:
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
-        WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+        FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       run: |
-        # Check if Workload Identity Federation is configured
-        if [ -n "$WIF_PROVIDER" ] && [ -n "$WIF_SERVICE_ACCOUNT" ]; then
-          echo "🔐 Using Workload Identity Federation for authentication"
-          # This would normally be done by google-github-actions/auth, but we're simplifying
-          echo "❌ WIF is not yet configured. Please use service account key."
+        # Debug: Check if secret exists
+        if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+          echo "❌ FIREBASE_SERVICE_ACCOUNT secret is empty or not set"
+          echo "Available secrets check:"
+          echo "Length of FIREBASE_SERVICE_ACCOUNT: ${#FIREBASE_SERVICE_ACCOUNT}"
           exit 1
-        elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-          echo "🔐 Using service account key for authentication"
-          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
+        fi
+        
+        echo "🔐 Using service account key for authentication"
+        echo "✅ FIREBASE_SERVICE_ACCOUNT secret found (length: ${#FIREBASE_SERVICE_ACCOUNT})"
+        
+        # Create service account key file
+        echo "$FIREBASE_SERVICE_ACCOUNT" > "$HOME/gcloud-service-key.json"
+        export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
+        
+        # Verify the file was created properly
+        if [ -f "$HOME/gcloud-service-key.json" ]; then
+          echo "✅ Service account key file created successfully"
+          # Check if it's valid JSON
+          if jq . "$HOME/gcloud-service-key.json" > /dev/null 2>&1; then
+            echo "✅ Service account key is valid JSON"
+          else
+            echo "❌ Service account key is not valid JSON"
+            exit 1
+          fi
         else
-          echo "❌ No authentication method available. Please set up either:"
-          echo "   1. Workload Identity Federation (WIF_PROVIDER and WIF_SERVICE_ACCOUNT secrets)"
-          echo "   2. Service Account Key (FIREBASE_SERVICE_ACCOUNT secret)"
+          echo "❌ Failed to create service account key file"
           exit 1
         fi
 
