@@ -35,9 +35,12 @@ const mockFirebaseUser = {
 const mockUser = {
   id: 'test-user-id',
   createdAt: new Date(),
-  language: 'ja',
-  timezone: 'Asia/Tokyo',
+  language: 'ja' as const,
   fcmToken: 'test-fcm-token'
+} as any;
+
+const mockAuthResult = {
+  user: mockFirebaseUser
 } as any;
 
 describe('AuthContext', () => {
@@ -47,11 +50,11 @@ describe('AuthContext', () => {
     // Default mock implementations
     mockAuthService.onAuthStateChange.mockImplementation((callback) => {
       // Initially no user
-      callback(null);
+      setTimeout(() => callback(null), 0);
       return jest.fn(); // unsubscribe function
     });
     
-    mockMessagingService.setupBackgroundMessageListener.mockResolvedValue(undefined);
+    mockMessagingService.setupBackgroundMessageListener.mockReturnValue(undefined);
     mockMessagingService.requestNotificationPermission.mockResolvedValue('test-fcm-token');
     mockMessagingService.setupTokenRefreshListener.mockReturnValue(jest.fn());
     mockMessagingService.setupForegroundMessageListener.mockReturnValue(jest.fn());
@@ -197,13 +200,13 @@ describe('AuthContext', () => {
   });
 
   it('should call signInAnonymous when signIn is called', async () => {
-    mockAuthService.signInAnonymous.mockResolvedValue(undefined);
+    mockAuthService.signInAnonymous.mockResolvedValue(mockAuthResult);
     
     const TestSignIn = () => {
       const { signIn } = useAuth();
       React.useEffect(() => {
         signIn();
-      }, []);
+      }, [signIn]);
       return <Text testID="sign-in">signing in</Text>;
     };
 
@@ -226,7 +229,7 @@ describe('AuthContext', () => {
       const { signIn } = useAuth();
       React.useEffect(() => {
         signIn();
-      }, []);
+      }, [signIn]);
       return <Text testID="sign-in">signing in</Text>;
     };
 

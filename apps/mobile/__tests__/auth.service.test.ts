@@ -46,7 +46,7 @@ const mockAuthResult = {
 
 const mockUser = {
   id: 'test-user-id',
-  language: 'ja',
+  language: 'ja' as const,
   createdAt: new Date('2023-01-01'),
   lastActiveAt: new Date('2023-01-01')
 };

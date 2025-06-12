@@ -54,7 +54,7 @@ const mockDeleteDoc = deleteDoc as jest.MockedFunction<typeof deleteDoc>;
 
 // Mock data
 const mockUserData = {
-  language: 'ja',
+  language: 'ja' as const,
   createdAt: new Date('2023-01-01'),
   lastActiveAt: new Date('2023-01-01')
 };
@@ -76,6 +76,8 @@ const mockDailyTaskHistory = {
   userId: 'test-user-id',
   taskId: 'test-task-id',
   date: '2023-01-01',
+  completed: true,
+  selectedAt: new Date('2023-01-01T09:00:00Z'),
   completedAt: new Date('2023-01-01T10:00:00Z')
 };
 
@@ -144,7 +146,7 @@ describe('Firestore Service', () => {
     });
 
     it('should update user', async () => {
-      const updates = { language: 'en' };
+      const updates = { language: 'en' as const };
       mockUpdateDoc.mockResolvedValue(undefined);
 
       await updateUser('test-user-id', updates);
@@ -171,7 +173,7 @@ describe('Firestore Service', () => {
 
       expect(mockCollection).toHaveBeenCalledWith(db, 'tasks');
       expect(mockGetDocs).toHaveBeenCalled();
-      expect(result).toEqual([{ id: 'test-id-0', ...mockTask }]);
+      expect(result).toEqual([{ ...mockTask, id: 'test-id-0' }]);
     });
 
     it('should get single task', async () => {
@@ -180,7 +182,7 @@ describe('Firestore Service', () => {
       const result = await getTask('test-task-id');
 
       expect(mockDoc).toHaveBeenCalledWith(db, 'tasks', 'test-task-id');
-      expect(result).toEqual({ id: 'test-task-id', ...mockTask });
+      expect(result).toEqual({ ...mockTask, id: 'test-task-id' });
     });
 
     it('should return null for non-existing task', async () => {
@@ -198,6 +200,8 @@ describe('Firestore Service', () => {
         userId: 'test-user-id',
         taskId: 'test-task-id',
         date: '2023-01-01',
+        completed: true,
+        selectedAt: new Date(),
         completedAt: new Date()
       };
       mockAddDoc.mockResolvedValue({} as any);
@@ -217,7 +221,7 @@ describe('Firestore Service', () => {
       expect(mockWhere).toHaveBeenCalledWith('userId', '==', 'test-user-id');
       expect(mockWhere).toHaveBeenCalledWith('date', '==', '2023-01-01');
       expect(mockLimit).toHaveBeenCalledWith(1);
-      expect(result).toEqual({ id: 'test-id-0', ...mockDailyTaskHistory });
+      expect(result).toEqual({ ...mockDailyTaskHistory, id: 'test-id-0' });
     });
 
     it('should return null when no history found', async () => {
@@ -237,7 +241,7 @@ describe('Firestore Service', () => {
       expect(mockWhere).toHaveBeenCalledWith('date', '>=', '2023-01-01');
       expect(mockWhere).toHaveBeenCalledWith('date', '<=', '2023-01-31');
       expect(mockOrderBy).toHaveBeenCalledWith('date', 'desc');
-      expect(result).toEqual([{ id: 'test-id-0', ...mockDailyTaskHistory }]);
+      expect(result).toEqual([{ ...mockDailyTaskHistory, id: 'test-id-0' }]);
     });
 
     it('should get user task history with task details', async () => {
@@ -251,9 +255,9 @@ describe('Firestore Service', () => {
 
       expect(result).toEqual([
         {
-          id: 'test-id-0',
           ...mockDailyTaskHistory,
-          task: { id: 'test-task-id', ...mockTask }
+          id: 'test-id-0',
+          task: { ...mockTask, id: 'test-task-id' }
         }
       ]);
     });
@@ -369,7 +373,7 @@ describe('Firestore Service', () => {
 
       expect(mockWhere).toHaveBeenCalledWith('followerId', '==', 'user-id');
       expect(mockOrderBy).toHaveBeenCalledWith('createdAt', 'desc');
-      expect(result).toEqual([{ id: 'test-id-0', ...followData }]);
+      expect(result).toEqual([{ ...followData, id: 'test-id-0' }]);
     });
 
     it('should get followers list', async () => {
@@ -379,7 +383,7 @@ describe('Firestore Service', () => {
       const result = await getFollowers('user-id');
 
       expect(mockWhere).toHaveBeenCalledWith('followingId', '==', 'user-id');
-      expect(result).toEqual([{ id: 'test-id-0', ...followData }]);
+      expect(result).toEqual([{ ...followData, id: 'test-id-0' }]);
     });
 
     it('should check if following - true', async () => {

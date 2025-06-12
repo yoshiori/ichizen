@@ -19,7 +19,7 @@ const mockAlert = Alert.alert as jest.MockedFunction<typeof Alert.alert>;
 
 const mockUser = {
   id: 'test-user-id',
-  language: 'ja',
+  language: 'ja' as const,
   createdAt: new Date(),
   lastActiveAt: new Date()
 };
@@ -37,7 +37,7 @@ const mockFollowData = {
 
 const mockOtherUser = {
   id: 'other-user-id',
-  language: 'ja',
+  language: 'ja' as const,
   createdAt: new Date(),
   lastActiveAt: new Date()
 };

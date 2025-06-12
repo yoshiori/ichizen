@@ -222,7 +222,7 @@ describe('TabNavigation', () => {
   });
 
   it('should render tab bar with correct styling', () => {
-    const { getByTestId } = render(<TabNavigation />);
+    const { getByTestId, getByText } = render(<TabNavigation />);
 
     // Check if main container exists
     expect(getByTestId('main-screen')).toBeTruthy();

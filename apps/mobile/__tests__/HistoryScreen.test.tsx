@@ -14,7 +14,7 @@ const mockGetUserTaskHistoryWithTasks = getUserTaskHistoryWithTasks as jest.Mock
 
 const mockUser = {
   id: 'test-user-id',
-  language: 'ja',
+  language: 'ja' as const,
   createdAt: new Date(),
   lastActiveAt: new Date()
 };
@@ -36,6 +36,7 @@ const mockHistoryEntry = {
   taskId: 'test-task-id',
   date: '2023-01-15',
   completed: true,
+  selectedAt: new Date('2023-01-15T09:00:00Z'),
   completedAt: new Date('2023-01-15T10:00:00Z'),
   task: mockTask
 };
@@ -46,6 +47,7 @@ const mockHistoryIncomplete = {
   taskId: 'test-task-id-2',
   date: '2023-01-10',
   completed: false,
+  selectedAt: new Date('2023-01-10T09:00:00Z'),
   task: mockTask
 };
 
@@ -127,7 +129,7 @@ describe('HistoryScreen', () => {
 
   it('should display week day headers in English when user language is English', async () => {
     mockUseAuth.mockReturnValue({
-      user: { ...mockUser, language: 'en' },
+      user: { ...mockUser, language: 'en' as const },
       firebaseUser: mockFirebaseUser,
       loading: false,
       signIn: jest.fn()
@@ -331,7 +333,7 @@ describe('HistoryScreen', () => {
 
   it('should display task in English when user language is English', async () => {
     mockUseAuth.mockReturnValue({
-      user: { ...mockUser, language: 'en' },
+      user: { ...mockUser, language: 'en' as const },
       firebaseUser: mockFirebaseUser,
       loading: false,
       signIn: jest.fn()
