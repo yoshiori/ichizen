@@ -18,6 +18,7 @@ import {
   isFollowing, 
   getUser 
 } from '../services/firestore';
+import { formatDateByLanguage } from '../utils/dateFormat';
 import { Follow, User } from '../types/firebase';
 
 interface FollowingUser {
@@ -232,7 +233,7 @@ export const FollowScreen: React.FC = () => {
                   {followingUser && (
                     <Text style={styles.followDate}>
                       {t('follow.followedAt', 'フォロー開始')}: {
-                        new Date(follow.createdAt).toLocaleDateString()
+                        formatDateByLanguage(new Date(follow.createdAt), user?.language || 'ja')
                       }
                     </Text>
                   )}

@@ -87,8 +87,7 @@ describe('HistoryScreen', () => {
     expect(getByText('履歴を読み込み中...')).toBeTruthy();
   });
 
-  it.skip('should load history data on mount', async () => {
-    // TODO: Environment-specific date calculation - local and CI environments produce different results
+  it('should load history data on mount', async () => {
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryEntry]);
 
     render(<HistoryScreen />);
@@ -314,8 +313,7 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should reload history when month changes', async () => {
-    // TODO: Environment-specific date calculation - month boundary calculation differs between environments
+  it('should reload history when month changes', async () => {
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([]);
 
     const { getByText } = render(<HistoryScreen />);

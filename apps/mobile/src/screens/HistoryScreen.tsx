@@ -16,6 +16,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getUserTaskHistoryWithTasks } from '../services/firestore';
 import { DailyTaskHistory, Task } from '../types/firebase';
 import { Language } from '../types';
+import { getMonthBoundaries, formatMonthYearByLanguage } from '../utils/dateFormat';
 
 const { width } = Dimensions.get('window');
 
@@ -52,14 +53,10 @@ export const HistoryScreen: React.FC = () => {
     try {
       setLoading(true);
       
-      // 現在の月の履歴を取得
-      const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-      const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+      // Get month boundaries using consistent UTC calculation
+      const { start, end } = getMonthBoundaries(currentMonth);
       
-      const startDate = startOfMonth.toISOString().split('T')[0];
-      const endDate = endOfMonth.toISOString().split('T')[0];
-      
-      const historyData = await getUserTaskHistoryWithTasks(user.id, startDate, endDate);
+      const historyData = await getUserTaskHistoryWithTasks(user.id, start, end);
       setHistory(historyData);
       
     } catch (error) {
@@ -122,12 +119,6 @@ export const HistoryScreen: React.FC = () => {
     setSelectedDate(null);
   };
 
-  const formatMonthYear = (date: Date): string => {
-    return date.toLocaleDateString(currentLanguage === 'ja' ? 'ja-JP' : 'en-US', {
-      year: 'numeric',
-      month: 'long'
-    });
-  };
 
   const handleDayPress = (day: CalendarDay) => {
     if (day.hasTask) {
@@ -166,7 +157,7 @@ export const HistoryScreen: React.FC = () => {
           </TouchableOpacity>
           
           <Text style={styles.monthText}>
-            {formatMonthYear(currentMonth)}
+            {formatMonthYearByLanguage(currentMonth, currentLanguage)}
           </Text>
           
           <TouchableOpacity 
