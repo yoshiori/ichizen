@@ -6,9 +6,16 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 firebase-debug.*.log*
+firestore-debug.log*
+firebase-emulators*.log*
 
 # Firebase cache
 .firebase/
+
+# Firebase emulator data
+ui-debug.log
+firestore-debug.log
+functions-debug.log
 
 # Firebase config
 
