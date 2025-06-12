@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,17 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { GlobalCounterData, CounterUpdateData } from '../types';
+import { 
+  subscribeToGlobalCounter, 
+  unsubscribeFromGlobalCounter,
+  type Unsubscriber 
+} from '../services/globalCounterSubscription';
 
 interface GlobalCounterProps extends GlobalCounterData {
   style?: ViewStyle;
   animateChanges?: boolean;
   onCounterUpdate?: (data: CounterUpdateData) => void;
+  subscribeToUpdates?: boolean;
 }
 
 export const GlobalCounter: React.FC<GlobalCounterProps> = ({
@@ -21,6 +27,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   style,
   animateChanges = false,
   onCounterUpdate,
+  subscribeToUpdates = false,
 }) => {
   const { t } = useTranslation();
   const earthRotation = useRef(new Animated.Value(0)).current;
@@ -28,6 +35,8 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   const countAnim = useRef(new Animated.Value(0)).current;
   const [prevTotal, setPrevTotal] = React.useState(totalCount);
   const [prevToday, setPrevToday] = React.useState(todayCount);
+  const [firestoreData, setFirestoreData] = useState<{ totalCount?: number; todayCount?: number } | null>(null);
+  const unsubscriberRef = useRef<Unsubscriber | null>(null);
 
   useEffect(() => {
     // Earth rotation animation
@@ -56,9 +65,48 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     ).start();
   }, [earthRotation, pulseAnim]);
 
+  // Firestore subscription effect
+  useEffect(() => {
+    if (!subscribeToUpdates) return;
+
+    let unsubscriber: Unsubscriber | null = null;
+
+    try {
+      unsubscriber = subscribeToGlobalCounter((data) => {
+        setFirestoreData({
+          totalCount: data.totalCompleted,
+          todayCount: data.todayCompleted
+        });
+
+        // Call callback if provided
+        if (onCounterUpdate) {
+          onCounterUpdate({
+            total: data.totalCompleted,
+            today: data.todayCompleted
+          });
+        }
+      });
+
+      unsubscriberRef.current = unsubscriber;
+    } catch (error) {
+      console.error('Failed to subscribe to global counter updates:', error);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (unsubscriber) {
+        unsubscriber();
+      }
+      unsubscriberRef.current = null;
+    };
+  }, [subscribeToUpdates, onCounterUpdate]);
+
   // Handle counter changes with animation
   useEffect(() => {
-    if (animateChanges && (totalCount !== prevTotal || todayCount !== prevToday)) {
+    const currentTotal = displayTotalCount;
+    const currentToday = displayTodayCount;
+    
+    if (animateChanges && (currentTotal !== prevTotal || currentToday !== prevToday)) {
       // Trigger animation when values change
       Animated.sequence([
         Animated.timing(countAnim, {
@@ -74,15 +122,10 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       ]).start();
 
       // Update previous values
-      setPrevTotal(totalCount);
-      setPrevToday(todayCount);
-
-      // Call callback if provided
-      if (onCounterUpdate && totalCount !== undefined && todayCount !== undefined) {
-        onCounterUpdate({ total: totalCount, today: todayCount });
-      }
+      setPrevTotal(currentTotal);
+      setPrevToday(currentToday);
     }
-  }, [totalCount, todayCount, animateChanges, prevTotal, prevToday, countAnim, onCounterUpdate]);
+  }, [displayTotalCount, displayTodayCount, animateChanges, prevTotal, prevToday, countAnim]);
 
   const formatNumber = (num: number): string => {
     return num.toLocaleString();
@@ -99,7 +142,11 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     ],
   };
 
-  if (!totalCount && !todayCount) {
+  // Use Firestore data if available, otherwise use props
+  const displayTotalCount = firestoreData?.totalCount ?? totalCount;
+  const displayTodayCount = firestoreData?.todayCount ?? todayCount;
+
+  if (!displayTotalCount && !displayTodayCount) {
     return (
       <View style={[styles.container, style]}>
         <Text style={styles.loadingText} testID="counter-loading">
@@ -119,7 +166,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       </Animated.View>
 
       <View style={styles.countersContainer}>
-        {totalCount !== undefined && (
+        {displayTotalCount !== undefined && (
           <Animated.View
             style={[styles.counterItem, { transform: [{ scale: pulseAnim }] }]}
             testID={animateChanges ? 'counter-animation-wrapper' : undefined}
@@ -145,12 +192,12 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
               ]}
               testID="total-counter-value"
             >
-              {formatNumber(totalCount)}
+              {formatNumber(displayTotalCount)}
             </Animated.Text>
           </Animated.View>
         )}
 
-        {todayCount !== undefined && (
+        {displayTodayCount !== undefined && (
           <Animated.View
             style={[styles.counterItem, { transform: [{ scale: pulseAnim }] }]}
           >
@@ -175,7 +222,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
               ]}
               testID="today-counter-value"
             >
-              {formatNumber(todayCount)}
+              {formatNumber(displayTodayCount)}
             </Animated.Text>
           </Animated.View>
         )}

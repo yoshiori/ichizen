@@ -20,7 +20,7 @@ import { sampleTasks } from '../data/sampleTasks';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   getUserTaskHistory,
-  getGlobalCounter
+  incrementGlobalCounter
 } from '../services/firestore';
 import { 
   getTodayTask, 
@@ -54,18 +54,6 @@ export const MainScreen: React.FC = () => {
       });
       
       try {
-        // Load global counter
-        console.log('📊 Loading global counter...');
-        const counter = await getGlobalCounter();
-        console.log('📊 Global counter loaded:', counter);
-        
-        if (counter) {
-          setGlobalCounters({
-            totalCount: counter.totalCompleted,
-            todayCount: counter.todayCompleted
-          });
-        }
-
         // Get today's task - for demo, use sample tasks
         console.log('🎭 Demo mode: Using sample tasks');
         const randomIndex = Math.floor(Math.random() * sampleTasks.length);
@@ -76,6 +64,9 @@ export const MainScreen: React.FC = () => {
         console.log('🔥 Testing Firestore connection...');
         await testFirestoreConnection();
         console.log('✅ Firestore connection test completed');
+        
+        // Note: Global counter is now loaded via real-time subscription in GlobalCounter component
+        console.log('📊 Global counter will be loaded via real-time subscription');
       } catch (error) {
         console.error('❌ Initialization error:', error);
       }
@@ -101,13 +92,12 @@ export const MainScreen: React.FC = () => {
     
     try {
       // Simulate task completion delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Simulate counter increment
-      setGlobalCounters(prev => ({
-        totalCount: prev.totalCount + 1,
-        todayCount: prev.todayCount + 1
-      }));
+      // Increment global counter in Firestore
+      console.log('📊 Incrementing global counter in Firestore...');
+      await incrementGlobalCounter();
+      console.log('✅ Global counter incremented successfully');
 
       setIsCompleted(true);
       setShowFeedback(true);
@@ -179,8 +169,14 @@ export const MainScreen: React.FC = () => {
           totalCount={globalCounters.totalCount}
           todayCount={globalCounters.todayCount}
           animateChanges
+          subscribeToUpdates
           onCounterUpdate={(data) => {
             console.log('📊 カウンターが更新されました:', data);
+            // Update local state with Firestore data
+            setGlobalCounters({
+              totalCount: data.total,
+              todayCount: data.today
+            });
           }}
         />
 
