@@ -119,7 +119,14 @@ jobs:
         echo "🚀 Deploying to Firebase..."
         echo "🔐 Using service account: $GOOGLE_APPLICATION_CREDENTIALS"
         echo "💾 Cloud Billing API enabled"
-        FIREBASE_DEPLOY_AGENT=github-actions firebase deploy --only functions --project ichizen-daily-good-deeds --force
+        
+        # Test Firebase authentication first
+        echo "🔍 Testing Firebase authentication..."
+        firebase projects:list --project ichizen-daily-good-deeds
+        
+        # Run deploy with verbose logging
+        echo "🚀 Starting deployment with verbose logging..."
+        FIREBASE_DEPLOY_AGENT=github-actions firebase deploy --only functions --project ichizen-daily-good-deeds --debug
 
     - name: Deployment notification
       if: success()
