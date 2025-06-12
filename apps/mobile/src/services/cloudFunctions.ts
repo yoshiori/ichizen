@@ -1,20 +1,20 @@
 /**
- * Cloud Functions サービス層
- * Firebase Cloud Functions との通信を管理
+ * Cloud Functions Service Layer
+ * Manages communication with Firebase Cloud Functions
  */
 
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 import { app } from '../config/firebase';
 import { Task } from '../types/firebase';
 
-// 関数インスタンスを遅延初期化
+// Lazy initialization of functions instance
 let functions: ReturnType<typeof getFunctions> | null = null;
 
 const getFunctionsInstance = () => {
   if (!functions) {
     functions = getFunctions(app, 'asia-northeast1');
     
-    // 開発環境でエミュレータに接続（Web上のlocalhostでのみ）
+    // Connect to emulator in development environment (localhost web only)
     const USE_EMULATOR = __DEV__ && (typeof window !== 'undefined' && window.location.hostname === 'localhost');
     
     if (USE_EMULATOR) {
@@ -31,7 +31,7 @@ const getFunctionsInstance = () => {
   return functions;
 };
 
-// Cloud Functions の型定義
+// Cloud Functions type definitions
 interface GetTodayTaskResponse {
   task: Task & { id: string };
   completed: boolean;
@@ -46,7 +46,7 @@ interface CompleteTaskResponse {
 }
 
 /**
- * 今日のお題を取得
+ * Get today's task
  */
 export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
   const functionsInstance = getFunctionsInstance();
@@ -65,7 +65,7 @@ export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
 };
 
 /**
- * タスクを完了状態にする
+ * Mark task as completed
  */
 export const completeTask = async (): Promise<CompleteTaskResponse> => {
   const functionsInstance = getFunctionsInstance();
@@ -84,10 +84,10 @@ export const completeTask = async (): Promise<CompleteTaskResponse> => {
 };
 
 /**
- * グローバルカウンターを取得
+ * Get global counter
  */
 export const getGlobalCounterFromCloudFunctions = async (): Promise<number> => {
-  // 直接 Firestore から取得（Cloud Functions 経由ではなく）
+  // Get directly from Firestore (not via Cloud Functions)
   const { getGlobalCounter } = await import('./firestore');
   const counter = await getGlobalCounter();
   return counter?.todayCompleted || 0;

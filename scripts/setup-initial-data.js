@@ -1,7 +1,12 @@
+/**
+ * Initial Data Setup Script
+ * Sets up sample data in Firestore emulator for development and testing
+ */
+
 const { initializeApp } = require('firebase/app');
 const { getFirestore, connectFirestoreEmulator, collection, doc, setDoc, serverTimestamp } = require('firebase/firestore');
 
-// Firebase設定（エミュレータ用）
+// Firebase configuration for emulator
 const firebaseConfig = {
   projectId: 'ichizen-daily-good-deeds'
 };
@@ -9,14 +14,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// エミュレータに接続
+// Connect to emulator
 connectFirestoreEmulator(db, 'localhost', 8081);
 
 async function setupInitialData() {
-  console.log('📝 初期データセットアップを開始します...');
+  console.log('📝 Starting initial data setup...');
 
   try {
-    // 1. サンプルタスクデータ
+    // 1. Sample task data
     const sampleTasks = [
       {
         id: 'task_1',
@@ -76,7 +81,7 @@ async function setupInitialData() {
       }
     ];
 
-    console.log('📋 サンプルタスクを作成中...');
+    console.log('📋 Creating sample tasks...');
     for (const task of sampleTasks) {
       const taskRef = doc(db, 'tasks', task.id);
       await setDoc(taskRef, {
@@ -84,11 +89,11 @@ async function setupInitialData() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });
-      console.log(`✅ タスク "${task.text.ja}" を作成しました`);
+      console.log(`✅ Created task "${task.text.en}"`);
     }
 
-    // 2. グローバルカウンター初期化
-    console.log('🌍 グローバルカウンターを初期化中...');
+    // 2. Initialize global counter
+    console.log('🌍 Initializing global counter...');
     const today = new Date().toISOString().split('T')[0];
     const globalCounterRef = doc(db, 'global_counters', today);
     await setDoc(globalCounterRef, {
@@ -97,15 +102,15 @@ async function setupInitialData() {
       totalDoneAllTime: 0,
       lastUpdated: serverTimestamp()
     });
-    console.log(`✅ グローバルカウンター (${today}) を初期化しました`);
+    console.log(`✅ Initialized global counter (${today})`);
 
-    // 3. テストユーザー作成
-    console.log('👤 テストユーザーを作成中...');
+    // 3. Create test user
+    console.log('👤 Creating test user...');
     const testUserId = 'test_user_001';
     const userRef = doc(db, 'users', testUserId);
     await setDoc(userRef, {
       id: testUserId,
-      displayName: 'テストユーザー',
+      displayName: 'Test User',
       language: 'ja',
       timezone: 'Asia/Tokyo',
       createdAt: serverTimestamp(),
@@ -113,13 +118,13 @@ async function setupInitialData() {
       followedUsers: [],
       totalDoneCount: 0
     });
-    console.log(`✅ テストユーザー "${testUserId}" を作成しました`);
+    console.log(`✅ Created test user "${testUserId}"`);
 
-    console.log('\n🎉 初期データセットアップが完了しました！');
-    console.log('📊 エミュレータUI: http://127.0.0.1:4000/firestore');
+    console.log('\n🎉 Initial data setup completed successfully!');
+    console.log('📊 Emulator UI: http://127.0.0.1:4000/firestore');
     
   } catch (error) {
-    console.error('❌ セットアップエラー:', error);
+    console.error('❌ Setup error:', error);
   }
 }
 
