@@ -31,7 +31,7 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
   console.log("Using Firestore emulator at:",
     process.env.FIRESTORE_EMULATOR_HOST);
 }
-// GitHub Actions deployment test
+// GitHub Actions deployment test - IAM security improvement
 
 /**
  * Scheduled task that runs daily at 6 AM JST
