@@ -6,15 +6,24 @@ const mockHttpsCallable = jest.fn();
 const mockConnectFunctionsEmulator = jest.fn();
 
 jest.mock('firebase/functions', () => ({
-  getFunctions: mockGetFunctions,
-  httpsCallable: mockHttpsCallable,
-  connectFunctionsEmulator: mockConnectFunctionsEmulator,
+  getFunctions: (...args: any[]) => mockGetFunctions(...args),
+  httpsCallable: (...args: any[]) => mockHttpsCallable(...args),
+  connectFunctionsEmulator: (...args: any[]) => mockConnectFunctionsEmulator(...args),
 }));
 
 // Firebase app をモック
 jest.mock('../src/config/firebase', () => ({
   app: { name: 'test-app' },
 }));
+
+// window オブジェクトをモック（テスト環境用）
+Object.defineProperty(window, 'location', {
+  value: {
+    hostname: 'localhost',
+    href: 'http://localhost:3000'
+  },
+  writable: true
+});
 
 describe('Cloud Functions Service', () => {
   
