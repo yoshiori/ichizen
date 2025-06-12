@@ -19,7 +19,8 @@ export const db = getFirestore(app);
 
 // Connect to emulators in development
 // Use Firestore emulator on port 8081 (updated from 8080)
-const USE_EMULATOR = __DEV__ && (typeof window !== 'undefined' && window.location.hostname === 'localhost');
+// Temporarily disabled for testing
+const USE_EMULATOR = false; // __DEV__ && (typeof window !== 'undefined' && window.location.hostname === 'localhost');
 
 if (USE_EMULATOR) {
   try {

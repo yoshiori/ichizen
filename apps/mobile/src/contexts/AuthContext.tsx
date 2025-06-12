@@ -9,7 +9,7 @@ import {
   setupBackgroundMessageListener,
   getInitialNotification,
   setupNotificationOpenedListener
-} from '../services/messaging';
+} from '../services/messaging.platform';
 import { updateUserFCMToken } from '../services/firestore';
 
 interface AuthContextType {
@@ -86,19 +86,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // Setup token refresh listener
-      const unsubscribeTokenRefresh = setupTokenRefreshListener(async (newToken) => {
+      const unsubscribeTokenRefresh = setupTokenRefreshListener(async (newToken: string) => {
         console.log('FCM token refreshed:', newToken);
         await updateUserFCMToken(userId, newToken);
       });
 
       // Setup foreground message listener
-      const unsubscribeForeground = setupForegroundMessageListener((message) => {
+      const unsubscribeForeground = setupForegroundMessageListener((message: any) => {
         console.log('Foreground message:', message);
         // Handle foreground notification display
       });
 
       // Setup notification opened listener
-      const unsubscribeOpened = setupNotificationOpenedListener((message) => {
+      const unsubscribeOpened = setupNotificationOpenedListener((message: any) => {
         console.log('Notification opened app:', message);
         // Handle navigation or actions when notification is tapped
       });

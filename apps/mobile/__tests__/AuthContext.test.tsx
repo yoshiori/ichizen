@@ -3,12 +3,12 @@ import { render, waitFor, act } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import * as authService from '../src/services/auth';
-import * as messagingService from '../src/services/messaging';
+import * as messagingService from '../src/services/messaging.platform';
 import * as firestoreService from '../src/services/firestore';
 
 // Mock all external dependencies
 jest.mock('../src/services/auth');
-jest.mock('../src/services/messaging');
+jest.mock('../src/services/messaging.platform');
 jest.mock('../src/services/firestore');
 
 const mockAuthService = authService as jest.Mocked<typeof authService>;

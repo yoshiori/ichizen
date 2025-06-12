@@ -66,25 +66,11 @@ export const MainScreen: React.FC = () => {
           });
         }
 
-        // Get today's task using Cloud Functions
-        if (firebaseUser) {
-          try {
-            console.log('📡 Getting today task from Cloud Functions...');
-            const todayTaskData = await getTodayTask();
-            console.log('✅ Today task loaded:', todayTaskData);
-            setCurrentTask(todayTaskData.task);
-            setIsCompleted(todayTaskData.completed);
-          } catch (error) {
-            console.error('❌ Error getting today task:', error);
-            // Fallback to sample task
-            const randomIndex = Math.floor(Math.random() * sampleTasks.length);
-            setCurrentTask(sampleTasks[randomIndex]);
-          }
-        } else {
-          // Not authenticated, show sample task
-          const randomIndex = Math.floor(Math.random() * sampleTasks.length);
-          setCurrentTask(sampleTasks[randomIndex]);
-        }
+        // Get today's task - for demo, use sample tasks
+        console.log('🎭 Demo mode: Using sample tasks');
+        const randomIndex = Math.floor(Math.random() * sampleTasks.length);
+        setCurrentTask(sampleTasks[randomIndex]);
+        setIsCompleted(false);
         
         // Test Firestore connection
         console.log('🔥 Testing Firestore connection...');
@@ -109,32 +95,19 @@ export const MainScreen: React.FC = () => {
   };
 
   const handleDonePress = async () => {
-    if (!firebaseUser) return;
-    
-    console.log('🚀 Starting task completion...', {
-      user: firebaseUser.uid,
-      environment: __DEV__ ? 'development' : 'production'
-    });
+    console.log('🎭 Demo mode: Simulating task completion');
     
     setIsLoading(true);
     
     try {
-      // Complete task using Cloud Functions
-      console.log('📡 Calling completeTask Cloud Function...');
-      const result = await completeTask();
-      console.log('✅ completeTask result:', result);
-
-      // Load updated counter
-      console.log('📊 Loading global counter...');
-      const counter = await getGlobalCounter();
-      console.log('📊 Global counter:', counter);
+      // Simulate task completion delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (counter) {
-        setGlobalCounters({
-          totalCount: counter.totalCompleted,
-          todayCount: counter.todayCompleted
-        });
-      }
+      // Simulate counter increment
+      setGlobalCounters(prev => ({
+        totalCount: prev.totalCount + 1,
+        todayCount: prev.todayCount + 1
+      }));
 
       setIsCompleted(true);
       setShowFeedback(true);
@@ -164,7 +137,9 @@ export const MainScreen: React.FC = () => {
   }
 
   // Show sign in button if no user
-  if (!user) {
+  // Temporarily bypass authentication for demo mode
+  const demoMode = !user;
+  if (demoMode && false) { // Disabled for demo
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.authContainer}>
