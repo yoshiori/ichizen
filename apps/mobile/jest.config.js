@@ -16,7 +16,7 @@ module.exports = {
   ],
   fakeTimers: {
     enableGlobally: false,
-    legacyFakeTimers: true
+    legacyFakeTimers: false
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'

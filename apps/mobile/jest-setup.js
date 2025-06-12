@@ -73,6 +73,7 @@ jest.mock('react-native', () => ({
   ScrollView: 'ScrollView',
   Image: 'Image',
   ActivityIndicator: 'ActivityIndicator',
+  SafeAreaView: 'SafeAreaView',
   Alert: {
     alert: jest.fn()
   },
