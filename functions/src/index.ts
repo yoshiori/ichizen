@@ -223,7 +223,6 @@ async function sendFollowerNotifications(userId: string) {
       return;
     }
 
-    const userData = userDoc.data();
 
     // このユーザーをフォローしているユーザーを取得
     const followersSnapshot = await db.collection('follows')
