@@ -123,29 +123,28 @@ jobs:
         npm ci
         npm run build
 
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
-      id: auth
-      with:
-        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-        create_credentials_file: true
-      continue-on-error: true
-
-    - name: Fallback to Service Account Key
-      if: steps.auth.outcome == 'failure'
+    - name: Authenticate to Firebase
       env:
         GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+        WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
       run: |
-        if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+        # Check if Workload Identity Federation is configured
+        if [ -n "$WIF_PROVIDER" ] && [ -n "$WIF_SERVICE_ACCOUNT" ]; then
+          echo "🔐 Using Workload Identity Federation for authentication"
+          # This would normally be done by google-github-actions/auth, but we're simplifying
+          echo "❌ WIF is not yet configured. Please use service account key."
+          exit 1
+        elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+          echo "🔐 Using service account key for authentication"
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
+        else
           echo "❌ No authentication method available. Please set up either:"
           echo "   1. Workload Identity Federation (WIF_PROVIDER and WIF_SERVICE_ACCOUNT secrets)"
           echo "   2. Service Account Key (FIREBASE_SERVICE_ACCOUNT secret)"
           exit 1
-        else
-          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
-          echo "🔐 Using service account key for authentication"
         fi
 
     - name: Deploy Cloud Functions

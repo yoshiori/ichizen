@@ -41,7 +41,14 @@
       "Bash(wc:*)",
       "Bash(npm run build:*)",
       "Bash(FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 npm run seed)",
-      "Bash(ss:*)"
+      "Bash(ss:*)",
+      "Bash(export:*)",
+      "Bash(CI=1 npx expo start --web --port 8082)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/deploy.sh:*)",
+      "Bash(NODE_ENV=production npm test -- --testNamePattern=\"cloud functions service\" --watchAll=false)",
+      "Bash(NODE_ENV=production npx expo start --web --port 8082)",
+      "Bash(NODE_ENV=production npx expo start --web --port 8083)"
     ],
     "deny": []
   }

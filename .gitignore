@@ -64,6 +64,13 @@ node_modules/
 
 # dotenv environment variables file
 .env
+.env.local
+.env.production.local
+.env.development.local
+
+# Keep example and production configs but secure sensitive data
+# .env.example - track this
+# .env.production - track this for demo, but use secrets in real deployment
 
 # dataconnect generated files
 .dataconnect
