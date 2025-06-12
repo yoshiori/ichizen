@@ -20,7 +20,10 @@
   "counter": {
     "totalTitle": "世界の善行",
     "todayTitle": "今日の善行",
-    "loading": "カウント中..."
+    "weeklyTitle": "今週",
+    "monthlyTitle": "今月",
+    "loading": "カウント中...",
+    "statisticsLoading": "統計を計算中..."
   },
   "task": {
     "refreshUsed": "本日の変更は使用済みです",

@@ -11,6 +11,8 @@ export interface Task {
 export interface GlobalCounterData {
   totalCount?: number;
   todayCount?: number;
+  weeklyCount?: number;
+  monthlyCount?: number;
 }
 
 export interface CounterUpdateData {

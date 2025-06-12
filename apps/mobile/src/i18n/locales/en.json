@@ -20,7 +20,10 @@
   "counter": {
     "totalTitle": "Global Good Deeds",
     "todayTitle": "Today's Good Deeds",
-    "loading": "Counting..."
+    "weeklyTitle": "This Week",
+    "monthlyTitle": "This Month",
+    "loading": "Counting...",
+    "statisticsLoading": "Calculating statistics..."
   },
   "task": {
     "refreshUsed": "Daily refresh has been used",

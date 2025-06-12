@@ -13,21 +13,28 @@ import {
   unsubscribeFromGlobalCounter,
   type Unsubscriber 
 } from '../services/globalCounterSubscription';
+import { subscribeToStatistics } from '../services/counterStatistics';
 
 interface GlobalCounterProps extends GlobalCounterData {
   style?: ViewStyle;
   animateChanges?: boolean;
   onCounterUpdate?: (data: CounterUpdateData) => void;
   subscribeToUpdates?: boolean;
+  showStatistics?: boolean;
+  subscribeToStatistics?: boolean;
 }
 
 export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   totalCount,
   todayCount,
+  weeklyCount,
+  monthlyCount,
   style,
   animateChanges = false,
   onCounterUpdate,
   subscribeToUpdates = false,
+  showStatistics = false,
+  subscribeToStatistics = false,
 }) => {
   const { t } = useTranslation();
   const earthRotation = useRef(new Animated.Value(0)).current;
@@ -36,7 +43,9 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   const [prevTotal, setPrevTotal] = React.useState(totalCount);
   const [prevToday, setPrevToday] = React.useState(todayCount);
   const [firestoreData, setFirestoreData] = useState<{ totalCount?: number; todayCount?: number } | null>(null);
+  const [statisticsData, setStatisticsData] = useState<{ weeklyCount?: number; monthlyCount?: number } | null>(null);
   const unsubscriberRef = useRef<Unsubscriber | null>(null);
+  const statsUnsubscriberRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     // Earth rotation animation
@@ -101,6 +110,32 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     };
   }, [subscribeToUpdates, onCounterUpdate]);
 
+  // Statistics subscription effect
+  useEffect(() => {
+    if (!subscribeToStatistics) return;
+
+    try {
+      const unsubscriber = subscribeToStatistics((stats) => {
+        setStatisticsData({
+          weeklyCount: stats.weekly,
+          monthlyCount: stats.monthly
+        });
+      });
+
+      statsUnsubscriberRef.current = unsubscriber;
+
+      // Cleanup on unmount
+      return () => {
+        if (statsUnsubscriberRef.current) {
+          statsUnsubscriberRef.current();
+          statsUnsubscriberRef.current = null;
+        }
+      };
+    } catch (error) {
+      console.error('Failed to calculate statistics:', error);
+    }
+  }, [subscribeToStatistics]);
+
   // Handle counter changes with animation
   useEffect(() => {
     const currentTotal = displayTotalCount;
@@ -145,6 +180,8 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   // Use Firestore data if available, otherwise use props
   const displayTotalCount = firestoreData?.totalCount ?? totalCount;
   const displayTodayCount = firestoreData?.todayCount ?? todayCount;
+  const displayWeeklyCount = statisticsData?.weeklyCount ?? weeklyCount;
+  const displayMonthlyCount = statisticsData?.monthlyCount ?? monthlyCount;
 
   if (!displayTotalCount && !displayTodayCount) {
     return (
@@ -227,6 +264,47 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
           </Animated.View>
         )}
       </View>
+
+      {/* Statistics Section */}
+      {showStatistics && (
+        <View style={styles.statisticsContainer}>
+          {displayWeeklyCount !== undefined || displayMonthlyCount !== undefined ? (
+            <View style={styles.statisticsRow}>
+              {displayWeeklyCount !== undefined && (
+                <View style={styles.statisticsItem}>
+                  <Text style={styles.statisticsLabel}>
+                    {t('counter.weeklyTitle')}
+                  </Text>
+                  <Text 
+                    style={styles.statisticsValue}
+                    testID="weekly-counter-value"
+                  >
+                    {formatNumber(displayWeeklyCount)}
+                  </Text>
+                </View>
+              )}
+
+              {displayMonthlyCount !== undefined && (
+                <View style={styles.statisticsItem}>
+                  <Text style={styles.statisticsLabel}>
+                    {t('counter.monthlyTitle')}
+                  </Text>
+                  <Text 
+                    style={styles.statisticsValue}
+                    testID="monthly-counter-value"
+                  >
+                    {formatNumber(displayMonthlyCount)}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ) : (
+            <Text style={styles.loadingText} testID="statistics-loading">
+              {t('counter.statisticsLoading')}
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 };
@@ -280,6 +358,35 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#4CAF50',
+    textAlign: 'center',
+  },
+  statisticsContainer: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+    width: '100%',
+  },
+  statisticsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  statisticsItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statisticsLabel: {
+    fontSize: 10,
+    color: '#999',
+    marginBottom: 2,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  statisticsValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
     textAlign: 'center',
   },
 });

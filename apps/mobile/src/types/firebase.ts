@@ -41,3 +41,16 @@ export interface Follow {
   followingId: string;
   createdAt: Date;
 }
+
+export interface CounterStatistics {
+  daily: number;
+  weekly: number;
+  monthly: number;
+  weekStart?: Date;
+  monthStart?: Date;
+  lastCalculated: Date;
+}
+
+export interface GlobalCounterWithStats extends GlobalCounter {
+  statistics?: CounterStatistics;
+}
