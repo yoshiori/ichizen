@@ -13,7 +13,7 @@ import {
   unsubscribeFromGlobalCounter,
   type Unsubscriber 
 } from '../services/globalCounterSubscription';
-import { subscribeToStatistics } from '../services/counterStatistics';
+import { subscribeToStatistics as subscribeToStats } from '../services/counterStatistics';
 
 interface GlobalCounterProps extends GlobalCounterData {
   style?: ViewStyle;
@@ -115,7 +115,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     if (!subscribeToStatistics) return;
 
     try {
-      const unsubscriber = subscribeToStatistics((stats) => {
+      const unsubscriber = subscribeToStats((stats: any) => {
         setStatisticsData({
           weeklyCount: stats.weekly,
           monthlyCount: stats.monthly
@@ -135,6 +135,12 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       console.error('Failed to calculate statistics:', error);
     }
   }, [subscribeToStatistics]);
+
+  // Use Firestore data if available, otherwise use props
+  const displayTotalCount = firestoreData?.totalCount ?? totalCount;
+  const displayTodayCount = firestoreData?.todayCount ?? todayCount;
+  const displayWeeklyCount = statisticsData?.weeklyCount ?? weeklyCount;
+  const displayMonthlyCount = statisticsData?.monthlyCount ?? monthlyCount;
 
   // Handle counter changes with animation
   useEffect(() => {
@@ -176,12 +182,6 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       },
     ],
   };
-
-  // Use Firestore data if available, otherwise use props
-  const displayTotalCount = firestoreData?.totalCount ?? totalCount;
-  const displayTodayCount = firestoreData?.todayCount ?? todayCount;
-  const displayWeeklyCount = statisticsData?.weeklyCount ?? weeklyCount;
-  const displayMonthlyCount = statisticsData?.monthlyCount ?? monthlyCount;
 
   if (!displayTotalCount && !displayTodayCount) {
     return (
