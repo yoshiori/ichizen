@@ -224,7 +224,6 @@ async function sendFollowerNotifications(userId: string) {
     }
 
     const userData = userDoc.data();
-    const userLanguage = userData?.language || 'ja';
 
     // このユーザーをフォローしているユーザーを取得
     const followersSnapshot = await db.collection('follows')
