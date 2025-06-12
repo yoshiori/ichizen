@@ -15,6 +15,10 @@ on:
       - 'firestore.rules'
       - 'firestore.indexes.json'
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -75,27 +79,35 @@ jobs:
         cd functions
         npm run build
 
-    - name: Authenticate to Firebase
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      id: auth
+      with:
+        workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+        service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+        create_credentials_file: true
+      continue-on-error: true
+
+    - name: Fallback to Service Account Key
+      if: steps.auth.outcome == 'failure'
       env:
         GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       run: |
         if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-          echo "⚠️ No Firebase service account found. Attempting deployment without explicit auth..."
-          echo "This may work if the runner has appropriate permissions."
+          echo "❌ No authentication method available. Please set up either:"
+          echo "   1. Workload Identity Federation (WIF_PROVIDER and WIF_SERVICE_ACCOUNT secrets)"
+          echo "   2. Service Account Key (FIREBASE_SERVICE_ACCOUNT secret)"
+          exit 1
         else
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
-          echo "🔐 Firebase service account configured"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
+          echo "🔐 Using service account key for authentication"
         fi
 
     - name: Deploy to Firebase
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       run: |
-        if [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
-        fi
-        firebase deploy --only functions,firestore:rules,firestore:indexes
+        echo "🚀 Deploying to Firebase..."
+        firebase deploy --only functions,firestore:rules,firestore:indexes --project ichizen-daily-good-deeds
 
     - name: Deployment notification
       if: success()
