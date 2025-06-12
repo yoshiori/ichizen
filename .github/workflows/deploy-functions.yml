@@ -106,7 +106,7 @@ jobs:
     - name: Deploy to Firebase
       run: |
         echo "🚀 Deploying to Firebase..."
-        firebase deploy --only functions,firestore:rules,firestore:indexes --project ichizen-daily-good-deeds
+        firebase deploy --only functions --project ichizen-daily-good-deeds
 
     - name: Deployment notification
       if: success()
