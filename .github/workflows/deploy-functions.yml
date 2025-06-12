@@ -77,15 +77,25 @@ jobs:
 
     - name: Authenticate to Firebase
       env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       run: |
-        echo "$FIREBASE_TOKEN" | firebase login:ci
+        if [ -z "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+          echo "⚠️ No Firebase service account found. Attempting deployment without explicit auth..."
+          echo "This may work if the runner has appropriate permissions."
+        else
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
+          echo "🔐 Firebase service account configured"
+        fi
 
     - name: Deploy to Firebase
       env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       run: |
-        firebase deploy --only functions,firestore:rules,firestore:indexes --token "$FIREBASE_TOKEN"
+        if [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
+        fi
+        firebase deploy --only functions,firestore:rules,firestore:indexes
 
     - name: Deployment notification
       if: success()
