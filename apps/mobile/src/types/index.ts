@@ -13,4 +13,9 @@ export interface GlobalCounterData {
   todayCount?: number;
 }
 
+export interface CounterUpdateData {
+  total: number;
+  today: number;
+}
+
 export type Language = 'ja' | 'en';

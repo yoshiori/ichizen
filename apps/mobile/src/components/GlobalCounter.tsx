@@ -7,20 +7,27 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { GlobalCounterData } from '../types';
+import { GlobalCounterData, CounterUpdateData } from '../types';
 
 interface GlobalCounterProps extends GlobalCounterData {
   style?: ViewStyle;
+  animateChanges?: boolean;
+  onCounterUpdate?: (data: CounterUpdateData) => void;
 }
 
 export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   totalCount,
   todayCount,
   style,
+  animateChanges = false,
+  onCounterUpdate,
 }) => {
   const { t } = useTranslation();
   const earthRotation = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const countAnim = useRef(new Animated.Value(0)).current;
+  const [prevTotal, setPrevTotal] = React.useState(totalCount);
+  const [prevToday, setPrevToday] = React.useState(todayCount);
 
   useEffect(() => {
     // Earth rotation animation
@@ -48,6 +55,34 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       ])
     ).start();
   }, [earthRotation, pulseAnim]);
+
+  // Handle counter changes with animation
+  useEffect(() => {
+    if (animateChanges && (totalCount !== prevTotal || todayCount !== prevToday)) {
+      // Trigger animation when values change
+      Animated.sequence([
+        Animated.timing(countAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(countAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Update previous values
+      setPrevTotal(totalCount);
+      setPrevToday(todayCount);
+
+      // Call callback if provided
+      if (onCounterUpdate && totalCount !== undefined && todayCount !== undefined) {
+        onCounterUpdate({ total: totalCount, today: todayCount });
+      }
+    }
+  }, [totalCount, todayCount, animateChanges, prevTotal, prevToday, countAnim, onCounterUpdate]);
 
   const formatNumber = (num: number): string => {
     return num.toLocaleString();
@@ -87,13 +122,31 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
         {totalCount !== undefined && (
           <Animated.View
             style={[styles.counterItem, { transform: [{ scale: pulseAnim }] }]}
+            testID={animateChanges ? 'counter-animation-wrapper' : undefined}
           >
             <Text style={styles.counterLabel}>
               {t('counter.totalTitle')}
             </Text>
-            <Text style={styles.counterValue}>
+            <Animated.Text 
+              style={[
+                styles.counterValue,
+                animateChanges ? {
+                  opacity: countAnim.interpolate({
+                    inputRange: [0, 0.5, 1],
+                    outputRange: [1, 0.3, 1],
+                  }),
+                  transform: [{
+                    scale: countAnim.interpolate({
+                      inputRange: [0, 0.5, 1],
+                      outputRange: [1, 1.2, 1],
+                    }),
+                  }],
+                } : {}
+              ]}
+              testID="total-counter-value"
+            >
               {formatNumber(totalCount)}
-            </Text>
+            </Animated.Text>
           </Animated.View>
         )}
 
@@ -104,9 +157,26 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
             <Text style={styles.counterLabel}>
               {t('counter.todayTitle')}
             </Text>
-            <Text style={styles.counterValue}>
+            <Animated.Text 
+              style={[
+                styles.counterValue,
+                animateChanges ? {
+                  opacity: countAnim.interpolate({
+                    inputRange: [0, 0.5, 1],
+                    outputRange: [1, 0.3, 1],
+                  }),
+                  transform: [{
+                    scale: countAnim.interpolate({
+                      inputRange: [0, 0.5, 1],
+                      outputRange: [1, 1.2, 1],
+                    }),
+                  }],
+                } : {}
+              ]}
+              testID="today-counter-value"
+            >
               {formatNumber(todayCount)}
-            </Text>
+            </Animated.Text>
           </Animated.View>
         )}
       </View>

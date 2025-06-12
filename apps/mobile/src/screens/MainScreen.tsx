@@ -178,6 +178,10 @@ export const MainScreen: React.FC = () => {
         <GlobalCounter 
           totalCount={globalCounters.totalCount}
           todayCount={globalCounters.todayCount}
+          animateChanges
+          onCounterUpdate={(data) => {
+            console.log('📊 カウンターが更新されました:', data);
+          }}
         />
 
         {/* Daily Task */}
