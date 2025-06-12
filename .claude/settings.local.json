@@ -48,7 +48,9 @@
       "Bash(./scripts/deploy.sh:*)",
       "Bash(NODE_ENV=production npm test -- --testNamePattern=\"cloud functions service\" --watchAll=false)",
       "Bash(NODE_ENV=production npx expo start --web --port 8082)",
-      "Bash(NODE_ENV=production npx expo start --web --port 8083)"
+      "Bash(NODE_ENV=production npx expo start --web --port 8083)",
+      "Bash(gcloud services enable:*)",
+      "Bash(gcloud:*)"
     ],
     "deny": []
   }
