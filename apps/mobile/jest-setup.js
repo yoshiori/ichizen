@@ -80,13 +80,48 @@ jest.mock('react-native', () => ({
   Animated: {
     View: 'Animated.View',
     Text: 'Animated.Text',
-    Value: jest.fn(),
-    timing: jest.fn(),
-    spring: jest.fn(),
-    sequence: jest.fn(),
-    parallel: jest.fn(),
-    delay: jest.fn(),
-    loop: jest.fn()
+    Value: jest.fn(() => ({
+      interpolate: jest.fn(() => 'mocked-interpolated-value'),
+      setValue: jest.fn(),
+      setOffset: jest.fn(),
+      flattenOffset: jest.fn(),
+      extractOffset: jest.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      removeAllListeners: jest.fn(),
+      stopAnimation: jest.fn(),
+      resetAnimation: jest.fn()
+    })),
+    timing: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      reset: jest.fn()
+    })),
+    spring: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      reset: jest.fn()
+    })),
+    sequence: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      reset: jest.fn()
+    })),
+    parallel: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      reset: jest.fn()
+    })),
+    delay: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      reset: jest.fn()
+    })),
+    loop: jest.fn(() => ({
+      start: jest.fn(),
+      stop: jest.fn(),
+      reset: jest.fn()
+    }))
   },
   Dimensions: {
     get: jest.fn(() => ({ width: 375, height: 812 })),
