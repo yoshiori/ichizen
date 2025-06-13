@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日の小さな善行 - テスト版</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .task-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .task-text {
+            font-size: 24px;
+            margin: 20px 0;
+            line-height: 1.4;
+        }
+        .task-category {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        .done-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 20px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .done-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .done-button:active {
+            transform: scale(0.95);
+        }
+        .global-counter {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .counter-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .feedback {
+            display: none;
+            background: rgba(76, 175, 80, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .celebration {
+            font-size: 48px;
+            animation: bounce 1s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>今日の小さな善行</h1>
+        
+        <div class="task-card">
+            <div class="task-category">🌱 環境</div>
+            <div class="task-text" id="task-text">ゴミを一個拾いましょう</div>
+            <button class="done-button" id="done-button" onclick="completeTask()">DONE!</button>
+        </div>
+
+        <div class="global-counter">
+            <div>世界中の善行</div>
+            <div class="counter-value" id="counter">42,356</div>
+            <div>今日完了された善行の数</div>
+        </div>
+
+        <div class="feedback" id="feedback">
+            <div class="celebration">🎉 素晴らしい！</div>
+            <div>あなたの行動が世界に小さな笑顔をもたらしました</div>
+        </div>
+    </div>
+
+    <script>
+        let isCompleted = false;
+        let counter = 42356;
+
+        function completeTask() {
+            if (isCompleted) return;
+            
+            isCompleted = true;
+            counter++;
+            
+            // ボタンを無効化
+            const button = document.getElementById('done-button');
+            button.textContent = '完了✓';
+            button.style.background = '#666';
+            button.disabled = true;
+            
+            // カウンター更新
+            document.getElementById('counter').textContent = counter.toLocaleString();
+            
+            // フィードバック表示
+            document.getElementById('feedback').style.display = 'block';
+            
+            // ちょっとしたアニメーション
+            button.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // ページロード時のシンプルアニメーション
+        window.addEventListener('load', () => {
+            document.querySelector('.task-card').style.opacity = '0';
+            document.querySelector('.task-card').style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.querySelector('.task-card').style.transition = 'all 0.5s ease';
+                document.querySelector('.task-card').style.opacity = '1';
+                document.querySelector('.task-card').style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
