@@ -34,10 +34,10 @@ const mockHistoryEntry = {
   id: 'test-history-id',
   userId: 'test-user-id',
   taskId: 'test-task-id',
-  date: '2025-06-15',
+  date: '2024-06-15',
   completed: true,
-  selectedAt: new Date('2025-06-15T09:00:00Z'),
-  completedAt: new Date('2025-06-15T10:00:00Z'),
+  selectedAt: new Date('2024-06-15T09:00:00Z'),
+  completedAt: new Date('2024-06-15T10:00:00Z'),
   task: mockTask
 };
 
@@ -45,22 +45,46 @@ const mockHistoryIncomplete = {
   id: 'test-history-id-2',
   userId: 'test-user-id',
   taskId: 'test-task-id-2',
-  date: '2025-06-10',
+  date: '2024-06-10',
   completed: false,
-  selectedAt: new Date('2025-06-10T09:00:00Z'),
+  selectedAt: new Date('2024-06-10T09:00:00Z'),
   task: mockTask
 };
 
 describe('HistoryScreen', () => {
+  // Fixed base date for time-independent testing
+  const BASE_TEST_DATE = new Date('2024-06-15T12:00:00Z');
+  
+  // Helper function to get expected month text based on offset
+  const getExpectedMonthText = (monthOffset: number = 0): string => {
+    const date = new Date(BASE_TEST_DATE);
+    date.setMonth(date.getMonth() + monthOffset);
+    return `${date.getFullYear()}年${date.getMonth() + 1}月`;
+  };
+  
+  // Helper function to get expected month boundaries for API calls
+  const getExpectedMonthBoundaries = (monthOffset: number = 0) => {
+    const date = new Date(BASE_TEST_DATE);
+    date.setUTCMonth(date.getUTCMonth() + monthOffset);
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    
+    // First day of the month (UTC)
+    const start = new Date(Date.UTC(year, month, 1)).toISOString().split('T')[0];
+    // Last day of the month (UTC)
+    const end = new Date(Date.UTC(year, month + 1, 0)).toISOString().split('T')[0];
+    return { start, end };
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     
     // Ensure timers are real before setting fake ones
     jest.useRealTimers();
     
-    // Mock current date to June 2025 for consistent testing
+    // Mock to fixed base date for consistent testing (time-independent)
     jest.useFakeTimers();
-    jest.setSystemTime(new Date('2025-06-15T12:00:00Z'));
+    jest.setSystemTime(BASE_TEST_DATE);
     
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -95,11 +119,12 @@ describe('HistoryScreen', () => {
 
     render(<HistoryScreen />);
 
+    const { start, end } = getExpectedMonthBoundaries();
     await waitFor(() => {
       expect(mockGetUserTaskHistoryWithTasks).toHaveBeenCalledWith(
         'test-user-id',
-        '2025-06-01',
-        '2025-06-30'
+        start,
+        end
       );
     });
   });
@@ -110,7 +135,7 @@ describe('HistoryScreen', () => {
     const { getByText } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      expect(getByText('2025年6月')).toBeTruthy();
+      expect(getByText(getExpectedMonthText())).toBeTruthy();
     });
   });
 
@@ -159,14 +184,14 @@ describe('HistoryScreen', () => {
     const { getByText } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      expect(getByText('2025年6月')).toBeTruthy();
+      expect(getByText(getExpectedMonthText())).toBeTruthy();
     });
 
     const prevButton = getByText('‹');
     fireEvent.press(prevButton);
 
     await waitFor(() => {
-      expect(getByText('2025年5月')).toBeTruthy();
+      expect(getByText(getExpectedMonthText(-1))).toBeTruthy();
     });
   });
 
@@ -176,14 +201,14 @@ describe('HistoryScreen', () => {
     const { getByText } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      expect(getByText('2025年6月')).toBeTruthy();
+      expect(getByText(getExpectedMonthText())).toBeTruthy();
     });
 
     const nextButton = getByText('›');
     fireEvent.press(nextButton);
 
     await waitFor(() => {
-      expect(getByText('2025年7月')).toBeTruthy();
+      expect(getByText(getExpectedMonthText(1))).toBeTruthy();
     });
   });
 
@@ -336,12 +361,13 @@ describe('HistoryScreen', () => {
     const nextButton = getByText('›');
     fireEvent.press(nextButton);
 
+    const { start: nextStart, end: nextEnd } = getExpectedMonthBoundaries(1);
     await waitFor(() => {
       expect(mockGetUserTaskHistoryWithTasks).toHaveBeenCalledTimes(2);
       expect(mockGetUserTaskHistoryWithTasks).toHaveBeenLastCalledWith(
         'test-user-id',
-        '2025-07-01',
-        '2025-07-31'
+        nextStart,
+        nextEnd
       );
     });
   });
