@@ -76,7 +76,7 @@ export const getUserTaskHistoryRange = async (userId: string, startDate: string,
 export const getUserTaskHistoryWithTasks = async (userId: string, startDate: string, endDate: string): Promise<(DailyTaskHistory & { task?: Task })[]> => {
   const history = await getUserTaskHistoryRange(userId, startDate, endDate);
   
-  // タスクの詳細情報を並行取得
+  // Fetch task details in parallel
   const tasksPromises = history.map(async (historyItem) => {
     const task = await getTask(historyItem.taskId);
     return { ...historyItem, task: task || undefined };

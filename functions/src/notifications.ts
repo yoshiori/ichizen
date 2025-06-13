@@ -21,7 +21,7 @@ export interface NotificationResult {
 }
 
 /**
- * 通知テンプレートを作成
+ * Create notification template
  */
 const createNotificationTemplate = (
   type: NotificationType,
@@ -55,13 +55,13 @@ const createNotificationTemplate = (
 };
 
 /**
- * ユーザーにフォロー通知を送信
+ * Send follow notification to user
  */
 export const sendFollowNotificationToUser = async (
   payload: NotificationPayload
 ): Promise<NotificationResult> => {
   try {
-    // ユーザー情報を取得
+    // Get user information
     const userDoc = await admin.firestore()
       .collection('users')
       .doc(payload.toUserId)
@@ -84,14 +84,14 @@ export const sendFollowNotificationToUser = async (
 
     const userLanguage = userData.language || 'ja';
 
-    // 通知テンプレート作成
+    // Create notification template
     const template = createNotificationTemplate(
       payload.type,
       payload.fromUserName,
       userLanguage
     );
 
-    // FCMメッセージ構築
+    // Build FCM message
     const message = {
       token: userData.fcmToken,
       notification: {
@@ -105,7 +105,7 @@ export const sendFollowNotificationToUser = async (
       }
     };
 
-    // 通知送信
+    // Send notification
     const response = await admin.messaging().send(message);
 
     console.log('📱 Notification sent successfully:', {

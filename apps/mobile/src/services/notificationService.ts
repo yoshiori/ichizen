@@ -1,6 +1,6 @@
 /**
- * 通知サービス
- * タスク完了時のフォロワー通知を管理
+ * Notification service
+ * Manages follower notifications when tasks are completed
  */
 
 import { callFunction } from './cloudFunctions';
@@ -32,7 +32,7 @@ export interface TaskCompletionResult {
 }
 
 /**
- * 通知データの妥当性検証
+ * Validate notification data
  */
 const validateNotificationData = (data: NotificationData): boolean => {
   if (!data.type || !data.fromUserId || !data.fromUserName || !data.toUserId) {
@@ -44,13 +44,13 @@ const validateNotificationData = (data: NotificationData): boolean => {
 };
 
 /**
- * フォロー通知をトリガー
+ * Trigger follow notification
  */
 export const triggerFollowNotification = async (
   notificationData: NotificationData
 ): Promise<NotificationTriggerResult> => {
   try {
-    // データ検証
+    // Validate data
     if (!validateNotificationData(notificationData)) {
       return {
         success: false,
@@ -58,7 +58,7 @@ export const triggerFollowNotification = async (
       };
     }
 
-    // Cloud Functionを呼び出して通知送信
+    // Call Cloud Function to send notification
     const result = await callFunction('sendFollowNotification', notificationData);
     
     return {
@@ -76,7 +76,7 @@ export const triggerFollowNotification = async (
 };
 
 /**
- * タスク完了時の全フォロワーへの通知処理
+ * Handle notifications to all followers when task is completed
  */
 export const handleTaskCompletion = async (
   userId: string,
@@ -85,7 +85,7 @@ export const handleTaskCompletion = async (
   taskTitle: string
 ): Promise<TaskCompletionResult> => {
   try {
-    // フォロワー一覧を取得
+    // Get list of followers
     const followers = await getFollowers(userId);
     
     if (followers.length === 0) {
@@ -97,7 +97,7 @@ export const handleTaskCompletion = async (
 
     console.log(`📱 Sending notifications to ${followers.length} followers`);
 
-    // 各フォロワーに通知を送信
+    // Send notification to each follower
     const notificationPromises = followers.map(async (follower) => {
       const notificationData: NotificationData = {
         type: 'follow_task_completed',
@@ -123,7 +123,7 @@ export const handleTaskCompletion = async (
       }
     });
 
-    // 全ての通知送信を並行実行
+    // Execute all notification sends in parallel
     const results = await Promise.all(notificationPromises);
     
     const successful = results.filter(r => r.success).length;
@@ -147,7 +147,7 @@ export const handleTaskCompletion = async (
 };
 
 /**
- * 新しいフォロワー通知を送信
+ * Send new follower notification
  */
 export const sendNewFollowerNotification = async (
   fromUserId: string,

@@ -57,12 +57,12 @@ export const TabNavigation: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* メインコンテンツ */}
+      {/* Main content */}
       <View style={styles.content}>
         {renderContent()}
       </View>
 
-      {/* タブバー */}
+      {/* Tab bar */}
       <View style={styles.tabBar}>
         {tabs.map((tab) => (
           <TouchableOpacity
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   tabItemActive: {
-    // アクティブタブのスタイル
+    // Active tab style
   },
   tabIcon: {
     fontSize: 24,

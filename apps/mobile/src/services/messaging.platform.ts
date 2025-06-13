@@ -1,27 +1,27 @@
 /**
- * プラットフォーム分岐によるメッセージングサービス
- * Web環境では代替実装を、モバイル環境では本来の実装を使用
+ * Platform-branched messaging service
+ * Uses alternative implementation for web environment, original implementation for mobile environment
  */
 
 import { Platform } from 'react-native';
 
-// プラットフォーム検出
+// Platform detection
 const isWeb = Platform.OS === 'web' || (typeof window !== 'undefined' && !(window as any).ReactNativeWebView);
 
-// 条件付きインポート
+// Conditional import
 let messagingService: any;
 
 if (isWeb) {
-  // Web環境では代替実装を使用
+  // Use alternative implementation for web environment
   messagingService = require('./messaging.web');
-  console.log('🌐 Web環境でのメッセージングサービスを初期化しました');
+  console.log('🌐 Initialized messaging service for web environment');
 } else {
-  // モバイル環境では通常の実装を使用
+  // Use normal implementation for mobile environment
   messagingService = require('./messaging');
-  console.log('📱 モバイル環境でのメッセージングサービスを初期化しました');
+  console.log('📱 Initialized messaging service for mobile environment');
 }
 
-// 統一されたインターフェースでエクスポート
+// Export with unified interface
 export const {
   requestNotificationPermission,
   setupTokenRefreshListener,

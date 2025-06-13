@@ -1,6 +1,6 @@
 import { getTodayTask, completeTask } from '../src/services/cloudFunctions';
 
-// Firebase Functions をモック
+// Mock Firebase Functions
 const mockGetFunctions = jest.fn();
 const mockHttpsCallable = jest.fn();
 const mockConnectFunctionsEmulator = jest.fn();
@@ -11,12 +11,12 @@ jest.mock('firebase/functions', () => ({
   connectFunctionsEmulator: (...args: any[]) => mockConnectFunctionsEmulator(...args),
 }));
 
-// Firebase app をモック
+// Mock Firebase app
 jest.mock('../src/config/firebase', () => ({
   app: { name: 'test-app' },
 }));
 
-// window オブジェクトをモック（テスト環境用）
+// Mock window object for test environment
 Object.defineProperty(window, 'location', {
   value: {
     hostname: 'localhost',
@@ -29,7 +29,7 @@ describe('Cloud Functions Service', () => {
   
   beforeEach(() => {
     jest.clearAllMocks();
-    // getFunctions のモック設定
+    // Mock setup for getFunctions
     mockGetFunctions.mockReturnValue({ name: 'test-functions' });
   });
 

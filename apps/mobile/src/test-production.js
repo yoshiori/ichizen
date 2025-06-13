@@ -1,9 +1,9 @@
 /**
- * 本番Cloud Functions接続テスト
- * ブラウザのコンソールで実行
+ * Production Cloud Functions connection test
+ * Run in browser console
  */
 
-// Cloud Functions直接テスト
+// Direct Cloud Functions test
 async function testProductionCloudFunctions() {
   console.log('🚀 Testing production Cloud Functions...');
   
@@ -26,7 +26,7 @@ async function testProductionCloudFunctions() {
   }
 }
 
-// Firebase Authentication + Cloud Functions テスト
+// Firebase Authentication + Cloud Functions test
 async function testAuthenticatedCloudFunctions() {
   console.log('🔐 Testing authenticated Cloud Functions...');
   
@@ -53,12 +53,12 @@ async function testAuthenticatedCloudFunctions() {
   }
 }
 
-// テスト実行
+// Run test
 console.log('Copy and paste these functions into browser console:');
 console.log('testProductionCloudFunctions()');
 console.log('testAuthenticatedCloudFunctions()');
 
-// 自動実行（環境によって）
+// Auto-execute (depending on environment)
 if (typeof window !== 'undefined') {
   window.testProductionCloudFunctions = testProductionCloudFunctions;
   window.testAuthenticatedCloudFunctions = testAuthenticatedCloudFunctions;

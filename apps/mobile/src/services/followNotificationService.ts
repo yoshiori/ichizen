@@ -1,6 +1,6 @@
 /**
- * フォロー通知サービス
- * フォロワーへの善行完了通知とフォロー開始通知を管理
+ * Follow notification service
+ * Manages task completion notifications to followers and new follower notifications
  */
 
 export type NotificationType = 'follow_task_completed' | 'new_follower';
@@ -33,7 +33,7 @@ export interface NotificationResult {
 }
 
 /**
- * 通知ペイロードの妥当性を検証
+ * Validate notification payload
  */
 export const validateNotificationPayload = (payload: NotificationPayload): boolean => {
   if (!payload.type || !payload.fromUserId || !payload.fromUserName || !payload.toUserId) {
@@ -49,7 +49,7 @@ export const validateNotificationPayload = (payload: NotificationPayload): boole
 };
 
 /**
- * 通知テンプレートを作成
+ * Create notification template
  */
 export const createNotificationTemplate = ({
   type,
@@ -97,7 +97,7 @@ export const createNotificationTemplate = ({
   };
 };
 
-// 通知キュー（オフライン時の処理用）
+// Notification queue (for offline processing)
 let notificationQueue: Array<{
   payload: NotificationPayload;
   token: string;
@@ -105,8 +105,8 @@ let notificationQueue: Array<{
 }> = [];
 
 /**
- * フォロー通知を送信
- * Note: 実際の送信はCloud Functionsで行い、ここではクライアント側の準備処理
+ * Send follow notification
+ * Note: Actual sending is done by Cloud Functions, this handles client-side preparation
  */
 export const sendFollowNotification = async (
   payload: NotificationPayload,
@@ -114,7 +114,7 @@ export const sendFollowNotification = async (
   language: 'ja' | 'en' = 'ja'
 ): Promise<NotificationResult> => {
   try {
-    // ペイロード検証
+    // Validate payload
     if (!validateNotificationPayload(payload)) {
       return {
         success: false,
@@ -122,7 +122,7 @@ export const sendFollowNotification = async (
       };
     }
 
-    // FCMトークン確認
+    // Check FCM token
     if (!toUserToken) {
       return {
         success: false,
@@ -130,9 +130,9 @@ export const sendFollowNotification = async (
       };
     }
 
-    // オフライン状態の確認
+    // Check offline status
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      // オフライン時はキューに追加
+      // Add to queue when offline
       notificationQueue.push({ payload, token: toUserToken, language });
       return {
         success: true,
@@ -140,7 +140,7 @@ export const sendFollowNotification = async (
       };
     }
 
-    // 通知テンプレート作成
+    // Create notification template
     const template = createNotificationTemplate({
       type: payload.type,
       fromUserName: payload.fromUserName,
@@ -148,7 +148,7 @@ export const sendFollowNotification = async (
       data: payload.data
     });
 
-    // 実際の送信はCloud Functionsで行うため、ここでは成功を返す
+    // Actual sending is done by Cloud Functions, so return success here
     console.log('📱 Notification prepared:', {
       to: toUserToken,
       template,
@@ -169,7 +169,7 @@ export const sendFollowNotification = async (
 };
 
 /**
- * キューに溜まった通知を処理
+ * Process queued notifications
  */
 export const processNotificationQueue = async (): Promise<void> => {
   if (notificationQueue.length === 0) {
@@ -185,7 +185,7 @@ export const processNotificationQueue = async (): Promise<void> => {
 };
 
 /**
- * オンライン状態復帰時の処理
+ * Handle online status recovery
  */
 if (typeof window !== 'undefined' && window.addEventListener) {
   window.addEventListener('online', () => {

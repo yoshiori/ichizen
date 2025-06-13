@@ -70,11 +70,11 @@ export const HistoryScreen: React.FC = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     
-    // 月の最初の日と最後の日
+    // First and last day of the month
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     
-    // カレンダーの開始日（月曜日から）
+    // Calendar start date (from Monday)
     const startDate = new Date(firstDay);
     const dayOfWeek = firstDay.getDay();
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -83,13 +83,13 @@ export const HistoryScreen: React.FC = () => {
     const days: CalendarDay[] = [];
     const currentDate = new Date(startDate);
     
-    // 6週間分のカレンダーを生成
+    // Generate 6 weeks worth of calendar
     for (let week = 0; week < 6; week++) {
       for (let day = 0; day < 7; day++) {
         const dateString = currentDate.toISOString().split('T')[0];
         const isCurrentMonth = currentDate.getMonth() === month;
         
-        // この日のタスク履歴を探す
+        // Find task history for this day
         const taskEntry = history.find(entry => entry.date === dateString);
         
         days.push({
@@ -139,7 +139,7 @@ export const HistoryScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       
-      {/* ヘッダー */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>
           {t('history.title', 'あなたの善行履歴')}
@@ -147,7 +147,7 @@ export const HistoryScreen: React.FC = () => {
       </View>
 
       <ScrollView style={styles.content}>
-        {/* 月ナビゲーション */}
+        {/* Month navigation */}
         <View style={styles.monthNavigation}>
           <TouchableOpacity 
             style={styles.navButton}
@@ -168,7 +168,7 @@ export const HistoryScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        {/* 曜日ヘッダー */}
+        {/* Day of week header */}
         <View style={styles.weekHeader}>
           {weekDays.map((day, index) => (
             <View key={index} style={styles.weekDayCell}>
@@ -177,7 +177,7 @@ export const HistoryScreen: React.FC = () => {
           ))}
         </View>
 
-        {/* カレンダーグリッド */}
+        {/* Calendar grid */}
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#2196F3" />
@@ -222,7 +222,7 @@ export const HistoryScreen: React.FC = () => {
           </View>
         )}
 
-        {/* 選択された日の詳細 */}
+        {/* Selected day details */}
         {selectedEntry && (
           <View style={styles.taskDetail}>
             <View style={styles.taskDetailHeader}>
@@ -267,7 +267,7 @@ export const HistoryScreen: React.FC = () => {
           </View>
         )}
 
-        {/* 統計情報 */}
+        {/* Statistics */}
         <View style={styles.stats}>
           <Text style={styles.statsTitle}>
             {t('history.monthlyStats', '今月の統計')}
