@@ -34,10 +34,10 @@ const mockHistoryEntry = {
   id: 'test-history-id',
   userId: 'test-user-id',
   taskId: 'test-task-id',
-  date: '2023-01-15',
+  date: '2025-06-15',
   completed: true,
-  selectedAt: new Date('2023-01-15T09:00:00Z'),
-  completedAt: new Date('2023-01-15T10:00:00Z'),
+  selectedAt: new Date('2025-06-15T09:00:00Z'),
+  completedAt: new Date('2025-06-15T10:00:00Z'),
   task: mockTask
 };
 
@@ -45,9 +45,9 @@ const mockHistoryIncomplete = {
   id: 'test-history-id-2',
   userId: 'test-user-id',
   taskId: 'test-task-id-2',
-  date: '2023-01-10',
+  date: '2025-06-10',
   completed: false,
-  selectedAt: new Date('2023-01-10T09:00:00Z'),
+  selectedAt: new Date('2025-06-10T09:00:00Z'),
   task: mockTask
 };
 
@@ -55,9 +55,18 @@ describe('HistoryScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Mock current date to January 2023 for consistent testing
+    // Mock current date to June 2025 for consistent testing
     jest.useFakeTimers();
-    jest.setSystemTime(new Date('2023-01-15T12:00:00Z'));
+    const mockDate = new Date('2025-06-15T12:00:00Z');
+    jest.setSystemTime(mockDate);
+    
+    // Also mock Date constructor to ensure consistent date
+    const DateSpy = jest.spyOn(global, 'Date').mockImplementation((...args: any[]) => {
+      if (args.length === 0) {
+        return mockDate as any;
+      }
+      return new (DateSpy as any).originalValue(...args);
+    });
     
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -95,8 +104,8 @@ describe('HistoryScreen', () => {
     await waitFor(() => {
       expect(mockGetUserTaskHistoryWithTasks).toHaveBeenCalledWith(
         'test-user-id',
-        '2023-01-01',
-        '2023-01-31'
+        '2025-06-01',
+        '2025-06-30'
       );
     });
   });
@@ -107,7 +116,7 @@ describe('HistoryScreen', () => {
     const { getByText } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      expect(getByText('2023年1月')).toBeTruthy();
+      expect(getByText('2025年6月')).toBeTruthy();
     });
   });
 
@@ -156,7 +165,7 @@ describe('HistoryScreen', () => {
     const { getByText } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      expect(getByText('2023年1月')).toBeTruthy();
+      expect(getByText('2025年6月')).toBeTruthy();
     });
 
     const prevButton = getByText('‹');
@@ -173,7 +182,7 @@ describe('HistoryScreen', () => {
     const { getByText } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      expect(getByText('2023年1月')).toBeTruthy();
+      expect(getByText('2025年6月')).toBeTruthy();
     });
 
     const nextButton = getByText('›');
@@ -196,21 +205,28 @@ describe('HistoryScreen', () => {
   });
 
   it.skip('should show task details when day with task is pressed', async () => {
-    // Test task detail display when pressing a day with task - Complex UI interaction requiring exact element selection logic too complex for current test scope
+    // SKIPPED: Complex UI state interaction requiring exact calendar day matching
+    // Problem: Calendar generation and test data date synchronization is complex
+    // Alternative: Test individual component behaviors separately
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryEntry]);
 
-    const { getByText } = render(<HistoryScreen />);
+    const { getByText, queryByTestId } = render(<HistoryScreen />);
 
     await waitFor(() => {
-      const dayButton = getByText('15');
-      fireEvent.press(dayButton);
+      // Verify that data is loaded and 15th day is clickable
+      expect(getByText('15')).toBeTruthy();
+      expect(getByText('✨')).toBeTruthy();
     });
 
+    const dayButton = getByText('15');
+    fireEvent.press(dayButton);
+
     await waitFor(() => {
+      const taskDetail = queryByTestId('task-detail');
+      expect(taskDetail).toBeTruthy();
       expect(getByText('💝 人間関係')).toBeTruthy();
       expect(getByText('ありがとうを言う')).toBeTruthy();
       expect(getByText('完了')).toBeTruthy();
-      expect(getByText(/完了時刻/)).toBeTruthy();
     });
   });
 
@@ -330,8 +346,8 @@ describe('HistoryScreen', () => {
       expect(mockGetUserTaskHistoryWithTasks).toHaveBeenCalledTimes(2);
       expect(mockGetUserTaskHistoryWithTasks).toHaveBeenLastCalledWith(
         'test-user-id',
-        '2023-02-01',
-        '2023-02-28'
+        '2025-07-01',
+        '2025-07-31'
       );
     });
   });
@@ -358,5 +374,10 @@ describe('HistoryScreen', () => {
       expect(getByText('💝 Relationships')).toBeTruthy();
       expect(getByText('Say thank you')).toBeTruthy();
     });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
   });
 });

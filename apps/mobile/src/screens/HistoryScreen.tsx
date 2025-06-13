@@ -224,7 +224,7 @@ export const HistoryScreen: React.FC = () => {
 
         {/* Selected day details */}
         {selectedEntry && (
-          <View style={styles.taskDetail}>
+          <View style={styles.taskDetail} testID="task-detail">
             <View style={styles.taskDetailHeader}>
               <Text style={styles.taskDetailDate}>
                 {new Date(selectedDate!).toLocaleDateString(
