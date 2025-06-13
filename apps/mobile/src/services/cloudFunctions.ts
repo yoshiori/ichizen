@@ -92,3 +92,22 @@ export const getGlobalCounterFromCloudFunctions = async (): Promise<number> => {
   const counter = await getGlobalCounter();
   return counter?.todayCompleted || 0;
 };
+
+/**
+ * Generic function to call any Cloud Function
+ */
+export const callFunction = async <T = any, R = any>(
+  functionName: string, 
+  data?: T
+): Promise<R> => {
+  const functionsInstance = getFunctionsInstance();
+  const cloudFunction = httpsCallable<T, R>(functionsInstance, functionName);
+  
+  try {
+    const result = await cloudFunction(data);
+    return result.data;
+  } catch (error) {
+    console.error(`Error calling Cloud Function ${functionName}:`, error);
+    throw error;
+  }
+};
