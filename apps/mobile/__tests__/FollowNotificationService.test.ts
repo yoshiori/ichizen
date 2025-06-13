@@ -50,7 +50,7 @@ describe('FollowNotificationService', () => {
         fromUserId: 'user123',
         fromUserName: 'Test User',
         toUserId: 'user456'
-      } as NotificationPayload;
+      } as unknown as NotificationPayload;
 
       expect(validateNotificationPayload(payload)).toBe(false);
     });
@@ -133,7 +133,7 @@ describe('FollowNotificationService', () => {
     it('should handle invalid payload gracefully', async () => {
       const invalidPayload = {
         type: 'invalid_type'
-      } as NotificationPayload;
+      } as unknown as NotificationPayload;
 
       const result = await sendFollowNotification(invalidPayload, 'token', 'ja');
 

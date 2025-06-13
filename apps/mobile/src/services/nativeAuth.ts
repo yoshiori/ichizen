@@ -16,7 +16,8 @@ export const signInWithGoogleNative = async () => {
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
     
     // Get user's ID token
-    const { idToken } = await GoogleSignin.signIn();
+    const signInResult = await GoogleSignin.signIn();
+    const idToken = (signInResult as any).idToken;
     
     // Create Firebase credential with the token
     const googleCredential = GoogleAuthProvider.credential(idToken);
