@@ -195,8 +195,8 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should show task details when day with task is pressed', async () => {
-    // TODO: Complex UI interaction - task detail display logic too complex for current test scope
+  it('should show task details when day with task is pressed', async () => {
+    // Test task detail display when pressing a day with task logic too complex for current test scope
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryEntry]);
 
     const { getByText } = render(<HistoryScreen />);
@@ -214,8 +214,8 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should hide task details when same day is pressed again', async () => {
-    // TODO: Complex UI interaction - task detail toggle functionality
+  it('should hide task details when same day is pressed again', async () => {
+    // Test task detail toggle functionality when pressing same day twice
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryEntry]);
 
     const { getByText, queryByText } = render(<HistoryScreen />);
@@ -237,8 +237,8 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should display incomplete task status', async () => {
-    // TODO: Complex UI interaction - incomplete task detail display
+  it('should display incomplete task status', async () => {
+    // Test incomplete task detail display
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryIncomplete]);
 
     const { getByText } = render(<HistoryScreen />);
@@ -253,8 +253,8 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should display monthly statistics', async () => {
-    // TODO: Complex statistics calculation - expected values don't match actual display
+  it('should display monthly statistics', async () => {
+    // Test monthly statistics calculation and display
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([
       mockHistoryEntry,
       mockHistoryIncomplete
@@ -273,8 +273,8 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should display 0% completion rate when no tasks', async () => {
-    // TODO: Complex statistics calculation - zero state display format
+  it('should display 0% completion rate when no tasks', async () => {
+    // Test zero state statistics display
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([]);
 
     const { getByText } = render(<HistoryScreen />);
@@ -336,8 +336,8 @@ describe('HistoryScreen', () => {
     });
   });
 
-  it.skip('should display task in English when user language is English', async () => {
-    // TODO: Complex i18n test - combination with task detail display
+  it('should display task in English when user language is English', async () => {
+    // Test i18n task display with English language setting
     mockUseAuth.mockReturnValue({
       user: { ...mockUser, language: 'en' as const },
       firebaseUser: mockFirebaseUser,
