@@ -64,6 +64,20 @@
     "selfFollowError": "You cannot follow yourself",
     "authRequired": "Login required"
   },
+  "signIn": {
+    "subtitle": "Join our community of daily good deeds",
+    "google": "Continue with Google",
+    "apple": "Continue with Apple",
+    "anonymous": "Continue as Guest",
+    "loading": "Signing in...",
+    "disclaimer": "By continuing, you agree to our terms of service and privacy policy.",
+    "error": {
+      "title": "Sign-In Error",
+      "google": "Google Sign-In failed. Please try again.",
+      "apple": "Apple Sign-In failed. Please try again.",
+      "anonymous": "Anonymous Sign-In failed. Please try again."
+    }
+  },
   "common": {
     "cancel": "Cancel"
   }

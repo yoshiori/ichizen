@@ -18,6 +18,7 @@ import { Task } from '../types/firebase';
 import { Language } from '../types';
 import { sampleTasks } from '../data/sampleTasks';
 import { useAuth } from '../contexts/AuthContext';
+import SignInScreen from './SignInScreen';
 import { 
   getUserTaskHistory,
   incrementGlobalCounter
@@ -126,23 +127,9 @@ export const MainScreen: React.FC = () => {
     );
   }
 
-  // Show sign in button if no user
-  // Temporarily bypass authentication for demo mode
-  const demoMode = !user;
-  if (demoMode && false) { // Disabled for demo
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.authContainer}>
-          <Text style={styles.title}>今日の小さな善行</Text>
-          <Text style={styles.subtitle}>Today's Small Good Deed</Text>
-          <DoneButton
-            onPress={signIn}
-            loading={isLoading}
-            disabled={false}
-          />
-        </View>
-      </SafeAreaView>
-    );
+  // Show sign in screen if no user
+  if (!user) {
+    return <SignInScreen />;
   }
 
   return (

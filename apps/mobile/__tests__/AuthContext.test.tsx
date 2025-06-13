@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, waitFor, act } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { render, waitFor, act, screen } from '@testing-library/react-native';
+import { Text, View } from 'react-native';
 import { AuthProvider, useAuth } from '../src/contexts/AuthContext';
 import * as authService from '../src/services/auth';
 import * as messagingService from '../src/services/messaging.platform';
@@ -53,6 +53,10 @@ describe('AuthContext', () => {
       setTimeout(() => callback(null), 0);
       return jest.fn(); // unsubscribe function
     });
+    
+    mockAuthService.signInAnonymous.mockResolvedValue(mockFirebaseUser);
+    mockAuthService.signInWithGoogle.mockResolvedValue(mockFirebaseUser);
+    mockAuthService.signInWithApple.mockResolvedValue(mockFirebaseUser);
     
     mockMessagingService.setupBackgroundMessageListener.mockReturnValue(undefined);
     mockMessagingService.requestNotificationPermission.mockResolvedValue('test-fcm-token');
@@ -199,7 +203,7 @@ describe('AuthContext', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('should call signInAnonymous when signIn is called', async () => {
+  it('should call signInAnonymous when signIn is called with no arguments', async () => {
     mockAuthService.signInAnonymous.mockResolvedValue(mockAuthResult);
     
     const TestSignIn = () => {
@@ -221,14 +225,13 @@ describe('AuthContext', () => {
     });
   });
 
-  it('should handle signIn error gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-    mockAuthService.signInAnonymous.mockRejectedValue(new Error('Sign in error'));
+  it('should call signInWithGoogle when signIn is called with google method', async () => {
+    mockAuthService.signInWithGoogle.mockResolvedValue(mockAuthResult);
     
     const TestSignIn = () => {
       const { signIn } = useAuth();
       React.useEffect(() => {
-        signIn();
+        signIn('google');
       }, [signIn]);
       return <Text testID="sign-in">signing in</Text>;
     };
@@ -240,8 +243,68 @@ describe('AuthContext', () => {
     );
 
     await waitFor(() => {
+      expect(mockAuthService.signInWithGoogle).toHaveBeenCalled();
+    });
+  });
+
+  it('should call signInWithApple when signIn is called with apple method', async () => {
+    mockAuthService.signInWithApple.mockResolvedValue(mockAuthResult);
+    
+    const TestSignIn = () => {
+      const { signIn } = useAuth();
+      React.useEffect(() => {
+        signIn('apple');
+      }, [signIn]);
+      return <Text testID="sign-in">signing in</Text>;
+    };
+
+    render(
+      <AuthProvider>
+        <TestSignIn />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(mockAuthService.signInWithApple).toHaveBeenCalled();
+    });
+  });
+
+  it('should handle signIn error gracefully', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    mockAuthService.signInAnonymous.mockRejectedValue(new Error('Sign in error'));
+    
+    const TestSignIn = () => {
+      const { signIn } = useAuth();
+      const [error, setError] = React.useState<string | null>(null);
+      
+      React.useEffect(() => {
+        signIn().catch((err) => {
+          setError(err.message);
+        });
+      }, [signIn]);
+      
+      return (
+        <View>
+          <Text testID="sign-in">signing in</Text>
+          {error && <Text testID="error">{error}</Text>}
+        </View>
+      );
+    };
+
+    render(
+      <AuthProvider>
+        <TestSignIn />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Sign in error:', expect.any(Error));
     });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error')).toBeTruthy();
+    });
+
     consoleErrorSpy.mockRestore();
   });
 

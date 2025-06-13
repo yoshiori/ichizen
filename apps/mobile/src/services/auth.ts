@@ -1,7 +1,8 @@
 import { 
   signInAnonymously, 
   signInWithPopup, 
-  GoogleAuthProvider, 
+  GoogleAuthProvider,
+  OAuthProvider,
   onAuthStateChanged, 
   User as FirebaseUser 
 } from 'firebase/auth';
@@ -11,6 +12,14 @@ import { User } from '../types/firebase';
 
 export const signInWithGoogle = async (): Promise<FirebaseUser> => {
   const provider = new GoogleAuthProvider();
+  const result = await signInWithPopup(auth, provider);
+  return result.user;
+};
+
+export const signInWithApple = async (): Promise<FirebaseUser> => {
+  const provider = new OAuthProvider('apple.com');
+  provider.addScope('email');
+  provider.addScope('name');
   const result = await signInWithPopup(auth, provider);
   return result.user;
 };

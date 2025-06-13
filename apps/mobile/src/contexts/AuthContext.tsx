@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
-import { onAuthStateChange, signInAnonymous, initializeUser } from '../services/auth';
+import { onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple, initializeUser } from '../services/auth';
 import { User } from '../types/firebase';
 import { 
   requestNotificationPermission, 
@@ -12,11 +12,13 @@ import {
 } from '../services/messaging.platform';
 import { updateUserFCMToken } from '../services/firestore';
 
+export type AuthMethod = 'google' | 'apple' | 'anonymous';
+
 interface AuthContextType {
   user: User | null;
   firebaseUser: FirebaseUser | null;
   loading: boolean;
-  signIn: () => Promise<void>;
+  signIn: (method?: AuthMethod) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,12 +40,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signIn = async () => {
+  const signIn = async (method: AuthMethod = 'anonymous') => {
     try {
       setLoading(true);
-      await signInAnonymous();
+      switch (method) {
+        case 'google':
+          await signInWithGoogle();
+          break;
+        case 'apple':
+          await signInWithApple();
+          break;
+        case 'anonymous':
+        default:
+          await signInAnonymous();
+          break;
+      }
     } catch (error) {
       console.error('Sign in error:', error);
+      throw error; // Re-throw to allow UI to handle specific errors
     } finally {
       setLoading(false);
     }

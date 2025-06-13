@@ -64,6 +64,20 @@
     "selfFollowError": "自分をフォローすることはできません",
     "authRequired": "ログインが必要です"
   },
+  "signIn": {
+    "subtitle": "世界をより良くする小さな一歩を始めましょう",
+    "google": "Googleでサインイン",
+    "apple": "Appleでサインイン", 
+    "anonymous": "ゲストとして続行",
+    "loading": "サインイン中...",
+    "disclaimer": "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。",
+    "error": {
+      "title": "サインインエラー",
+      "google": "Googleサインインに失敗しました。もう一度お試しください。",
+      "apple": "Appleサインインに失敗しました。もう一度お試しください。",
+      "anonymous": "ゲストサインインに失敗しました。もう一度お試しください。"
+    }
+  },
   "common": {
     "cancel": "キャンセル"
   }
