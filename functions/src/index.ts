@@ -22,6 +22,7 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 import {onCall} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import {sendFollowNotificationToUser, NotificationPayload} from "./notifications";
+import {processDailyTasksForAllUsers} from "./dailyTaskSchedulerHelpers";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -77,8 +78,15 @@ export const dailyTaskScheduler = onSchedule({
     console.log(`Global counter initialized for ${today} ` +
       `with total: ${totalAllTime}`);
 
-    // TODO: Implement user-specific task selection logic
-    // TODO: Push notification delivery
+    // Process daily tasks for all users
+    const taskProcessingResults = await processDailyTasksForAllUsers();
+    
+    console.log('Daily task processing results:', {
+      totalUsers: taskProcessingResults.totalUsers,
+      successfulSelections: taskProcessingResults.successfulSelections,
+      notificationsSent: taskProcessingResults.notificationResults.successCount,
+      notificationsFailed: taskProcessingResults.notificationResults.failureCount,
+    });
   } catch (error) {
     console.error("Daily task scheduler error:", error);
     throw error;
