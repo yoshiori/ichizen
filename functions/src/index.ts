@@ -42,7 +42,7 @@ export const dailyTaskScheduler = onSchedule({
   schedule: "0 6 * * *", // Daily at 6 AM UTC (3 PM JST)
   timeZone: "Asia/Tokyo",
   region: "asia-northeast1",
-}, async (_event) => {
+}, async () => {
   console.log("Daily task scheduler started");
 
   try {
@@ -130,7 +130,7 @@ export const onTaskCompleted = onDocumentCreated({
  */
 export const testFunction = onCall({
   region: "asia-northeast1",
-}, async (_request) => {
+}, async () => {
   console.log("testFunction called");
   return {message: "Hello from Cloud Functions!"};
 });
@@ -140,7 +140,7 @@ export const testFunction = onCall({
  */
 export const testFirestore = onCall({
   region: "asia-northeast1",
-}, async (_request) => {
+}, async () => {
   console.log("testFirestore called");
 
   try {
