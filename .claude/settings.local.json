@@ -58,8 +58,21 @@
       "mcp__playwright__browser_wait_for",
       "mcp__playwright__browser_click",
       "Bash(adb:*)",
-      "Bash(emulator:*)"
+      "Bash(emulator:*)",
+      "Bash(python3:*)",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_resize",
+      "Bash(GOOGLE_APPLICATION_CREDENTIALS=\"\" npx tsx src/setup-test.ts)",
+      "mcp__playwright__browser_handle_dialog",
+      "mcp__playwright__browser_tab_new",
+      "WebFetch(domain:console.firebase.google.com)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }

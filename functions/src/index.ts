@@ -21,6 +21,7 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 // import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import {onCall} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+import {sendFollowNotificationToUser, NotificationPayload} from "./notifications";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -360,3 +361,36 @@ export const completeTask = onCall({
   }
 } */
 /* eslint-enable @typescript-eslint/no-unused-vars */
+
+/**
+ * Send notification to follower when user completes a task
+ */
+export const sendFollowNotification = onCall({
+  region: "asia-northeast1",
+}, async (request) => {
+  console.log("sendFollowNotification called", {
+    authUid: request.auth?.uid,
+    data: request.data
+  });
+
+  try {
+    const userId = request.auth?.uid;
+    if (!userId) {
+      throw new Error("Authentication required");
+    }
+
+    const payload = request.data as NotificationPayload;
+    
+    // Validate that the sender is the authenticated user
+    if (payload.fromUserId !== userId) {
+      throw new Error("Invalid sender");
+    }
+
+    const result = await sendFollowNotificationToUser(payload);
+    
+    return result;
+  } catch (error) {
+    console.error("sendFollowNotification error:", error);
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
+  }
+});
