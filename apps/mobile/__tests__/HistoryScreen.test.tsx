@@ -55,18 +55,12 @@ describe('HistoryScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
+    // Ensure timers are real before setting fake ones
+    jest.useRealTimers();
+    
     // Mock current date to June 2025 for consistent testing
     jest.useFakeTimers();
-    const mockDate = new Date('2025-06-15T12:00:00Z');
-    jest.setSystemTime(mockDate);
-    
-    // Also mock Date constructor to ensure consistent date
-    const DateSpy = jest.spyOn(global, 'Date').mockImplementation((...args: any[]) => {
-      if (args.length === 0) {
-        return mockDate as any;
-      }
-      return new (DateSpy as any).originalValue(...args);
-    });
+    jest.setSystemTime(new Date('2025-06-15T12:00:00Z'));
     
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -172,7 +166,7 @@ describe('HistoryScreen', () => {
     fireEvent.press(prevButton);
 
     await waitFor(() => {
-      expect(getByText('2022年12月')).toBeTruthy();
+      expect(getByText('2025年5月')).toBeTruthy();
     });
   });
 
@@ -189,7 +183,7 @@ describe('HistoryScreen', () => {
     fireEvent.press(nextButton);
 
     await waitFor(() => {
-      expect(getByText('2023年2月')).toBeTruthy();
+      expect(getByText('2025年7月')).toBeTruthy();
     });
   });
 
