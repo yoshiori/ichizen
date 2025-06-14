@@ -1,11 +1,7 @@
-import { sendFollowNotificationToUser, NotificationPayload } from '../notifications';
-import * as admin from 'firebase-admin';
-
 // Mock Firebase Admin
 jest.mock('firebase-admin', () => ({
   messaging: jest.fn(() => ({
-    send: jest.fn(),
-    sendMulticast: jest.fn()
+    send: jest.fn()
   })),
   firestore: jest.fn(() => ({
     collection: jest.fn(() => ({
@@ -16,23 +12,10 @@ jest.mock('firebase-admin', () => ({
   }))
 }));
 
-const mockMessaging = {
-  send: jest.fn(),
-  sendMulticast: jest.fn()
-};
+import { sendFollowNotificationToUser, NotificationPayload } from '../notifications';
+import * as admin from 'firebase-admin';
 
-const mockFirestore = {
-  collection: jest.fn(() => ({
-    doc: jest.fn(() => ({
-      get: jest.fn()
-    }))
-  }))
-};
-
-// @ts-ignore
-admin.messaging.mockReturnValue(mockMessaging);
-// @ts-ignore
-admin.firestore.mockReturnValue(mockFirestore);
+const mockAdmin = admin as jest.Mocked<typeof admin>;
 
 describe('Cloud Functions Notifications', () => {
   beforeEach(() => {
@@ -61,6 +44,8 @@ describe('Cloud Functions Notifications', () => {
         })
       };
 
+      const mockFirestore = mockAdmin.firestore() as any;
+      const mockMessaging = mockAdmin.messaging() as any;
       mockFirestore.collection().doc().get.mockResolvedValue(mockUserDoc);
       mockMessaging.send.mockResolvedValue({ messageId: 'msg_123' });
 
@@ -104,12 +89,14 @@ describe('Cloud Functions Notifications', () => {
         })
       };
 
+      const mockFirestore = mockAdmin.firestore() as any;
       mockFirestore.collection().doc().get.mockResolvedValue(mockUserDoc);
 
       const result = await sendFollowNotificationToUser(payload);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('No FCM token found for user');
+      const mockMessaging = mockAdmin.messaging() as any;
       expect(mockMessaging.send).not.toHaveBeenCalled();
     });
 
@@ -130,12 +117,14 @@ describe('Cloud Functions Notifications', () => {
         exists: false
       };
 
+      const mockFirestore = mockAdmin.firestore() as any;
       mockFirestore.collection().doc().get.mockResolvedValue(mockUserDoc);
 
       const result = await sendFollowNotificationToUser(payload);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('User not found');
+      const mockMessaging = mockAdmin.messaging() as any;
       expect(mockMessaging.send).not.toHaveBeenCalled();
     });
 
@@ -160,6 +149,8 @@ describe('Cloud Functions Notifications', () => {
         })
       };
 
+      const mockFirestore = mockAdmin.firestore() as any;
+      const mockMessaging = mockAdmin.messaging() as any;
       mockFirestore.collection().doc().get.mockResolvedValue(mockUserDoc);
       mockMessaging.send.mockResolvedValue({ messageId: 'msg_123' });
 
@@ -201,7 +192,9 @@ describe('Cloud Functions Notifications', () => {
         })
       };
 
+      const mockFirestore = mockAdmin.firestore() as any;
       mockFirestore.collection().doc().get.mockResolvedValue(mockUserDoc);
+      const mockMessaging = mockAdmin.messaging() as any;
       mockMessaging.send.mockRejectedValue(new Error('Invalid FCM token'));
 
       const result = await sendFollowNotificationToUser(payload);
@@ -227,7 +220,9 @@ describe('Cloud Functions Notifications', () => {
         })
       };
 
+      const mockFirestore = mockAdmin.firestore() as any;
       mockFirestore.collection().doc().get.mockResolvedValue(mockUserDoc);
+      const mockMessaging = mockAdmin.messaging() as any;
       mockMessaging.send.mockResolvedValue({ messageId: 'msg_456' });
 
       const result = await sendFollowNotificationToUser(payload);
