@@ -1,5 +1,5 @@
-import { doc, onSnapshot, DocumentSnapshot } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { GlobalCounter } from '../types/firebase';
 
 export interface GlobalCounterUpdateData {
@@ -21,14 +21,13 @@ export const subscribeToGlobalCounter = (
   callback: GlobalCounterCallback
 ): Unsubscriber => {
   try {
-    const counterRef = doc(db, 'global', 'counter');
+    const counterRef = db.collection('global').doc('counter');
     
-    const unsubscribe = onSnapshot(
-      counterRef,
-      (snapshot: DocumentSnapshot) => {
+    const unsubscribe = counterRef.onSnapshot(
+      (snapshot: FirebaseFirestoreTypes.DocumentSnapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.data() as GlobalCounter;
-          const fromCache = snapshot.metadata.fromCache;
+          const fromCache = snapshot.metadata?.fromCache;
           
           callback({
             totalCompleted: data.totalCompleted || 0,
@@ -46,7 +45,7 @@ export const subscribeToGlobalCounter = (
           callback({
             totalCompleted: 0,
             todayCompleted: 0,
-            fromCache: snapshot.metadata.fromCache
+            fromCache: snapshot.metadata?.fromCache
           });
         }
       },

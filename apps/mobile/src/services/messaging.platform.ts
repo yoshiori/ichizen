@@ -5,8 +5,8 @@
 
 import { Platform } from 'react-native';
 
-// Platform detection
-const isWeb = Platform.OS === 'web' || (typeof window !== 'undefined' && !(window as any).ReactNativeWebView);
+// Platform detection - for React Native apps, always use mobile implementation
+const isWeb = Platform.OS === 'web' && (typeof window !== 'undefined' && !(window as any).ReactNativeWebView);
 
 // Conditional import
 let messagingService: any;

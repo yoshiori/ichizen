@@ -23,10 +23,10 @@ import {
   getUserTaskHistory,
   incrementGlobalCounter
 } from '../services/firestore';
-import { 
-  getTodayTask, 
-  completeTask 
-} from '../services/cloudFunctions';
+// import { 
+//   getTodayTask, 
+//   completeTask 
+// } from '../services/cloudFunctions';
 import { testFirestoreConnection } from '../services/testFirestore';
 
 const { height } = Dimensions.get('window');

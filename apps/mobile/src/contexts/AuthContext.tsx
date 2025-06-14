@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User as FirebaseUser } from 'firebase/auth';
+import { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import { onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple, initializeUser } from '../services/auth';
 import { User } from '../types/firebase';
 import { 
@@ -16,8 +16,9 @@ export type AuthMethod = 'google' | 'apple' | 'anonymous';
 
 interface AuthContextType {
   user: User | null;
-  firebaseUser: FirebaseUser | null;
+  firebaseUser: FirebaseAuthTypes.User | null;
   loading: boolean;
+  initError: string | null;
   signIn: (method?: AuthMethod) => Promise<void>;
 }
 
@@ -37,8 +38,9 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
 
   const signIn = async (method: AuthMethod = 'anonymous') => {
     try {
@@ -64,31 +66,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange(async (firebaseUser) => {
+    let mounted = true;
+    
+    // Timeout to prevent infinite loading
+    const initTimeout = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn('Firebase auth initialization timed out, proceeding without auth');
+        setLoading(false);
+        setInitError('Firebase initialization timed out');
+      }
+    }, 10000); // 10 second timeout
+
+    let unsubscribe: (() => void) | null = null;
+    
+    try {
+      unsubscribe = onAuthStateChange(async (firebaseUser) => {
+      if (!mounted) return;
+      
+      clearTimeout(initTimeout);
       setFirebaseUser(firebaseUser);
       
       if (firebaseUser) {
         try {
           const userData = await initializeUser(firebaseUser);
-          setUser(userData);
+          if (mounted) {
+            setUser(userData);
+            setInitError(null);
+          }
           
           // Setup FCM after user is authenticated
           await setupFCMForUser(firebaseUser.uid);
         } catch (error) {
           console.error('User initialization error:', error);
-          setUser(null);
+          if (mounted) {
+            setUser(null);
+            setInitError(error instanceof Error ? error.message : 'User initialization failed');
+          }
         }
       } else {
-        setUser(null);
+        if (mounted) {
+          setUser(null);
+          setInitError(null);
+        }
       }
       
-      setLoading(false);
-    });
+      if (mounted) {
+        setLoading(false);
+      }
+      });
+    } catch (error) {
+      console.error('Firebase auth state change setup failed:', error);
+      if (mounted) {
+        setLoading(false);
+        setInitError(error instanceof Error ? error.message : 'Auth setup failed');
+      }
+    }
 
     // Setup background message handler
-    setupBackgroundMessageListener();
+    try {
+      setupBackgroundMessageListener();
+    } catch (error) {
+      console.warn('Background message setup failed:', error);
+    }
 
-    return unsubscribe;
+    return () => {
+      mounted = false;
+      clearTimeout(initTimeout);
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const setupFCMForUser = async (userId: string) => {
@@ -138,6 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     firebaseUser,
     loading,
+    initError,
     signIn
   };
 

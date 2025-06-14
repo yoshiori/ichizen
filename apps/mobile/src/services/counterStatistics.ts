@@ -1,12 +1,5 @@
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  orderBy,
-  Timestamp 
-} from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 import { CounterStatistics } from '../types/firebase';
 
 /**
@@ -51,15 +44,13 @@ export const getWeeklyCount = async (weekStart: Date): Promise<number> => {
     const weekStartString = weekStart.toISOString().split('T')[0];
     const weekEndString = weekEnd.toISOString().split('T')[0];
     
-    const q = query(
-      collection(db, 'daily_task_history'),
-      where('completed', '==', true),
-      where('date', '>=', weekStartString),
-      where('date', '<', weekEndString),
-      orderBy('date')
-    );
-    
-    const snapshot = await getDocs(q);
+    const snapshot = await db
+      .collection('daily_task_history')
+      .where('completed', '==', true)
+      .where('date', '>=', weekStartString)
+      .where('date', '<', weekEndString)
+      .orderBy('date')
+      .get();
     return snapshot.size;
   } catch (error) {
     console.error('Error getting weekly count:', error);
@@ -80,15 +71,13 @@ export const getMonthlyCount = async (monthStart: Date): Promise<number> => {
     const monthStartString = monthStart.toISOString().split('T')[0];
     const monthEndString = monthEnd.toISOString().split('T')[0];
     
-    const q = query(
-      collection(db, 'daily_task_history'),
-      where('completed', '==', true),
-      where('date', '>=', monthStartString),
-      where('date', '<', monthEndString),
-      orderBy('date')
-    );
-    
-    const snapshot = await getDocs(q);
+    const snapshot = await db
+      .collection('daily_task_history')
+      .where('completed', '==', true)
+      .where('date', '>=', monthStartString)
+      .where('date', '<', monthEndString)
+      .orderBy('date')
+      .get();
     return snapshot.size;
   } catch (error) {
     console.error('Error getting monthly count:', error);
@@ -108,12 +97,11 @@ export const calculateCounterStatistics = async (): Promise<CounterStatistics> =
     
     // Get today's count from global counter (simple approach)
     const today = now.toISOString().split('T')[0];
-    const dailyQuery = query(
-      collection(db, 'daily_task_history'),
-      where('completed', '==', true),
-      where('date', '==', today)
-    );
-    const dailySnapshot = await getDocs(dailyQuery);
+    const dailySnapshot = await db
+      .collection('daily_task_history')
+      .where('completed', '==', true)
+      .where('date', '==', today)
+      .get();
     const daily = dailySnapshot.size;
     
     // Get weekly and monthly counts in parallel

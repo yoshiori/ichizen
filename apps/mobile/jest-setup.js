@@ -169,48 +169,83 @@ jest.mock('expo-constants', () => ({
 // FIREBASE MOCKS
 // ============================================================================
 
-// Mock Firebase v9+ SDK
-jest.mock('firebase/app', () => ({
-  initializeApp: jest.fn(),
-  getApps: jest.fn(() => []),
-  getApp: jest.fn()
+// Mock React Native Firebase SDK
+jest.mock('@react-native-firebase/app', () => ({
+  firebase: {
+    app: jest.fn(() => ({}))
+  }
 }));
 
-jest.mock('firebase/auth', () => ({
-  getAuth: jest.fn(() => ({
-    currentUser: null
-  })),
-  signInAnonymously: jest.fn(),
-  signInWithPopup: jest.fn(),
-  GoogleAuthProvider: jest.fn(),
-  onAuthStateChanged: jest.fn(),
-  connectAuthEmulator: jest.fn()
-}));
+jest.mock('@react-native-firebase/auth', () => {
+  const mockAuth = jest.fn(() => ({
+    currentUser: null,
+    signInAnonymously: jest.fn(() => Promise.resolve({ user: { uid: 'test-uid' } })),
+    onAuthStateChanged: jest.fn((callback) => {
+      callback(null);
+      return jest.fn();
+    })
+  }));
+  
+  return {
+    __esModule: true,
+    default: mockAuth
+  };
+});
 
-jest.mock('firebase/firestore', () => ({
-  getFirestore: jest.fn(),
-  collection: jest.fn(),
-  doc: jest.fn(),
-  getDoc: jest.fn(),
-  setDoc: jest.fn(),
-  getDocs: jest.fn(),
-  addDoc: jest.fn(),
-  query: jest.fn(),
-  where: jest.fn(),
-  orderBy: jest.fn(),
-  limit: jest.fn(),
-  updateDoc: jest.fn(),
-  increment: jest.fn(),
-  deleteDoc: jest.fn(),
-  connectFirestoreEmulator: jest.fn()
-}));
+jest.mock('@react-native-firebase/firestore', () => {
+  const mockFirestore = jest.fn(() => ({
+    collection: jest.fn(() => ({
+      doc: jest.fn(() => ({
+        get: jest.fn(() => Promise.resolve({ 
+          exists: true,
+          id: 'test-id',
+          data: jest.fn(() => ({ name: 'test' }))
+        })),
+        set: jest.fn(() => Promise.resolve()),
+        update: jest.fn(() => Promise.resolve()),
+        delete: jest.fn(() => Promise.resolve()),
+        onSnapshot: jest.fn((callback) => {
+          callback({ 
+            exists: () => true,
+            data: () => ({ name: 'test' })
+          });
+          return jest.fn();
+        })
+      })),
+      where: jest.fn(() => ({
+        get: jest.fn(() => Promise.resolve({ size: 0, docs: [] })),
+        orderBy: jest.fn(() => ({
+          get: jest.fn(() => Promise.resolve({ size: 0, docs: [] })),
+          limit: jest.fn(() => ({
+            get: jest.fn(() => Promise.resolve({ size: 0, docs: [] }))
+          }))
+        })),
+        where: jest.fn(() => ({
+          get: jest.fn(() => Promise.resolve({ size: 0, docs: [] })),
+          limit: jest.fn(() => ({
+            get: jest.fn(() => Promise.resolve({ size: 0, docs: [] }))
+          }))
+        })),
+        limit: jest.fn(() => ({
+          get: jest.fn(() => Promise.resolve({ size: 0, docs: [] }))
+        }))
+      })),
+      get: jest.fn(() => Promise.resolve({ size: 0, docs: [] })),
+      add: jest.fn(() => Promise.resolve({ id: 'mock-id' }))
+    }))
+  }));
+  
+  return {
+    __esModule: true,
+    default: mockFirestore,
+    FieldValue: {
+      increment: jest.fn(),
+      serverTimestamp: jest.fn()
+    }
+  };
+});
 
-jest.mock('firebase/messaging', () => ({
-  getMessaging: jest.fn(),
-  getToken: jest.fn(),
-  onMessage: jest.fn(),
-  getIsSupported: jest.fn(() => Promise.resolve(true))
-}));
+// Web Firebase messaging mock removed - using React Native Firebase instead
 
 // Mock React Native Firebase
 jest.mock('@react-native-firebase/messaging', () => ({
