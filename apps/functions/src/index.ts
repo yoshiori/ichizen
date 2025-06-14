@@ -21,15 +21,16 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 // import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import {onCall} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-
-// Initialize Firebase Admin SDK first
-admin.initializeApp();
-
 import {sendFollowNotificationToUser, NotificationPayload} from "./notifications.js";
 import {processDailyTasksForAllUsers} from "./dailyTaskSchedulerHelpers.js";
 
-// Firestore instance
-const db = admin.firestore();
+// Get Firestore instance with initialization check
+function getFirestore() {
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+  }
+  return admin.firestore();
+}
 
 // Configuration for emulator usage
 if (process.env.FIRESTORE_EMULATOR_HOST) {
@@ -62,7 +63,7 @@ export const dailyTaskScheduler = onSchedule(
 
       let totalAllTime = 0;
       try {
-        const yesterdayDoc = await db.collection("global_counters").doc(yesterdayString).get();
+        const yesterdayDoc = await getFirestore().collection("global_counters").doc(yesterdayString).get();
         if (yesterdayDoc.exists) {
           totalAllTime = yesterdayDoc.data()?.totalDoneAllTime || 0;
         }
@@ -71,7 +72,7 @@ export const dailyTaskScheduler = onSchedule(
       }
 
       // Initialize global counter
-      await db.collection("global_counters").doc(today).set({
+      await getFirestore().collection("global_counters").doc(today).set({
         date: today,
         totalDoneToday: 0,
         totalDoneAllTime: totalAllTime,
@@ -121,7 +122,7 @@ export const onTaskCompleted = onDocumentCreated({
     const today = new Date().toISOString().split("T")[0];
 
     // Increment global counter (only when completed)
-    await db.collection("global_counters").doc(today).update({
+    await getFirestore().collection("global_counters").doc(today).update({
       totalDoneToday: admin.firestore.FieldValue.increment(1),
       totalDoneAllTime: admin.firestore.FieldValue.increment(1),
       lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
@@ -165,7 +166,7 @@ export const testFirestore = onCall(
       console.log("FIRESTORE_EMULATOR_HOST:", process.env.FIRESTORE_EMULATOR_HOST);
 
       // Get directly from tasks collection
-      const tasksSnapshot = await db.collection("tasks").limit(1).get();
+      const tasksSnapshot = await getFirestore().collection("tasks").limit(1).get();
       console.log("Tasks collection accessed successfully, docs:", tasksSnapshot.size);
 
       if (tasksSnapshot.empty) {
@@ -214,7 +215,7 @@ export const getTodayTask = onCall(
 
       // Simply select and return a task (history feature to be added later)
       console.log("Simplified: Getting all tasks...");
-      const tasksSnapshot = await db.collection("tasks").get();
+      const tasksSnapshot = await getFirestore().collection("tasks").get();
       console.log("Tasks available:", tasksSnapshot.size);
 
       if (tasksSnapshot.empty) {
@@ -265,7 +266,7 @@ export const completeTask = onCall(
       // Increment global counter (optional)
       const today = new Date().toISOString().split("T")[0];
       try {
-        await db
+        await getFirestore()
           .collection("global_counters")
           .doc(today)
           .update({
@@ -300,7 +301,7 @@ export const completeTask = onCall(
 /* async function sendFollowerNotifications(userId: string) {
   try {
     // Get user information
-    const userDoc = await db.collection("users").doc(userId).get();
+    const userDoc = await getFirestore().collection("users").doc(userId).get();
     if (!userDoc.exists) {
       console.log("User not found:", userId);
       return;
@@ -309,7 +310,7 @@ export const completeTask = onCall(
 
     // Get users who follow this user
     // Current data model uses users.followedUsers array
-    const usersSnapshot = await db.collection("users")
+    const usersSnapshot = await getFirestore().collection("users")
       .where("followedUsers", "array-contains", userId)
       .get();
 

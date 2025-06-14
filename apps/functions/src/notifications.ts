@@ -1,6 +1,20 @@
 import * as admin from "firebase-admin";
 
-// Firebase Admin is initialized in index.ts
+// Get Firestore instance with initialization check
+function getFirestore() {
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+  }
+  return admin.firestore();
+}
+
+// Get Messaging instance with initialization check
+function getMessaging() {
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+  }
+  return admin.messaging();
+}
 
 export type NotificationType = "follow_task_completed" | "new_follower";
 
@@ -58,7 +72,7 @@ const createNotificationTemplate = (type: NotificationType, fromUserName: string
 export const sendFollowNotificationToUser = async (payload: NotificationPayload): Promise<NotificationResult> => {
   try {
     // Get user information
-    const userDoc = await admin.firestore().collection("users").doc(payload.toUserId).get();
+    const userDoc = await getFirestore().collection("users").doc(payload.toUserId).get();
 
     if (!userDoc.exists) {
       return {
@@ -95,7 +109,7 @@ export const sendFollowNotificationToUser = async (payload: NotificationPayload)
     };
 
     // Send notification
-    const response = await admin.messaging().send(message);
+    const response = await getMessaging().send(message);
 
     console.log("📱 Notification sent successfully:", {
       messageId: response,

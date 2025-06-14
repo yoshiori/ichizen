@@ -5,8 +5,13 @@
 
 import * as admin from "firebase-admin";
 
-// Firestore instance (automatically initialized in Cloud Functions environment)
-const db = admin.firestore();
+// Get Firestore instance with initialization check
+function getFirestore() {
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+  }
+  return admin.firestore();
+}
 
 export interface UserTaskPreferences {
   id: string;
@@ -56,7 +61,7 @@ export const selectDailyTaskForUser = async (user: UserTaskPreferences): Promise
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const sevenDaysAgoStr = sevenDaysAgo.toISOString().split("T")[0];
 
-    const historySnapshot = await db
+    const historySnapshot = await getFirestore()
       .collection("daily_task_history")
       .where("userId", "==", user.id)
       .where("date", ">=", sevenDaysAgoStr)
@@ -64,11 +69,11 @@ export const selectDailyTaskForUser = async (user: UserTaskPreferences): Promise
       .limit(10)
       .get();
 
-    const recentTaskIds = historySnapshot.docs.map((doc) => doc.data().taskId);
+    const recentTaskIds = historySnapshot.docs.map((doc: any) => doc.data().taskId);
     console.log(`User ${user.id} recent tasks:`, recentTaskIds);
 
     // Get all available tasks
-    const tasksSnapshot = await db.collection("tasks").get();
+    const tasksSnapshot = await getFirestore().collection("tasks").get();
     const allTasks = tasksSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -117,7 +122,10 @@ export const getUsersForNotification = async (): Promise<UserForNotification[]> 
     console.log("Getting users for notification...");
 
     // Get users who have notifications enabled and FCM tokens
-    const usersSnapshot = await db.collection("users").where("notificationSettings.dailyReminder", "==", true).get();
+    const usersSnapshot = await getFirestore()
+      .collection("users")
+      .where("notificationSettings.dailyReminder", "==", true)
+      .get();
 
     const users: UserForNotification[] = [];
 
@@ -229,7 +237,7 @@ export const storeDailyTaskSelection = async (userId: string, task: Task, date: 
       selectedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    await db.collection("daily_task_history").add(taskHistoryData);
+    await getFirestore().collection("daily_task_history").add(taskHistoryData);
     console.log(`Stored task selection for user ${userId}: ${task.id}`);
   } catch (error) {
     console.error(`Error storing task selection for user ${userId}:`, error);
@@ -268,7 +276,7 @@ export const processDailyTasksForAllUsers = async (): Promise<{
     for (const user of users) {
       try {
         // Get full user data for task selection
-        const userDoc = await db.collection("users").doc(user.id).get();
+        const userDoc = await getFirestore().collection("users").doc(user.id).get();
         if (!userDoc.exists) {
           console.warn(`User ${user.id} not found, skipping`);
           continue;

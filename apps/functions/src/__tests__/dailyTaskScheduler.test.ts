@@ -6,7 +6,7 @@
 // Mock Firebase Admin SDK
 jest.mock("firebase-admin", () => ({
   initializeApp: jest.fn(),
-  apps: [{}], // Mock existing app to prevent re-initialization
+  apps: [], // Empty apps array to test initialization logic
   firestore: jest.fn(() => ({
     collection: jest.fn(),
   })),
