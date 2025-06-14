@@ -27,8 +27,8 @@ export const useTaskManager = (userId?: string): UseTaskManagerReturn => {
       if (userId) {
         try {
           const today = new Date().toISOString().split('T')[0];
-          const history = await getUserTaskHistory(userId, today, today);
-          if (history.length > 0) {
+          const history = await getUserTaskHistory(userId, today);
+          if (history) {
             setIsCompleted(true);
           }
         } catch (error) {

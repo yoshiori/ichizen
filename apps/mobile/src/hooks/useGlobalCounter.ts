@@ -24,7 +24,8 @@ export const useGlobalCounter = (): UseGlobalCounterReturn => {
     setIsLoading(true);
     try {
       console.log('📊 Incrementing global counter...');
-      await incrementGlobalCounter();
+      const today = new Date().toISOString().split('T')[0];
+      await incrementGlobalCounter(today);
       
       // Update local counters optimistically
       setGlobalCounters(prev => ({
