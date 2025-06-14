@@ -95,7 +95,9 @@
       "Bash(rg:*)",
       "Bash(HUSKY=0 npm ci)",
       "Bash(CI=true npx is-ci)",
-      "Bash(HUSKY=0 npm install --no-fund)"
+      "Bash(HUSKY=0 npm install --no-fund)",
+      "Bash(EXPO_PUBLIC_FIREBASE_ENV=emulator npx expo start --web)",
+      "Bash(EXPO_PUBLIC_FIREBASE_ENV=emulator npx expo run:android)"
     ],
     "deny": []
   },

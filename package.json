@@ -16,7 +16,9 @@
     "format": "npm run format --workspaces",
     "format:check": "npm run format:check --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",
@@ -39,5 +41,10 @@
     "*.{json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "expo": "~53.0.11",
+    "react": "19.0.0",
+    "react-native": "0.79.3"
   }
 }
