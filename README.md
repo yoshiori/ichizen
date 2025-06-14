@@ -22,8 +22,9 @@ Ichizen (「今日の小さな善行」) provides users with **"a feeling that t
 The app is in **advanced development** with **full React Native Android support** achieved through successful **React Native Firebase migration**:
 
 ### ✅ Completed Features (June 2025 - React Native Firebase Migration)
+
 - **🎯 Complete Android Support** - Expo Development Build + Emulator tested + APK builds
-- **🔥 React Native Firebase Integration** - **Complete migration from Web Firebase SDK to native SDK**  
+- **🔥 React Native Firebase Integration** - **Complete migration from Web Firebase SDK to native SDK**
 - **📱 Production-Ready Mobile App** - Native performance, FCM push notifications
 - **✅ 98% Test Coverage** - 16/16 test suites passing (148/151 tests) ✅
 - **🌏 Multi-language Support** - Complete Japanese/English translations
@@ -33,32 +34,44 @@ The app is in **advanced development** with **full React Native Android support*
 - **🚀 Enhanced Performance** - Native Firebase SDK benefits (faster, better offline, battery efficient)
 
 ### 🎮 Live Demos
+
 - **📱 Android APK**: Runs on physical devices and emulators
 - **🌐 Web App**: `npx expo start --web` (development)
 - **☁️ Cloud Functions**: [asia-northeast1-ichizen-daily-good-deeds.cloudfunctions.net](https://asia-northeast1-ichizen-daily-good-deeds.cloudfunctions.net)
 
 ## 🛠 Tech Stack
 
+### Monorepo Architecture
+
+- **Turborepo** - High-performance monorepo build system with intelligent caching
+- **npm Workspaces** - Monorepo dependency management
+- **Parallel builds** - Optimized task execution with dependency awareness
+- **Optional Remote Cache** - Set `TURBO_TOKEN` and `TURBO_TEAM` for [Vercel Remote Cache](https://turbo.build/repo/docs/core-concepts/remote-caching)
+
 ### Frontend
+
 - **React Native** + **TypeScript** + **Expo Development Build**
 - **react-i18next** for internationalization
 - **React Native Firebase SDK** for native performance and reliability
 
 ### Backend
+
 - **Firebase Authentication** - Anonymous user authentication
 - **Cloud Firestore** - Real-time database with security rules
 - **Cloud Functions** - TypeScript serverless functions
 - **Firebase Emulator Suite** - Local development environment
 
 ### DevOps & Testing
-- **Jest** + **React Native Testing Library** - 131 test cases
-- **GitHub Actions** - Automated CI/CD pipeline
+
+- **Jest** + **React Native Testing Library** - 148 test cases
+- **GitHub Actions** - Automated CI/CD pipeline with Turborepo caching
 - **ESLint** + **TypeScript** - Code quality assurance
 - **Development/Production** environments with proper config management
 
 ## 🏃‍♂️ Quick Start
 
 ### Prerequisites
+
 - Node.js 20+
 - npm 10+
 - Firebase CLI (for backend development)
@@ -70,13 +83,15 @@ The app is in **advanced development** with **full React Native Android support*
 git clone https://github.com/yoshiori/ichizen.git
 cd ichizen
 
-# Install dependencies
-cd apps/mobile
+# Install dependencies for all packages
 npm install
 
-# Start development server
-npx expo start --web  # For web browser
-npx expo start        # For mobile (scan QR code with Expo Go)
+# Start development servers (parallel execution)
+npm run dev
+
+# Or start specific applications
+npm run mobile:dev     # Mobile app only
+npm run functions:dev  # Cloud Functions only
 ```
 
 ### Backend Development
@@ -98,57 +113,66 @@ node scripts/test-cloud-functions-integration.js
 ### Testing
 
 ```bash
-# Run all tests
-npm test
+# Run all tests (parallel execution with Turborepo)
+npm run test
 
-# Run with coverage
-npm test -- --coverage
+# Run tests for specific app
+npm run mobile:test     # Mobile app tests
+npm run functions:test  # Cloud Functions tests
 
-# Type checking
+# Type checking (all packages)
 npm run typecheck
 
-# Linting
+# Linting (all packages)
 npm run lint
+
+# Build all packages
+npm run build
 ```
 
 ## 📂 Project Structure
 
 ```
-ichizen/
+ichizen/ (Turborepo root)
 ├── apps/
-│   └── mobile/                 # React Native app
+│   ├── mobile/                 # React Native app
+│   │   ├── src/
+│   │   │   ├── components/     # Reusable UI components
+│   │   │   ├── screens/        # App screens
+│   │   │   ├── services/       # Firebase services
+│   │   │   ├── contexts/       # React contexts
+│   │   │   ├── config/         # Environment configs
+│   │   │   ├── i18n/          # Internationalization
+│   │   │   ├── types/         # TypeScript definitions
+│   │   │   └── utils/         # Utility functions
+│   │   └── __tests__/         # Comprehensive test suite
+│   └── functions/             # Cloud Functions (TypeScript)
 │       ├── src/
-│       │   ├── components/     # Reusable UI components
-│       │   ├── screens/        # App screens
-│       │   ├── services/       # Firebase services
-│       │   ├── contexts/       # React contexts
-│       │   ├── config/         # Environment configs
-│       │   ├── i18n/          # Internationalization
-│       │   ├── types/         # TypeScript definitions
-│       │   └── utils/         # Utility functions
-│       └── __tests__/         # Comprehensive test suite
-├── functions/                 # Cloud Functions (TypeScript)
-│   ├── src/
-│   │   └── index.ts          # Function implementations
-│   └── lib/                  # Compiled JavaScript
-├── scripts/                  # Development utilities
-│   ├── setup-initial-data.js # Emulator data setup
+│       │   └── index.ts       # Function implementations
+│       └── lib/               # Compiled JavaScript
+├── packages/                  # Shared packages (future)
+├── scripts/                   # Development utilities
+│   ├── setup-initial-data.js  # Emulator data setup
 │   └── test-cloud-functions-integration.js
-├── firebase.json             # Firebase configuration
-├── firestore.rules          # Security rules
-├── firestore.indexes.json   # Database indexes
-└── .github/workflows/       # CI/CD pipelines
+├── turbo.json                 # Turborepo configuration
+├── package.json               # Root package with workspaces
+├── firebase.json              # Firebase configuration
+├── firestore.rules           # Security rules
+├── firestore.indexes.json    # Database indexes
+└── .github/workflows/        # CI/CD pipelines with Turborepo
 ```
 
 ## 🎯 Development Roadmap
 
 ### Phase 1: Foundation ✅ (Completed)
+
 - [x] Core UI components with TDD approach
 - [x] Multi-language support with react-i18next
 - [x] Comprehensive test suite (131 tests)
 - [x] TypeScript setup with strict type checking
 
 ### Phase 2: Backend Integration ✅ (Completed)
+
 - [x] Firebase Authentication with anonymous sign-in
 - [x] Cloud Firestore database with security rules
 - [x] Cloud Functions for daily task logic
@@ -156,18 +180,21 @@ ichizen/
 - [x] Development/production environment separation
 
 ### Phase 3: Production Deployment ✅ (Completed)
+
 - [x] GitHub Actions CI/CD pipeline
 - [x] Automated Cloud Functions deployment
 - [x] Firebase project configuration
 - [x] Environment-specific configurations
 
 ### Phase 4: Social Features (Current Focus)
+
 - [ ] Follow system implementation
 - [ ] Push notification infrastructure
 - [ ] Friend activity notifications
 - [ ] Enhanced user profiles
 
 ### Phase 5: Polish & Scale
+
 - [ ] Mobile app store deployment
 - [ ] Performance optimizations
 - [ ] Additional task categories
@@ -187,16 +214,36 @@ This project follows **Test-Driven Development (TDD)** principles:
 
 ## 🔧 Available Scripts
 
-### Mobile App (apps/mobile/)
+### Turborepo Commands (Root)
+
 ```bash
+npm run build          # Build all packages
+npm run test           # Run all tests
+npm run lint           # Lint all packages
+npm run typecheck      # Type check all packages
+npm run dev            # Start all dev servers in parallel
+npm run mobile:dev     # Start mobile dev server only
+npm run functions:dev  # Start functions dev server only
+npm run mobile:test    # Run mobile tests only
+npm run functions:test # Run functions tests only
+npm run mobile:lint    # Run mobile linting only
+npm run functions:lint # Run functions linting only
+npm run mobile:typecheck    # Run mobile type checking only
+npm run functions:typecheck # Run functions type checking only
+```
+
+### Individual Package Scripts
+
+```bash
+# Mobile App (apps/mobile/)
+cd apps/mobile
 npm start          # Start Expo development server
 npm test           # Run test suite
 npm run typecheck  # TypeScript validation
 npm run lint       # Code linting
-```
 
-### Cloud Functions (functions/)
-```bash
+# Cloud Functions (apps/functions/)
+cd apps/functions
 npm run build      # Compile TypeScript
 npm run serve      # Local emulator
 npm run deploy     # Deploy to Firebase
@@ -204,6 +251,7 @@ npm run lint       # ESLint validation
 ```
 
 ### Development Scripts (scripts/)
+
 ```bash
 node setup-initial-data.js                    # Setup test data
 node test-cloud-functions-integration.js      # End-to-end testing
@@ -220,11 +268,13 @@ Complete multi-language support with infrastructure for expansion:
 ## 🚀 Deployment
 
 ### Automated Deployment
+
 - **GitHub Actions** automatically deploys Cloud Functions on push to main
 - **Firebase CLI** manages database rules and indexes
 - **Environment Variables** handle configuration differences
 
 ### Manual Deployment
+
 ```bash
 # Deploy Cloud Functions
 firebase deploy --only functions
@@ -248,6 +298,7 @@ This project welcomes contributions! Please follow these guidelines:
 6. **Submit** a pull request with clear description
 
 ### Code Standards
+
 - **TypeScript** for type safety
 - **ESLint** configuration adherence
 - **Test coverage** for new features
@@ -280,4 +331,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **"Small acts of kindness are the beginning of great change."** ✨
 
-*Built with TDD principles, TypeScript safety, and a vision for a kinder world.*
+_Built with TDD principles, TypeScript safety, and a vision for a kinder world._

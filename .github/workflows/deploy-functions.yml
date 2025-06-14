@@ -4,14 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - "functions/**"
+      - "apps/functions/**"
       - "firestore.rules"
       - "firestore.indexes.json"
       - ".github/workflows/deploy-functions.yml"
   pull_request:
     branches: [main]
     paths:
-      - "functions/**"
+      - "apps/functions/**"
       - "firestore.rules"
       - "firestore.indexes.json"
 
@@ -22,6 +22,9 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     steps:
       - name: Checkout code
@@ -31,34 +34,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         env:
           HUSKY: 0
-        run: |
-          npm ci
-          cd functions
-          npm ci
+        run: npm ci
 
-      - name: Run ESLint
+      - name: Build and test functions
         run: |
-          cd functions
-          npm run lint
-
-      - name: Build TypeScript
-        run: |
-          cd functions
-          npm run build
-
-      - name: Run tests (if available)
-        run: |
-          cd functions
-          npm test --if-present
+          npm run functions:build
+          npm run functions:test
+          npm run functions:lint
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     steps:
       - name: Checkout code
@@ -68,6 +63,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
@@ -75,63 +71,36 @@ jobs:
       - name: Install dependencies
         env:
           HUSKY: 0
-        run: |
-          npm ci
-          cd functions
-          npm ci
+        run: npm ci
 
-      - name: Build TypeScript
-        run: |
-          cd functions
-          npm run build
+      - name: Build functions
+        run: npm run functions:build
 
       - name: Authenticate to Firebase
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          # Debug: Check if secret exists
           if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
             echo "❌ FIREBASE_SERVICE_ACCOUNT secret is empty or not set"
-            echo "Available secrets check:"
-            echo "Length of FIREBASE_SERVICE_ACCOUNT: ${#FIREBASE_SERVICE_ACCOUNT}"
             exit 1
           fi
 
           echo "🔐 Using service account key for authentication"
-          echo "✅ FIREBASE_SERVICE_ACCOUNT secret found (length: ${#FIREBASE_SERVICE_ACCOUNT})"
-
-          # Create service account key file
           echo "$FIREBASE_SERVICE_ACCOUNT" > "$HOME/gcloud-service-key.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
 
-          # Verify the file was created properly
-          if [ -f "$HOME/gcloud-service-key.json" ]; then
-            echo "✅ Service account key file created successfully"
-            # Check if it's valid JSON
-            if jq . "$HOME/gcloud-service-key.json" > /dev/null 2>&1; then
-              echo "✅ Service account key is valid JSON"
-            else
-              echo "❌ Service account key is not valid JSON"
-              exit 1
-            fi
+          if jq . "$HOME/gcloud-service-key.json" > /dev/null 2>&1; then
+            echo "✅ Service account key is valid JSON"
           else
-            echo "❌ Failed to create service account key file"
+            echo "❌ Service account key is not valid JSON"
             exit 1
           fi
 
       - name: Deploy to Firebase
         run: |
-          echo "🚀 Deploying to Firebase..."
-          echo "🔐 Using service account: $GOOGLE_APPLICATION_CREDENTIALS"
-          echo "💾 Cloud Billing API enabled"
-
-          # Test Firebase authentication first
-          echo "🔍 Testing Firebase authentication..."
+          echo "🚀 Deploying Cloud Functions..."
           firebase projects:list --project ichizen-daily-good-deeds
-
-          # Run deploy with verbose logging
-          echo "🚀 Starting deployment with verbose logging..."
           FIREBASE_DEPLOY_AGENT=github-actions firebase deploy --only functions --project ichizen-daily-good-deeds --debug
 
       - name: Deployment notification
