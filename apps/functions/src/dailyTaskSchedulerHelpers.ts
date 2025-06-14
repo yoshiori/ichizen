@@ -5,6 +5,11 @@
 
 import * as admin from "firebase-admin";
 
+// Initialize Firebase Admin if not already initialized (skip in test environment)
+if (!admin.apps || (!admin.apps.length && typeof admin.initializeApp === "function")) {
+  admin.initializeApp();
+}
+
 const db = admin.firestore();
 
 export interface UserTaskPreferences {

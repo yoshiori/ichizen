@@ -9,6 +9,8 @@ const mockMessaging = jest.fn(() => ({send: mockSend}));
 jest.mock("firebase-admin", () => ({
   messaging: mockMessaging,
   firestore: mockFirestore,
+  initializeApp: jest.fn(),
+  apps: [],
 }));
 
 // Export mocks for use in tests
