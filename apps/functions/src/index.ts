@@ -36,7 +36,7 @@ function getFirestore() {
 if (process.env.FIRESTORE_EMULATOR_HOST) {
   console.log("Using Firestore emulator at:", process.env.FIRESTORE_EMULATOR_HOST);
 }
-// Turborepo integrated deployment test - Smart change detection enabled
+// Turborepo integrated deployment - Final success test! 🚀
 
 /**
  * Scheduled task that runs daily at 6 AM JST
