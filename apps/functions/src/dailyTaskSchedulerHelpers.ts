@@ -69,7 +69,7 @@ export const selectDailyTaskForUser = async (user: UserTaskPreferences): Promise
       .limit(10)
       .get();
 
-    const recentTaskIds = historySnapshot.docs.map((doc: any) => doc.data().taskId);
+    const recentTaskIds = historySnapshot.docs.map((doc) => doc.data().taskId);
     console.log(`User ${user.id} recent tasks:`, recentTaskIds);
 
     // Get all available tasks
