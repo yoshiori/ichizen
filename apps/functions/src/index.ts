@@ -24,8 +24,7 @@ import * as admin from "firebase-admin";
 import {sendFollowNotificationToUser, NotificationPayload} from "./notifications.js";
 import {processDailyTasksForAllUsers} from "./dailyTaskSchedulerHelpers.js";
 
-// Initialize Firebase Admin SDK
-admin.initializeApp();
+// Firestore instance (automatically initialized in Cloud Functions environment)
 const db = admin.firestore();
 
 // Configuration for emulator usage

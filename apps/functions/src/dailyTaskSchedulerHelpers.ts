@@ -5,7 +5,7 @@
 
 import * as admin from "firebase-admin";
 
-// Get Firestore instance (admin is initialized in index.ts)
+// Firestore instance (automatically initialized in Cloud Functions environment)
 const db = admin.firestore();
 
 export interface UserTaskPreferences {
