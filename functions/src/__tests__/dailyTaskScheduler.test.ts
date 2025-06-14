@@ -4,7 +4,7 @@
  */
 
 // Mock Firebase Admin SDK
-jest.mock('firebase-admin', () => ({
+jest.mock("firebase-admin", () => ({
   initializeApp: jest.fn(),
   firestore: jest.fn(() => ({
     collection: jest.fn(),
@@ -13,7 +13,7 @@ jest.mock('firebase-admin', () => ({
     sendEachForMulticast: jest.fn(),
   })),
   FieldValue: {
-    serverTimestamp: jest.fn(() => 'mock-timestamp'),
+    serverTimestamp: jest.fn(() => "mock-timestamp"),
   },
 }));
 
@@ -22,31 +22,31 @@ import {
   selectDailyTaskForUser,
   sendDailyTaskNotifications,
   getUsersForNotification,
-} from '../dailyTaskSchedulerHelpers';
+} from "../dailyTaskSchedulerHelpers.js";
 
-describe('Daily Task Scheduler Helpers', () => {
+describe("Daily Task Scheduler Helpers", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('selectDailyTaskForUser', () => {
-    it('should be defined and callable', () => {
+  describe("selectDailyTaskForUser", () => {
+    it("should be defined and callable", () => {
       expect(selectDailyTaskForUser).toBeDefined();
-      expect(typeof selectDailyTaskForUser).toBe('function');
+      expect(typeof selectDailyTaskForUser).toBe("function");
     });
   });
 
-  describe('getUsersForNotification', () => {
-    it('should be defined and callable', () => {
+  describe("getUsersForNotification", () => {
+    it("should be defined and callable", () => {
       expect(getUsersForNotification).toBeDefined();
-      expect(typeof getUsersForNotification).toBe('function');
+      expect(typeof getUsersForNotification).toBe("function");
     });
   });
 
-  describe('sendDailyTaskNotifications', () => {
-    it('should be defined and callable', () => {
+  describe("sendDailyTaskNotifications", () => {
+    it("should be defined and callable", () => {
       expect(sendDailyTaskNotifications).toBeDefined();
-      expect(typeof sendDailyTaskNotifications).toBe('function');
+      expect(typeof sendDailyTaskNotifications).toBe("function");
     });
   });
 });

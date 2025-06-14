@@ -1,25 +1,16 @@
-import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-} from 'react-native';
-import { useTranslation } from 'react-i18next';
+import React, {useEffect, useRef} from "react";
+import {View, Text, StyleSheet, Animated, Dimensions} from "react-native";
+import {useTranslation} from "react-i18next";
 
 interface DoneFeedbackProps {
   visible: boolean;
   onComplete?: () => void;
 }
 
-const { width, height } = Dimensions.get('window');
+const {width} = Dimensions.get("window");
 
-export const DoneFeedback: React.FC<DoneFeedbackProps> = ({
-  visible,
-  onComplete,
-}) => {
-  const { t } = useTranslation();
+export const DoneFeedback: React.FC<DoneFeedbackProps> = ({visible, onComplete}) => {
+  const {t} = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const sparkleAnim = useRef(new Animated.Value(0)).current;
@@ -90,7 +81,7 @@ export const DoneFeedback: React.FC<DoneFeedbackProps> = ({
           styles.container,
           {
             opacity: fadeAnim,
-            transform: [{ scale: scaleAnim }],
+            transform: [{scale: scaleAnim}],
           },
         ]}
       >
@@ -105,7 +96,7 @@ export const DoneFeedback: React.FC<DoneFeedbackProps> = ({
                   {
                     rotate: sparkleAnim.interpolate({
                       inputRange: [0, 1],
-                      outputRange: ['0deg', '360deg'],
+                      outputRange: ["0deg", "360deg"],
                     }),
                   },
                 ],
@@ -116,9 +107,9 @@ export const DoneFeedback: React.FC<DoneFeedbackProps> = ({
           </Animated.View>
         </View>
 
-        <Text style={styles.title}>{t('feedback.celebration')}</Text>
-        <Text style={styles.message}>{t('feedback.impact')}</Text>
-        <Text style={styles.subtitle}>{t('feedback.worldConnection')}</Text>
+        <Text style={styles.title}>{t("feedback.celebration")}</Text>
+        <Text style={styles.message}>{t("feedback.impact")}</Text>
+        <Text style={styles.subtitle}>{t("feedback.worldConnection")}</Text>
       </Animated.View>
     </View>
   );
@@ -126,24 +117,24 @@ export const DoneFeedback: React.FC<DoneFeedbackProps> = ({
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    justifyContent: "center",
+    alignItems: "center",
     zIndex: 1000,
   },
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 30,
     borderRadius: 20,
-    alignItems: 'center',
+    alignItems: "center",
     maxWidth: width * 0.85,
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 5,
@@ -152,10 +143,10 @@ const styles = StyleSheet.create({
     shadowRadius: 6.27,
   },
   celebration: {
-    position: 'relative',
+    position: "relative",
     marginBottom: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     width: 80,
     height: 80,
   },
@@ -163,7 +154,7 @@ const styles = StyleSheet.create({
     fontSize: 60,
   },
   sparkle: {
-    position: 'absolute',
+    position: "absolute",
     top: -10,
     right: -10,
   },
@@ -172,22 +163,22 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4CAF50',
+    fontWeight: "bold",
+    color: "#4CAF50",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   message: {
     fontSize: 16,
-    color: '#333',
-    textAlign: 'center',
+    color: "#333",
+    textAlign: "center",
     lineHeight: 24,
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    fontStyle: 'italic',
+    color: "#666",
+    textAlign: "center",
+    fontStyle: "italic",
   },
 });

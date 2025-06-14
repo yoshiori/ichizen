@@ -92,12 +92,13 @@
       "Bash(EXPO_DEBUG=true npx expo start --clear)",
       "Bash(DEBUG=*)",
       "Bash(java:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(HUSKY=0 npm ci)",
+      "Bash(CI=true npx is-ci)",
+      "Bash(HUSKY=0 npm install --no-fund)"
     ],
     "deny": []
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "playwright"
-  ]
+  "enabledMcpjsonServers": ["playwright"]
 }

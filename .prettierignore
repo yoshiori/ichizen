@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.expo/
+dist/
+build/
+lib/
+*.min.js
+*.bundle.js
+package-lock.json
+*.log
