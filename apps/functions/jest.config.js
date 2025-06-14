@@ -3,15 +3,21 @@ export default {
   testEnvironment: "node",
   roots: ["<rootDir>/src"],
   testMatch: ["**/__tests__/**/*.test.ts"],
-  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts"],
-  moduleFileExtensions: ["ts", "js"],
+  collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/__tests__/**"],
+  moduleFileExtensions: ["ts", "js", "mjs"],
+  extensionsToTreatAsEsm: [".ts"],
   transform: {
-    "^.+\\.ts$": ["ts-jest", {useESM: true}],
+    "^.+\\.ts$": [
+      "ts-jest",
+      {
+        useESM: true,
+        tsconfig: "tsconfig.test.json",
+      },
+    ],
   },
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  setupFilesAfterEnv: [],
-  testTimeout: 10000,
-  extensionsToTreatAsEsm: [".ts"],
+  testTimeout: 15000,
+  verbose: true,
 };

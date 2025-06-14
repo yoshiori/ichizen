@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "types": ["jest", "node"],
+    "noEmit": true,
+    "strict": false
+  },
+  "include": ["src/**/*", "src/**/*.test.ts"],
+  "exclude": ["lib", "node_modules"]
+}
