@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "ichizen",
+    "slug": "ichizen",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -39,6 +39,12 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
+    },
+    "owner": "yoshiori",
+    "extra": {
+      "eas": {
+        "projectId": "8322179b-c60b-4f9c-973b-abd30524b1cc"
+      }
     }
   }
 }

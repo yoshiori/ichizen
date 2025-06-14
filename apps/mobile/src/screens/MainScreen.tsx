@@ -98,7 +98,7 @@ export const MainScreen: React.FC = () => {
           animateChanges
           subscribeToUpdates
           onCounterUpdate={(data) => {
-            console.log("📊 カウンターが更新されました:", data);
+            console.log("📊 Counter updated:", data);
             // Update local state with Firestore data
             updateCounters({
               totalCount: data.total,

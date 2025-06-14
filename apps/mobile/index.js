@@ -1,9 +1,9 @@
-import { registerRootComponent } from 'expo';
+import {registerRootComponent} from "expo";
 
-// Firebase初期化（React Native Firebaseの場合）
-import '@react-native-firebase/app';
+// React Native Firebaseの初期化は自動で行われるため、ここでは何もしない
+// google-services.jsonから自動的に設定が読み込まれる
 
-import App from './App';
+import App from "./App";
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in Expo Go or in a native build,
