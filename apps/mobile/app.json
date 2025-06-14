@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "scheme": "ichizen",
     "experiments": {
       "typedRoutes": false
@@ -18,7 +18,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.ichizen",
+      "bundleIdentifier": "dev.yoshiori.ichizen",
       "infoPlist": {
         "CFBundleURLTypes": [
           {
@@ -34,7 +34,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.yourcompany.ichizen"
+      "package": "dev.yoshiori.ichizen"
     },
     "web": {
       "favicon": "./assets/favicon.png",
