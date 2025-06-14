@@ -272,9 +272,15 @@ jest.mock("@react-native-firebase/functions", () => {
     httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({data: {}}))),
   }));
 
+  // Mock modular API for v22
+  const mockGetFunctions = jest.fn(() => ({}));
+  const mockHttpsCallable = jest.fn(() => jest.fn(() => Promise.resolve({data: {}})));
+
   return {
     __esModule: true,
     default: mockFunctions,
+    getFunctions: mockGetFunctions,
+    httpsCallable: mockHttpsCallable,
   };
 });
 

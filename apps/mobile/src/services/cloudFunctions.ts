@@ -1,9 +1,9 @@
 /**
- * Cloud Functions Service Layer (React Native Firebase)
- * Environment-aware connection to Cloud Functions
+ * Cloud Functions Service Layer (React Native Firebase v22)
+ * Using modular API for Cloud Functions
  */
 
-import {cloudFunctions} from "../config/firebase";
+import {getFunctions, httpsCallable} from "@react-native-firebase/functions";
 import {Task} from "../types/firebase";
 
 // Cloud Functions type definitions
@@ -20,8 +20,8 @@ interface CompleteTaskResponse {
   completedAt: Date;
 }
 
-// Get Cloud Functions instance (configured in firebase.ts)
-const functionsInstance = cloudFunctions.region("asia-northeast1");
+// Get Cloud Functions instance using modular API
+const functionsInstance = getFunctions(undefined, "asia-northeast1");
 
 /**
  * Get today's task from Cloud Functions
@@ -29,7 +29,7 @@ const functionsInstance = cloudFunctions.region("asia-northeast1");
 export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
   try {
     console.log("📞 Calling getTodayTask Cloud Function...");
-    const callable = functionsInstance.httpsCallable("getTodayTask");
+    const callable = httpsCallable(functionsInstance, "getTodayTask");
     const result = await callable();
 
     console.log("✅ getTodayTask response:", result.data);
@@ -46,7 +46,7 @@ export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
 export const completeTask = async (historyId: string): Promise<CompleteTaskResponse> => {
   try {
     console.log("📞 Calling completeTask Cloud Function with historyId:", historyId);
-    const callable = functionsInstance.httpsCallable("completeTask");
+    const callable = httpsCallable(functionsInstance, "completeTask");
     const result = await callable({historyId});
 
     console.log("✅ completeTask response:", result.data);
