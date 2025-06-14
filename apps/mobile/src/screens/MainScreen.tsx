@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   ScrollView,
@@ -14,107 +14,63 @@ import { DailyTask } from '../components/DailyTask';
 import { DoneButton } from '../components/DoneButton';
 import { DoneFeedback } from '../components/DoneFeedback';
 import { GlobalCounter } from '../components/GlobalCounter';
-import { Task } from '../types/firebase';
 import { Language } from '../types';
-import { sampleTasks } from '../data/sampleTasks';
 import { useAuth } from '../contexts/AuthContext';
 import SignInScreen from './SignInScreen';
-import { 
-  getUserTaskHistory,
-  incrementGlobalCounter
-} from '../services/firestore';
-// import { 
-//   getTodayTask, 
-//   completeTask 
-// } from '../services/cloudFunctions';
 import { testFirestoreConnection } from '../services/testFirestore';
+import { 
+  useTaskManager, 
+  useGlobalCounter, 
+  useAppInitialization, 
+  useFeedbackManager 
+} from '../hooks';
 
 const { height } = Dimensions.get('window');
 
 export const MainScreen: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const { user, firebaseUser, loading: authLoading, signIn } = useAuth();
-  const [currentTask, setCurrentTask] = useState<Task>(sampleTasks[0]);
-  const [refreshUsed, setRefreshUsed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [globalCounters, setGlobalCounters] = useState({
-    totalCount: 125847,
-    todayCount: 1246
-  });
+  const { user, firebaseUser, loading: authLoading } = useAuth();
+  
+  // Custom hooks for separated concerns
+  const { currentTask, refreshUsed, isCompleted, refreshTask, markCompleted } = useTaskManager(user?.id);
+  const { globalCounters, incrementCounter, updateCounters } = useGlobalCounter();
+  const { isInitialized, initializationError } = useAppInitialization(firebaseUser?.uid);
+  const { showFeedback, isLoading, showFeedbackWithDelay, hideFeedback, setLoading } = useFeedbackManager();
 
   const currentLanguage = (user?.language || i18n.language) as Language;
 
-  useEffect(() => {
-    const initializeApp = async () => {
-      console.log('🚀 Initializing app...', {
-        environment: __DEV__ ? 'development' : 'production',
-        user: firebaseUser?.uid,
-        hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
-      });
-      
-      try {
-        // Get today's task - for demo, use sample tasks
-        console.log('🎭 Demo mode: Using sample tasks');
-        const randomIndex = Math.floor(Math.random() * sampleTasks.length);
-        setCurrentTask(sampleTasks[randomIndex]);
-        setIsCompleted(false);
-        
-        // Test Firestore connection
-        console.log('🔥 Testing Firestore connection...');
-        await testFirestoreConnection();
-        console.log('✅ Firestore connection test completed');
-        
-        // Note: Global counter is now loaded via real-time subscription in GlobalCounter component
-        console.log('📊 Global counter will be loaded via real-time subscription');
-      } catch (error) {
-        console.error('❌ Initialization error:', error);
-      }
-    };
-
-    initializeApp();
-  }, [user, firebaseUser]);
-
   const handleRefreshTask = () => {
-    if (!refreshUsed) {
-      setRefreshUsed(true);
-      // Get a different random task
-      const availableTasks = sampleTasks.filter(task => task.id !== currentTask.id);
-      const randomIndex = Math.floor(Math.random() * availableTasks.length);
-      setCurrentTask(availableTasks[randomIndex]);
+    if (!refreshUsed && !isCompleted) {
+      refreshTask();
     }
   };
 
   const handleDonePress = async () => {
     console.log('🎭 Demo mode: Simulating task completion');
     
-    setIsLoading(true);
+    setLoading(true);
     
     try {
       // Simulate task completion delay
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Increment global counter in Firestore
-      console.log('📊 Incrementing global counter in Firestore...');
-      const today = new Date().toISOString().split('T')[0];
-      await incrementGlobalCounter(today);
-      console.log('✅ Global counter incremented successfully');
-
-      setIsCompleted(true);
-      setShowFeedback(true);
+      await incrementCounter();
+      
+      markCompleted();
+      showFeedbackWithDelay();
       
     } catch (error) {
       console.error('❌ Done press error:', error);
       const errorMessage = error instanceof Error ? error.message : String(error);
       alert(`Error: ${errorMessage}`);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const handleFeedbackComplete = () => {
-    setShowFeedback(false);
+    hideFeedback();
   };
 
   // Show loading screen while authenticating
@@ -145,11 +101,11 @@ export const MainScreen: React.FC = () => {
         <View style={styles.header}>
           <Text style={styles.title}>今日の小さな善行</Text>
           <Text style={styles.subtitle}>Today's Small Good Deed</Text>
-          <DoneButton
-            onPress={() => testFirestoreConnection()}
-            loading={false}
-            disabled={false}
-          />
+          {initializationError && (
+            <Text style={styles.errorText}>
+              {t('error.initialization')}: {initializationError}
+            </Text>
+          )}
         </View>
 
         {/* Global Counter */}
@@ -161,7 +117,7 @@ export const MainScreen: React.FC = () => {
           onCounterUpdate={(data) => {
             console.log('📊 カウンターが更新されました:', data);
             // Update local state with Firestore data
-            setGlobalCounters({
+            updateCounters({
               totalCount: data.total,
               todayCount: data.today
             });
@@ -277,5 +233,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#ff6b6b',
+    textAlign: 'center',
+    marginTop: 8,
+    paddingHorizontal: 16,
   },
 });
