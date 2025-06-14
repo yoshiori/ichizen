@@ -21,8 +21,8 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 // import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import {onCall} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import {sendFollowNotificationToUser, NotificationPayload} from "./notifications";
-import {processDailyTasksForAllUsers} from "./dailyTaskSchedulerHelpers";
+import {sendFollowNotificationToUser, NotificationPayload} from "./notifications.js";
+import {processDailyTasksForAllUsers} from "./dailyTaskSchedulerHelpers.js";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -30,8 +30,7 @@ const db = admin.firestore();
 
 // Configuration for emulator usage
 if (process.env.FIRESTORE_EMULATOR_HOST) {
-  console.log("Using Firestore emulator at:",
-    process.env.FIRESTORE_EMULATOR_HOST);
+  console.log("Using Firestore emulator at:", process.env.FIRESTORE_EMULATOR_HOST);
 }
 // GitHub Actions deployment test - New service account key test
 
@@ -40,58 +39,59 @@ if (process.env.FIRESTORE_EMULATOR_HOST) {
  * - Select and distribute today's task to all users
  * - Reset previous day's global counter
  */
-export const dailyTaskScheduler = onSchedule({
-  schedule: "0 6 * * *", // Daily at 6 AM UTC (3 PM JST)
-  timeZone: "Asia/Tokyo",
-  region: "asia-northeast1",
-}, async () => {
-  console.log("Daily task scheduler started");
+export const dailyTaskScheduler = onSchedule(
+  {
+    schedule: "0 6 * * *", // Daily at 6 AM UTC (3 PM JST)
+    timeZone: "Asia/Tokyo",
+    region: "asia-northeast1",
+  },
+  async () => {
+    console.log("Daily task scheduler started");
 
-  try {
-    // Get today's date
-    const today = new Date().toISOString().split("T")[0];
-
-    // Get previous day's total count
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = yesterday.toISOString().split("T")[0];
-
-    let totalAllTime = 0;
     try {
-      const yesterdayDoc = await db.collection("global_counters")
-        .doc(yesterdayString).get();
-      if (yesterdayDoc.exists) {
-        totalAllTime = yesterdayDoc.data()?.totalDoneAllTime || 0;
+      // Get today's date
+      const today = new Date().toISOString().split("T")[0];
+
+      // Get previous day's total count
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = yesterday.toISOString().split("T")[0];
+
+      let totalAllTime = 0;
+      try {
+        const yesterdayDoc = await db.collection("global_counters").doc(yesterdayString).get();
+        if (yesterdayDoc.exists) {
+          totalAllTime = yesterdayDoc.data()?.totalDoneAllTime || 0;
+        }
+      } catch (error) {
+        console.log("Failed to get yesterday total, starting from 0:", error);
       }
+
+      // Initialize global counter
+      await db.collection("global_counters").doc(today).set({
+        date: today,
+        totalDoneToday: 0,
+        totalDoneAllTime: totalAllTime,
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      console.log(`Global counter initialized for ${today} ` + `with total: ${totalAllTime}`);
+
+      // Process daily tasks for all users
+      const taskProcessingResults = await processDailyTasksForAllUsers();
+
+      console.log("Daily task processing results:", {
+        totalUsers: taskProcessingResults.totalUsers,
+        successfulSelections: taskProcessingResults.successfulSelections,
+        notificationsSent: taskProcessingResults.notificationResults.successCount,
+        notificationsFailed: taskProcessingResults.notificationResults.failureCount,
+      });
     } catch (error) {
-      console.log("Failed to get yesterday total, starting from 0:", error);
+      console.error("Daily task scheduler error:", error);
+      throw error;
     }
-
-    // Initialize global counter
-    await db.collection("global_counters").doc(today).set({
-      date: today,
-      totalDoneToday: 0,
-      totalDoneAllTime: totalAllTime,
-      lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    console.log(`Global counter initialized for ${today} ` +
-      `with total: ${totalAllTime}`);
-
-    // Process daily tasks for all users
-    const taskProcessingResults = await processDailyTasksForAllUsers();
-    
-    console.log('Daily task processing results:', {
-      totalUsers: taskProcessingResults.totalUsers,
-      successfulSelections: taskProcessingResults.successfulSelections,
-      notificationsSent: taskProcessingResults.notificationResults.successCount,
-      notificationsFailed: taskProcessingResults.notificationResults.failureCount,
-    });
-  } catch (error) {
-    console.error("Daily task scheduler error:", error);
-    throw error;
   }
-});
+);
 
 /**
  * Firestore trigger called when user completes a good deed
@@ -137,153 +137,163 @@ export const onTaskCompleted = onDocumentCreated({
 /**
  * Simple test function
  */
-export const testFunction = onCall({
-  region: "asia-northeast1",
-}, async () => {
-  console.log("testFunction called");
-  return {message: "Hello from Cloud Functions!"};
-});
+export const testFunction = onCall(
+  {
+    region: "asia-northeast1",
+  },
+  async () => {
+    console.log("testFunction called");
+    return {message: "Hello from Cloud Functions!"};
+  }
+);
 
 /**
  * Basic Firestore access test function
  */
-export const testFirestore = onCall({
-  region: "asia-northeast1",
-}, async () => {
-  console.log("testFirestore called");
+export const testFirestore = onCall(
+  {
+    region: "asia-northeast1",
+  },
+  async () => {
+    console.log("testFirestore called");
 
-  try {
-    console.log("Attempting to access Firestore...");
-    console.log("FIRESTORE_EMULATOR_HOST:",
-      process.env.FIRESTORE_EMULATOR_HOST);
+    try {
+      console.log("Attempting to access Firestore...");
+      console.log("FIRESTORE_EMULATOR_HOST:", process.env.FIRESTORE_EMULATOR_HOST);
 
-    // Get directly from tasks collection
-    const tasksSnapshot = await db.collection("tasks").limit(1).get();
-    console.log("Tasks collection accessed successfully, docs:",
-      tasksSnapshot.size);
+      // Get directly from tasks collection
+      const tasksSnapshot = await db.collection("tasks").limit(1).get();
+      console.log("Tasks collection accessed successfully, docs:", tasksSnapshot.size);
 
-    if (tasksSnapshot.empty) {
-      console.log("No tasks found in collection");
-      return {error: "No tasks in collection"};
+      if (tasksSnapshot.empty) {
+        console.log("No tasks found in collection");
+        return {error: "No tasks in collection"};
+      }
+
+      const firstTask = tasksSnapshot.docs[0];
+      console.log("First task data:", firstTask.data());
+
+      return {
+        success: true,
+        taskCount: tasksSnapshot.size,
+        firstTask: firstTask.data(),
+      };
+    } catch (error) {
+      console.error("testFirestore error:", error);
+      return {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : "No stack",
+      };
     }
-
-    const firstTask = tasksSnapshot.docs[0];
-    console.log("First task data:", firstTask.data());
-
-    return {
-      success: true,
-      taskCount: tasksSnapshot.size,
-      firstTask: firstTask.data(),
-    };
-  } catch (error) {
-    console.error("testFirestore error:", error);
-    return {
-      error: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : "No stack",
-    };
   }
-});
+);
 
 /**
  * API for users to get today's task
  */
-export const getTodayTask = onCall({
-  region: "asia-northeast1",
-}, async (request) => {
-  console.log("getTodayTask called", {authUid: request.auth?.uid});
+export const getTodayTask = onCall(
+  {
+    region: "asia-northeast1",
+  },
+  async (request) => {
+    console.log("getTodayTask called", {authUid: request.auth?.uid});
 
-  try {
-    const userId = request.auth?.uid;
-    if (!userId) {
-      console.error("No user ID in request");
-      throw new Error("Authentication required");
+    try {
+      const userId = request.auth?.uid;
+      if (!userId) {
+        console.error("No user ID in request");
+        throw new Error("Authentication required");
+      }
+
+      console.log("User ID:", userId);
+      const today = new Date().toISOString().split("T")[0];
+      console.log("Today date:", today);
+
+      // Simply select and return a task (history feature to be added later)
+      console.log("Simplified: Getting all tasks...");
+      const tasksSnapshot = await db.collection("tasks").get();
+      console.log("Tasks available:", tasksSnapshot.size);
+
+      if (tasksSnapshot.empty) {
+        throw new Error("No tasks available");
+      }
+
+      // Randomly select a task
+      const tasks = tasksSnapshot.docs;
+      const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
+      console.log("Selected task:", randomTask.id);
+
+      return {
+        task: {id: randomTask.id, ...randomTask.data()},
+        completed: false,
+        selectedAt: new Date(),
+        simplified: true,
+      };
+    } catch (error) {
+      console.error("Get today task error:", error);
+      throw new Error(`getTodayTask error: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
-
-    console.log("User ID:", userId);
-    const today = new Date().toISOString().split("T")[0];
-    console.log("Today date:", today);
-
-    // Simply select and return a task (history feature to be added later)
-    console.log("Simplified: Getting all tasks...");
-    const tasksSnapshot = await db.collection("tasks").get();
-    console.log("Tasks available:", tasksSnapshot.size);
-
-    if (tasksSnapshot.empty) {
-      throw new Error("No tasks available");
-    }
-
-    // Randomly select a task
-    const tasks = tasksSnapshot.docs;
-    const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
-    console.log("Selected task:", randomTask.id);
-
-    return {
-      task: {id: randomTask.id, ...randomTask.data()},
-      completed: false,
-      selectedAt: new Date(),
-      simplified: true,
-    };
-  } catch (error) {
-    console.error("Get today task error:", error);
-    throw new Error(`getTodayTask error: ${error instanceof Error ?
-      error.message : "Unknown error"}`);
   }
-});
+);
 
 /**
  * API for when users complete a task
  */
-export const completeTask = onCall({
-  region: "asia-northeast1",
-}, async (request) => {
-  console.log("completeTask called", {authUid: request.auth?.uid});
+export const completeTask = onCall(
+  {
+    region: "asia-northeast1",
+  },
+  async (request) => {
+    console.log("completeTask called", {authUid: request.auth?.uid});
 
-  try {
-    const userId = request.auth?.uid;
-    if (!userId) {
-      console.error("No user ID in completeTask request");
-      throw new Error("Authentication required");
-    }
-
-    console.log("CompleteTask User ID:", userId);
-
-    // Simplified version: simply return success
-    // (history feature to be added later)
-    console.log("Simplified completeTask: returning success");
-
-    // Increment global counter (optional)
-    const today = new Date().toISOString().split("T")[0];
     try {
-      await db.collection("global_counters").doc(today).update({
-        totalDoneToday: admin.firestore.FieldValue.increment(1),
-        totalDoneAllTime: admin.firestore.FieldValue.increment(1),
-        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      console.log("Global counter updated");
-    } catch (counterError) {
-      console.log("Could not update global counter:", counterError);
-      // Counter errors are not fatal
-    }
+      const userId = request.auth?.uid;
+      if (!userId) {
+        console.error("No user ID in completeTask request");
+        throw new Error("Authentication required");
+      }
 
-    return {
-      success: true,
-      userId: userId,
-      completedAt: new Date(),
-      simplified: true,
-    };
-  } catch (error) {
-    console.error("Complete task error:", error);
-    throw new Error(`completeTask error: ${error instanceof Error ?
-      error.message : "Unknown error"}`);
+      console.log("CompleteTask User ID:", userId);
+
+      // Simplified version: simply return success
+      // (history feature to be added later)
+      console.log("Simplified completeTask: returning success");
+
+      // Increment global counter (optional)
+      const today = new Date().toISOString().split("T")[0];
+      try {
+        await db
+          .collection("global_counters")
+          .doc(today)
+          .update({
+            totalDoneToday: admin.firestore.FieldValue.increment(1),
+            totalDoneAllTime: admin.firestore.FieldValue.increment(1),
+            lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        console.log("Global counter updated");
+      } catch (counterError) {
+        console.log("Could not update global counter:", counterError);
+        // Counter errors are not fatal
+      }
+
+      return {
+        success: true,
+        userId: userId,
+        completedAt: new Date(),
+        simplified: true,
+      };
+    } catch (error) {
+      console.error("Complete task error:", error);
+      throw new Error(`completeTask error: ${error instanceof Error ? error.message : "Unknown error"}`);
+    }
   }
-});
+);
 
 /**
  * Function to send notifications to followers
  * @param {string} userId ID of the user who completed the good deed
  * TODO: Enable when Eventarc permissions are stable
  */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* async function sendFollowerNotifications(userId: string) {
   try {
     // Get user information
@@ -368,37 +378,39 @@ export const completeTask = onCall({
     console.error("Error sending follower notifications:", error);
   }
 } */
-/* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
  * Send notification to follower when user completes a task
  */
-export const sendFollowNotification = onCall({
-  region: "asia-northeast1",
-}, async (request) => {
-  console.log("sendFollowNotification called", {
-    authUid: request.auth?.uid,
-    data: request.data
-  });
+export const sendFollowNotification = onCall(
+  {
+    region: "asia-northeast1",
+  },
+  async (request) => {
+    console.log("sendFollowNotification called", {
+      authUid: request.auth?.uid,
+      data: request.data,
+    });
 
-  try {
-    const userId = request.auth?.uid;
-    if (!userId) {
-      throw new Error("Authentication required");
+    try {
+      const userId = request.auth?.uid;
+      if (!userId) {
+        throw new Error("Authentication required");
+      }
+
+      const payload = request.data as NotificationPayload;
+
+      // Validate that the sender is the authenticated user
+      if (payload.fromUserId !== userId) {
+        throw new Error("Invalid sender");
+      }
+
+      const result = await sendFollowNotificationToUser(payload);
+
+      return result;
+    } catch (error) {
+      console.error("sendFollowNotification error:", error);
+      throw new Error(error instanceof Error ? error.message : "Unknown error");
     }
-
-    const payload = request.data as NotificationPayload;
-    
-    // Validate that the sender is the authenticated user
-    if (payload.fromUserId !== userId) {
-      throw new Error("Invalid sender");
-    }
-
-    const result = await sendFollowNotificationToUser(payload);
-    
-    return result;
-  } catch (error) {
-    console.error("sendFollowNotification error:", error);
-    throw new Error(error instanceof Error ? error.message : "Unknown error");
   }
-});
+);

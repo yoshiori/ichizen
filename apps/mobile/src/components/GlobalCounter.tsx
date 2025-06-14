@@ -1,19 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  ViewStyle,
-} from 'react-native';
-import { useTranslation } from 'react-i18next';
-import { GlobalCounterData, CounterUpdateData } from '../types';
-import { 
-  subscribeToGlobalCounter, 
-  unsubscribeFromGlobalCounter,
-  type Unsubscriber 
-} from '../services/globalCounterSubscription';
-import { subscribeToStatistics as subscribeToStats } from '../services/counterStatistics';
+import React, {useRef, useEffect, useState} from "react";
+import {View, Text, StyleSheet, Animated, ViewStyle} from "react-native";
+import {useTranslation} from "react-i18next";
+import {GlobalCounterData, CounterUpdateData} from "../types";
+import {subscribeToGlobalCounter, type Unsubscriber} from "../services/globalCounterSubscription";
+import {subscribeToStatistics as subscribeToStats} from "../services/counterStatistics";
 
 interface GlobalCounterProps extends GlobalCounterData {
   style?: ViewStyle;
@@ -36,14 +26,14 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   showStatistics = false,
   subscribeToStatistics = false,
 }) => {
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const earthRotation = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const countAnim = useRef(new Animated.Value(0)).current;
   const [prevTotal, setPrevTotal] = React.useState(totalCount);
   const [prevToday, setPrevToday] = React.useState(todayCount);
-  const [firestoreData, setFirestoreData] = useState<{ totalCount?: number; todayCount?: number } | null>(null);
-  const [statisticsData, setStatisticsData] = useState<{ weeklyCount?: number; monthlyCount?: number } | null>(null);
+  const [firestoreData, setFirestoreData] = useState<{totalCount?: number; todayCount?: number} | null>(null);
+  const [statisticsData, setStatisticsData] = useState<{weeklyCount?: number; monthlyCount?: number} | null>(null);
   const unsubscriberRef = useRef<Unsubscriber | null>(null);
   const statsUnsubscriberRef = useRef<(() => void) | null>(null);
 
@@ -84,21 +74,21 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       unsubscriber = subscribeToGlobalCounter((data) => {
         setFirestoreData({
           totalCount: data.totalCompleted,
-          todayCount: data.todayCompleted
+          todayCount: data.todayCompleted,
         });
 
         // Call callback if provided
         if (onCounterUpdate) {
           onCounterUpdate({
             total: data.totalCompleted,
-            today: data.todayCompleted
+            today: data.todayCompleted,
           });
         }
       });
 
       unsubscriberRef.current = unsubscriber;
     } catch (error) {
-      console.error('Failed to subscribe to global counter updates:', error);
+      console.error("Failed to subscribe to global counter updates:", error);
     }
 
     // Cleanup on unmount
@@ -118,7 +108,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       const unsubscriber = subscribeToStats((stats: any) => {
         setStatisticsData({
           weeklyCount: stats.weekly,
-          monthlyCount: stats.monthly
+          monthlyCount: stats.monthly,
         });
       });
 
@@ -132,7 +122,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
         }
       };
     } catch (error) {
-      console.error('Failed to calculate statistics:', error);
+      console.error("Failed to calculate statistics:", error);
     }
   }, [subscribeToStatistics]);
 
@@ -146,7 +136,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
   useEffect(() => {
     const currentTotal = displayTotalCount;
     const currentToday = displayTodayCount;
-    
+
     if (animateChanges && (currentTotal !== prevTotal || currentToday !== prevToday)) {
       // Trigger animation when values change
       Animated.sequence([
@@ -177,7 +167,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
       {
         rotate: earthRotation.interpolate({
           inputRange: [0, 1],
-          outputRange: ['0deg', '360deg'],
+          outputRange: ["0deg", "360deg"],
         }),
       },
     ],
@@ -187,7 +177,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     return (
       <View style={[styles.container, style]}>
         <Text style={styles.loadingText} testID="counter-loading">
-          {t('counter.loading')}
+          {t("counter.loading")}
         </Text>
       </View>
     );
@@ -195,37 +185,36 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <Animated.View
-        style={[styles.earthContainer, earthRotationStyle]}
-        testID="earth-animation"
-      >
+      <Animated.View style={[styles.earthContainer, earthRotationStyle]} testID="earth-animation">
         <Text style={styles.earthEmoji}>🌍</Text>
       </Animated.View>
 
       <View style={styles.countersContainer}>
         {displayTotalCount !== undefined && (
           <Animated.View
-            style={[styles.counterItem, { transform: [{ scale: pulseAnim }] }]}
-            testID={animateChanges ? 'counter-animation-wrapper' : undefined}
+            style={[styles.counterItem, {transform: [{scale: pulseAnim}]}]}
+            testID={animateChanges ? "counter-animation-wrapper" : undefined}
           >
-            <Text style={styles.counterLabel}>
-              {t('counter.totalTitle')}
-            </Text>
-            <Animated.Text 
+            <Text style={styles.counterLabel}>{t("counter.totalTitle")}</Text>
+            <Animated.Text
               style={[
                 styles.counterValue,
-                animateChanges ? {
-                  opacity: countAnim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [1, 0.3, 1],
-                  }),
-                  transform: [{
-                    scale: countAnim.interpolate({
-                      inputRange: [0, 0.5, 1],
-                      outputRange: [1, 1.2, 1],
-                    }),
-                  }],
-                } : {}
+                animateChanges
+                  ? {
+                      opacity: countAnim.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: [1, 0.3, 1],
+                      }),
+                      transform: [
+                        {
+                          scale: countAnim.interpolate({
+                            inputRange: [0, 0.5, 1],
+                            outputRange: [1, 1.2, 1],
+                          }),
+                        },
+                      ],
+                    }
+                  : {},
               ]}
               testID="total-counter-value"
             >
@@ -235,27 +224,27 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
         )}
 
         {displayTodayCount !== undefined && (
-          <Animated.View
-            style={[styles.counterItem, { transform: [{ scale: pulseAnim }] }]}
-          >
-            <Text style={styles.counterLabel}>
-              {t('counter.todayTitle')}
-            </Text>
-            <Animated.Text 
+          <Animated.View style={[styles.counterItem, {transform: [{scale: pulseAnim}]}]}>
+            <Text style={styles.counterLabel}>{t("counter.todayTitle")}</Text>
+            <Animated.Text
               style={[
                 styles.counterValue,
-                animateChanges ? {
-                  opacity: countAnim.interpolate({
-                    inputRange: [0, 0.5, 1],
-                    outputRange: [1, 0.3, 1],
-                  }),
-                  transform: [{
-                    scale: countAnim.interpolate({
-                      inputRange: [0, 0.5, 1],
-                      outputRange: [1, 1.2, 1],
-                    }),
-                  }],
-                } : {}
+                animateChanges
+                  ? {
+                      opacity: countAnim.interpolate({
+                        inputRange: [0, 0.5, 1],
+                        outputRange: [1, 0.3, 1],
+                      }),
+                      transform: [
+                        {
+                          scale: countAnim.interpolate({
+                            inputRange: [0, 0.5, 1],
+                            outputRange: [1, 1.2, 1],
+                          }),
+                        },
+                      ],
+                    }
+                  : {},
               ]}
               testID="today-counter-value"
             >
@@ -272,13 +261,8 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
             <View style={styles.statisticsRow}>
               {displayWeeklyCount !== undefined && (
                 <View style={styles.statisticsItem}>
-                  <Text style={styles.statisticsLabel}>
-                    {t('counter.weeklyTitle')}
-                  </Text>
-                  <Text 
-                    style={styles.statisticsValue}
-                    testID="weekly-counter-value"
-                  >
+                  <Text style={styles.statisticsLabel}>{t("counter.weeklyTitle")}</Text>
+                  <Text style={styles.statisticsValue} testID="weekly-counter-value">
                     {formatNumber(displayWeeklyCount)}
                   </Text>
                 </View>
@@ -286,13 +270,8 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
 
               {displayMonthlyCount !== undefined && (
                 <View style={styles.statisticsItem}>
-                  <Text style={styles.statisticsLabel}>
-                    {t('counter.monthlyTitle')}
-                  </Text>
-                  <Text 
-                    style={styles.statisticsValue}
-                    testID="monthly-counter-value"
-                  >
+                  <Text style={styles.statisticsLabel}>{t("counter.monthlyTitle")}</Text>
+                  <Text style={styles.statisticsValue} testID="monthly-counter-value">
                     {formatNumber(displayMonthlyCount)}
                   </Text>
                 </View>
@@ -300,7 +279,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
             </View>
           ) : (
             <Text style={styles.loadingText} testID="statistics-loading">
-              {t('counter.statisticsLoading')}
+              {t("counter.statisticsLoading")}
             </Text>
           )}
         </View>
@@ -311,82 +290,82 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 16,
     margin: 16,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
     },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    alignItems: 'center',
+    alignItems: "center",
   },
   earthContainer: {
     marginBottom: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   earthEmoji: {
     fontSize: 40,
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
-    fontStyle: 'italic',
+    color: "#666",
+    fontStyle: "italic",
   },
   countersContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
   counterItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   counterLabel: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
     marginBottom: 4,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
   counterValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#4CAF50",
+    textAlign: "center",
   },
   statisticsContainer: {
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    width: '100%',
+    borderTopColor: "#E0E0E0",
+    width: "100%",
   },
   statisticsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
   },
   statisticsItem: {
-    alignItems: 'center',
+    alignItems: "center",
     flex: 1,
   },
   statisticsLabel: {
     fontSize: 10,
-    color: '#999',
+    color: "#999",
     marginBottom: 2,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
   statisticsValue: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#666',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#666",
+    textAlign: "center",
   },
 });
