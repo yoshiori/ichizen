@@ -6,14 +6,14 @@ on:
   workflow_dispatch:
     inputs:
       deploy_functions:
-        description: 'Deploy Cloud Functions'
+        description: "Deploy Cloud Functions"
         required: true
-        default: 'true'
+        default: "true"
         type: boolean
       deploy_rules:
-        description: 'Deploy Firestore rules'
+        description: "Deploy Firestore rules"
         required: true
-        default: 'true'
+        default: "true"
         type: boolean
 
 permissions:
@@ -25,153 +25,141 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should-deploy: ${{ steps.check.outputs.should-deploy }}
-    
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Validate project structure
-      run: |
-        echo "🔍 Validating project structure..."
-        test -f "firebase.json" || exit 1
-        test -f "functions/package.json" || exit 1
-        test -d "apps/mobile" || exit 1
-        echo "✅ Project structure is valid"
+      - name: Validate project structure
+        run: |
+          echo "🔍 Validating project structure..."
+          test -f "firebase.json" || exit 1
+          test -f "apps/functions/package.json" || exit 1
+          test -d "apps/mobile" || exit 1
+          test -f "turbo.json" || exit 1
+          echo "✅ Project structure is valid"
 
-    - name: Check deployment conditions
-      id: check
-      run: |
-        if [[ "${{ github.event_name }}" == "release" ]] || [[ "${{ github.event.inputs.deploy_functions }}" == "true" ]]; then
-          echo "should-deploy=true" >> $GITHUB_OUTPUT
-        else
-          echo "should-deploy=false" >> $GITHUB_OUTPUT
-        fi
+      - name: Check deployment conditions
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]] || [[ "${{ github.event.inputs.deploy_functions }}" == "true" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
 
-  test-functions:
+  test-all:
     needs: validate
     if: needs.validate.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
-    
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-    - name: Install and test Cloud Functions
-      run: |
-        cd functions
-        npm ci
-        npm run lint
-        npm run build
+      - name: Install dependencies
+        run: npm ci
 
-  test-mobile:
-    needs: validate
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-
-    - name: Install and test Mobile App
-      run: |
-        npm install
-        cd apps/mobile
-        npm install
-        npm run typecheck
-        npm test -- --watchAll=false --testPathIgnorePatterns="e2e/"
+      - name: Run all tests and builds
+        run: |
+          npm run build
+          npm run test
+          npm run lint
+          npm run typecheck
 
   deploy-production:
-    needs: [validate, test-functions, test-mobile]
+    needs: [validate, test-all]
     if: needs.validate.outputs.should-deploy == 'true'
     runs-on: ubuntu-latest
     environment: production
-    
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-    - name: Install Firebase CLI
-      run: npm install -g firebase-tools
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
 
-    - name: Install dependencies
-      run: |
-        cd functions
-        npm ci
-        npm run build
+      - name: Install dependencies and build
+        run: |
+          npm ci
+          npm run functions:build
 
-    - name: Authenticate to Firebase
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
-        WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-      run: |
-        # Check if Workload Identity Federation is configured
-        if [ -n "$WIF_PROVIDER" ] && [ -n "$WIF_SERVICE_ACCOUNT" ]; then
-          echo "🔐 Using Workload Identity Federation for authentication"
-          # This would normally be done by google-github-actions/auth, but we're simplifying
-          echo "❌ WIF is not yet configured. Please use service account key."
-          exit 1
-        elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
-          echo "🔐 Using service account key for authentication"
-          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
-          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
-        else
-          echo "❌ No authentication method available. Please set up either:"
-          echo "   1. Workload Identity Federation (WIF_PROVIDER and WIF_SERVICE_ACCOUNT secrets)"
-          echo "   2. Service Account Key (FIREBASE_SERVICE_ACCOUNT secret)"
-          exit 1
-        fi
+      - name: Authenticate to Firebase
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          WIF_PROVIDER: ${{ secrets.WIF_PROVIDER }}
+          WIF_SERVICE_ACCOUNT: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+        run: |
+          if [ -n "$WIF_PROVIDER" ] && [ -n "$WIF_SERVICE_ACCOUNT" ]; then
+            echo "🔐 Using Workload Identity Federation for authentication"
+            echo "❌ WIF is not yet configured. Please use service account key."
+            exit 1
+          elif [ -n "$GOOGLE_APPLICATION_CREDENTIALS_JSON" ]; then
+            echo "🔐 Using service account key for authentication"
+            echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$HOME/gcloud-service-key.json"
+            export GOOGLE_APPLICATION_CREDENTIALS="$HOME/gcloud-service-key.json"
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json" >> $GITHUB_ENV
+          else
+            echo "❌ No authentication method available"
+            exit 1
+          fi
 
-    - name: Deploy Cloud Functions
-      if: github.event.inputs.deploy_functions != 'false'
-      run: |
-        echo "🚀 Deploying Cloud Functions to production..."
-        firebase deploy --only functions --project ichizen-daily-good-deeds
+      - name: Deploy Cloud Functions
+        if: github.event.inputs.deploy_functions != 'false'
+        run: |
+          echo "🚀 Deploying Cloud Functions to production..."
+          firebase deploy --only functions --project ichizen-daily-good-deeds
 
-    - name: Deploy Firestore Rules
-      if: github.event.inputs.deploy_rules != 'false'
-      run: |
-        echo "📋 Deploying Firestore rules and indexes..."
-        firebase deploy --only firestore:rules,firestore:indexes --project ichizen-daily-good-deeds
+      - name: Deploy Firestore Rules
+        if: github.event.inputs.deploy_rules != 'false'
+        run: |
+          echo "📋 Deploying Firestore rules and indexes..."
+          firebase deploy --only firestore:rules,firestore:indexes --project ichizen-daily-good-deeds
 
-    - name: Deployment Summary
-      run: |
-        echo "🎉 Production deployment completed!"
-        echo "📊 Project: ichizen-daily-good-deeds"
-        echo "🔗 Console: https://console.firebase.google.com/project/ichizen-daily-good-deeds"
-        echo "⚡ Functions: https://asia-northeast1-ichizen-daily-good-deeds.cloudfunctions.net"
-        
-        if [[ "${{ github.event_name }}" == "release" ]]; then
-          echo "🏷️ Release: ${{ github.event.release.tag_name }}"
-        fi
+      - name: Deployment Summary
+        run: |
+          echo "🎉 Production deployment completed!"
+          echo "📊 Project: ichizen-daily-good-deeds"
+          echo "🔗 Console: https://console.firebase.google.com/project/ichizen-daily-good-deeds"
+          echo "⚡ Functions: https://asia-northeast1-ichizen-daily-good-deeds.cloudfunctions.net"
 
-    - name: Create deployment notification
-      if: success()
-      run: |
-        echo "✅ Deployment successful at $(date)"
-        echo "Version: ${{ github.sha }}"
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "🏷️ Release: ${{ github.event.release.tag_name }}"
+          fi
+
+      - name: Create deployment notification
+        if: success()
+        run: |
+          echo "✅ Deployment successful at $(date)"
+          echo "Version: ${{ github.sha }}"
