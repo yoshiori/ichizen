@@ -21,10 +21,14 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 // import {onDocumentCreated} from "firebase-functions/v2/firestore";
 import {onCall} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
+
+// Initialize Firebase Admin SDK first
+admin.initializeApp();
+
 import {sendFollowNotificationToUser, NotificationPayload} from "./notifications.js";
 import {processDailyTasksForAllUsers} from "./dailyTaskSchedulerHelpers.js";
 
-// Firestore instance (automatically initialized in Cloud Functions environment)
+// Firestore instance
 const db = admin.firestore();
 
 // Configuration for emulator usage

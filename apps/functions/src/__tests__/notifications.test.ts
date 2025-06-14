@@ -10,7 +10,7 @@ jest.mock("firebase-admin", () => ({
   messaging: mockMessaging,
   firestore: mockFirestore,
   initializeApp: jest.fn(),
-  apps: [],
+  apps: [{}], // Mock existing app to prevent re-initialization
 }));
 
 // Export mocks for use in tests
