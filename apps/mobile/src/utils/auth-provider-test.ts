@@ -5,7 +5,7 @@
  * in the Firebase Console and provides guidance for setup.
  */
 
-import { auth } from '../config/firebase';
+import auth from '@react-native-firebase/auth';
 import { signInAnonymous, signInWithGoogle, signInWithApple } from '../services/auth';
 
 export interface AuthProviderStatus {
@@ -73,7 +73,7 @@ export const getProjectInfo = () => {
     projectId: 'ichizen-daily-good-deeds',
     authDomain: 'ichizen-daily-good-deeds.firebaseapp.com',
     consoleUrl: getFirebaseConsoleUrl(),
-    currentAuthState: auth.currentUser
+    currentAuthState: auth().currentUser
   };
 };
 

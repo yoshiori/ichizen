@@ -19,7 +19,7 @@ describe('NotificationService', () => {
   });
 
   describe('triggerFollowNotification', () => {
-    it('should fail due to cloud functions not being supported', async () => {
+    it('should return stub success response in React Native', async () => {
       const notificationData = {
         type: 'follow_task_completed' as const,
         fromUserId: 'user123',
@@ -33,8 +33,9 @@ describe('NotificationService', () => {
 
       const result = await triggerFollowNotification(notificationData);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Cloud Functions not supported');
+      // In React Native, we return a stub success response
+      expect(result.success).toBe(true);
+      expect(result.messageId).toBe('stub-message-id');
     });
 
     it('should handle invalid notification data', async () => {
@@ -71,7 +72,7 @@ describe('NotificationService', () => {
       expect(result.notificationsSent).toBe(0);
     });
 
-    it('should fail to send notifications due to cloud functions not being supported', async () => {
+    it('should successfully send notifications with stub implementation', async () => {
       const userId = 'user123';
       const userName = 'Test User';
       const taskId = 'task456';
@@ -83,9 +84,8 @@ describe('NotificationService', () => {
       const result = await handleTaskCompletion(userId, userName, taskId, taskTitle);
 
       expect(result.success).toBe(true);
-      expect(result.notificationsSent).toBe(0);
-      expect(result.errors).toBeDefined();
-      expect(result.errors!.length).toBeGreaterThan(0);
+      expect(result.notificationsSent).toBe(2); // All notifications succeed with stub
+      expect(result.errors).toBeUndefined();
     });
 
     it('should handle firestore error gracefully', async () => {

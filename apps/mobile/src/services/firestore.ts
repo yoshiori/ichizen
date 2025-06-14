@@ -8,7 +8,7 @@ export const createUser = async (userId: string, userData: Omit<User, 'id'>) => 
 
 export const getUser = async (userId: string): Promise<User | null> => {
   const userDoc = await db.collection('users').doc(userId).get();
-  return userDoc.exists ? { id: userDoc.id, ...userDoc.data() } as User : null;
+  return userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } as User : null;
 };
 
 export const updateUser = async (userId: string, updates: Partial<User>) => {
@@ -27,7 +27,7 @@ export const getTasks = async (): Promise<Task[]> => {
 
 export const getTask = async (taskId: string): Promise<Task | null> => {
   const taskDoc = await db.collection('tasks').doc(taskId).get();
-  return taskDoc.exists ? { id: taskDoc.id, ...taskDoc.data() } as Task : null;
+  return taskDoc.exists() ? { id: taskDoc.id, ...taskDoc.data() } as Task : null;
 };
 
 // Daily task history
@@ -81,14 +81,14 @@ export const markTaskAsCompleted = async (historyId: string) => {
 // Global counter
 export const getGlobalCounter = async (date: string): Promise<GlobalCounter | null> => {
   const counterDoc = await db.collection('global_counters').doc(date).get();
-  return counterDoc.exists ? { id: counterDoc.id, ...counterDoc.data() } as GlobalCounter : null;
+  return counterDoc.exists() ? counterDoc.data() as GlobalCounter : null;
 };
 
 export const incrementGlobalCounter = async (date: string) => {
   const counterRef = db.collection('global_counters').doc(date);
   const counterDoc = await counterRef.get();
   
-  if (counterDoc.exists) {
+  if (counterDoc.exists()) {
     await counterRef.update({
       totalDoneToday: (counterDoc.data()?.totalDoneToday || 0) + 1,
       totalDoneAllTime: (counterDoc.data()?.totalDoneAllTime || 0) + 1,

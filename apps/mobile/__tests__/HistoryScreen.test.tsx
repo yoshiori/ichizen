@@ -93,6 +93,7 @@ describe('HistoryScreen', () => {
       user: mockUser,
       firebaseUser: mockFirebaseUser,
       loading: false,
+      initError: null,
       signIn: jest.fn()
     });
     
@@ -163,6 +164,7 @@ describe('HistoryScreen', () => {
       user: { ...mockUser, language: 'en' as const },
       firebaseUser: mockFirebaseUser,
       loading: false,
+      initError: null,
       signIn: jest.fn()
     });
     
@@ -354,6 +356,7 @@ describe('HistoryScreen', () => {
       user: null,
       firebaseUser: null,
       loading: false,
+      initError: null,
       signIn: jest.fn()
     });
 
@@ -394,6 +397,7 @@ describe('HistoryScreen', () => {
       user: { ...mockUser, language: 'en' as const },
       firebaseUser: mockFirebaseUser,
       loading: false,
+      initError: null,
       signIn: jest.fn()
     });
 

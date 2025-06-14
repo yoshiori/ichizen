@@ -31,3 +31,10 @@ export const signInAnonymous = async (): Promise<FirebaseAuthTypes.User> => {
   const result = await auth().signInAnonymously();
   return result.user;
 };
+
+/**
+ * Check if Apple Sign-In is available
+ */
+export const isAppleSignInAvailable = (): boolean => {
+  return Platform.OS === 'ios' && appleAuth.isSupported;
+};

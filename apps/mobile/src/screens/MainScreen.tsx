@@ -97,7 +97,8 @@ export const MainScreen: React.FC = () => {
       
       // Increment global counter in Firestore
       console.log('📊 Incrementing global counter in Firestore...');
-      await incrementGlobalCounter();
+      const today = new Date().toISOString().split('T')[0];
+      await incrementGlobalCounter(today);
       console.log('✅ Global counter incremented successfully');
 
       setIsCompleted(true);

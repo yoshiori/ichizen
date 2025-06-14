@@ -9,7 +9,8 @@ export const testFirestoreConnection = async () => {
     console.log(`📝 Found ${tasks.length} tasks:`, tasks.map(t => t.text.en));
     
     // Test global counter
-    const counter = await getGlobalCounter();
+    const today = new Date().toISOString().split('T')[0];
+    const counter = await getGlobalCounter(today);
     console.log('🌍 Global counter:', counter);
     
     return { success: true, tasks, counter };

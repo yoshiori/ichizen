@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { signInWithGoogle, signInWithApple, signInAnonymous, initializeUser } from '../services/auth';
-import { signInWithGoogleNative, signInWithAppleNative, isAppleSignInAvailable } from '../services/nativeAuth';
+import { isAppleSignInAvailable } from '../services/nativeAuth';
 
 interface SignInScreenProps {
   onSignIn: () => void;
@@ -18,7 +18,8 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn }) => {
       if (Platform.OS === 'web') {
         firebaseUser = await signInWithGoogle();
       } else {
-        firebaseUser = await signInWithGoogleNative();
+        // For React Native, use the same auth method for now
+        firebaseUser = await signInWithGoogle();
       }
       
       await initializeUser(firebaseUser);
@@ -39,7 +40,8 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ onSignIn }) => {
       if (Platform.OS === 'web') {
         firebaseUser = await signInWithApple();
       } else if (Platform.OS === 'ios') {
-        firebaseUser = await signInWithAppleNative();
+        // For React Native, use the same auth method for now
+        firebaseUser = await signInWithApple();
       } else {
         throw new Error('Apple Sign-In is not supported on this platform');
       }

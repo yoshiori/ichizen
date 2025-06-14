@@ -50,6 +50,7 @@ describe('FollowScreen', () => {
       user: mockUser,
       firebaseUser: mockFirebaseUser,
       loading: false,
+      initError: null,
       signIn: jest.fn()
     });
     
@@ -76,6 +77,7 @@ describe('FollowScreen', () => {
       user: null,
       firebaseUser: null,
       loading: false,
+      initError: null,
       signIn: jest.fn()
     });
 
