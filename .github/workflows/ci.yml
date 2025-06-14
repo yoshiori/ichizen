@@ -183,8 +183,12 @@ jobs:
           echo "🚀 Deploying Cloud Functions using Turbo..."
           echo "📊 Functions changed, running deployment"
 
+          # Set Firebase project for the deployment
+          export FIREBASE_PROJECT=ichizen-daily-good-deeds
+          export FIREBASE_DEPLOY_AGENT=github-actions
+
           # Run the turbo-managed deploy task
-          FIREBASE_DEPLOY_AGENT=github-actions npm run functions:deploy -- --project ichizen-daily-good-deeds
+          npm run functions:deploy
 
       - name: Skip deployment
         if: steps.functions-changes.outputs.changed == 'false'

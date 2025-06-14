@@ -8,7 +8,7 @@
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
+    "deploy": "firebase deploy --only functions --project ${FIREBASE_PROJECT:-ichizen-daily-good-deeds}",
     "logs": "firebase functions:log",
     "test": "jest",
     "test:watch": "jest --watch",
