@@ -4,3 +4,7 @@ export { useAppInitialization } from './useAppInitialization';
 export { useFeedbackManager } from './useFeedbackManager';
 export { useFCMSetup } from './useFCMSetup';
 export { useUserInitialization } from './useUserInitialization';
+export { useCalendarGenerator } from './useCalendarGenerator';
+export { useTaskHistory } from './useTaskHistory';
+export { useMonthNavigation } from './useMonthNavigation';
+export { useDateSelection } from './useDateSelection';
