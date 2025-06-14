@@ -52,6 +52,12 @@
     "start": {
       "cache": false,
       "persistent": true
+    },
+    "functions:deploy": {
+      "dependsOn": ["functions:build", "functions:test", "functions:lint"],
+      "inputs": ["apps/functions/**", "firestore.rules", "firestore.indexes.json", "firebase.json"],
+      "outputs": [],
+      "cache": false
     }
   },
   "globalDependencies": ["package.json", "turbo.json", ".env", ".env.local"]

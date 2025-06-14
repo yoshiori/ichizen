@@ -25,6 +25,7 @@
     "functions:lint": "turbo run lint --filter=functions",
     "mobile:typecheck": "turbo run typecheck --filter=mobile",
     "functions:typecheck": "turbo run typecheck --filter=functions",
+    "functions:deploy": "turbo run functions:deploy",
     "prepare": "husky || true",
     "android": "expo run:android",
     "ios": "expo run:ios"
