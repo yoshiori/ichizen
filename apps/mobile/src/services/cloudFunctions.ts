@@ -4,11 +4,11 @@
  * Using stubs for compatibility
  */
 
-import { Task } from '../types/firebase';
+import {Task} from "../types/firebase";
 
 // Cloud Functions type definitions
 interface GetTodayTaskResponse {
-  task: Task & { id: string };
+  task: Task & {id: string};
   completed: boolean;
   selectedAt: Date;
   simplified?: boolean;
@@ -25,13 +25,13 @@ interface CompleteTaskResponse {
  */
 export const getTodayTask = async (): Promise<GetTodayTaskResponse> => {
   // Stub implementation
-  throw new Error('Cloud Functions not supported in React Native. Use direct Firestore calls.');
+  throw new Error("Cloud Functions not supported in React Native. Use direct Firestore calls.");
 };
 
 /**
  * Complete task (Stub)
  */
-export const completeTask = async (historyId: string): Promise<CompleteTaskResponse> => {
+export const completeTask = async (_historyId: string): Promise<CompleteTaskResponse> => {
   // Stub implementation
-  throw new Error('Cloud Functions not supported in React Native. Use direct Firestore calls.');
+  throw new Error("Cloud Functions not supported in React Native. Use direct Firestore calls.");
 };
