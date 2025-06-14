@@ -54,7 +54,7 @@
       "persistent": true
     },
     "functions:deploy": {
-      "dependsOn": ["functions:build", "functions:test", "functions:lint"],
+      "dependsOn": ["build", "test", "lint"],
       "inputs": ["apps/functions/**", "firestore.rules", "firestore.indexes.json", "firebase.json"],
       "outputs": [],
       "cache": false
