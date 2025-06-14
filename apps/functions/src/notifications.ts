@@ -1,9 +1,6 @@
 import * as admin from "firebase-admin";
 
-// Initialize Firebase Admin if not already initialized (skip in test environment)
-if (!admin.apps || (!admin.apps.length && typeof admin.initializeApp === "function")) {
-  admin.initializeApp();
-}
+// Firebase Admin is initialized in index.ts
 
 export type NotificationType = "follow_task_completed" | "new_follower";
 
