@@ -1,10 +1,14 @@
 name: Deploy Cloud Functions
 
 on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches: [main]
   push:
     branches: [main]
     paths:
-      - "apps/functions/**"
       - "firestore.rules"
       - "firestore.indexes.json"
       - ".github/workflows/deploy-functions.yml"
@@ -50,7 +54,9 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: |
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.ref == 'refs/heads/main' && github.event_name == 'push')
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
