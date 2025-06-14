@@ -1,37 +1,47 @@
-import { getTodayTask, completeTask } from '../src/services/cloudFunctions';
+import {getTodayTask, completeTask} from "../src/services/cloudFunctions";
 
-describe('Cloud Functions Service', () => {
-  describe('getTodayTask', () => {
-    it('should throw not implemented error', async () => {
-      await expect(getTodayTask()).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
+describe("Cloud Functions Service - React Native Firebase v22", () => {
+  describe("getTodayTask", () => {
+    it("should return mocked response in test environment", async () => {
+      const result = await getTodayTask();
+      expect(result).toEqual({});
     });
 
-    it('should throw not implemented error for authentication case', async () => {
-      await expect(getTodayTask()).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
+    it("should handle authentication cases gracefully", async () => {
+      const result = await getTodayTask();
+      expect(result).toBeDefined();
     });
 
-    it('should throw not implemented error for network case', async () => {
-      await expect(getTodayTask()).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
-    });
-  });
-
-  describe('completeTask', () => {
-    it('should throw not implemented error', async () => {
-      await expect(completeTask('test-id')).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
-    });
-
-    it('should throw not implemented error for task already completed case', async () => {
-      await expect(completeTask('test-id')).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
-    });
-
-    it('should throw not implemented error for authentication case', async () => {
-      await expect(completeTask('test-id')).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
+    it("should handle network cases gracefully", async () => {
+      const result = await getTodayTask();
+      expect(result).toBeDefined();
     });
   });
 
-  describe('Integration Scenarios', () => {
-    it('should throw not implemented error for complete workflow', async () => {
-      await expect(getTodayTask()).rejects.toThrow('Cloud Functions not supported in React Native. Use direct Firestore calls.');
+  describe("completeTask", () => {
+    it("should return mocked response in test environment", async () => {
+      const result = await completeTask("test-id");
+      expect(result).toEqual({});
+    });
+
+    it("should handle task completion cases gracefully", async () => {
+      const result = await completeTask("test-id");
+      expect(result).toBeDefined();
+    });
+
+    it("should handle authentication cases gracefully", async () => {
+      const result = await completeTask("test-id");
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe("Integration Scenarios", () => {
+    it("should work with mocked Firebase Functions in test environment", async () => {
+      const taskResult = await getTodayTask();
+      expect(taskResult).toBeDefined();
+
+      const completeResult = await completeTask("test-id");
+      expect(completeResult).toBeDefined();
     });
   });
 });

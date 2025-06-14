@@ -1,11 +1,16 @@
-// React Native Firebase configuration
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
+// React Native Firebase v22 - Modular API with Zero Configuration
+// Firebase automatically initializes from google-services.json
+// No manual initialization needed - that's the modern way!
 
-// React Native Firebase doesn't need manual initialization like Web Firebase
-// It uses google-services.json for configuration
+import auth from "@react-native-firebase/auth";
+import firestore from "@react-native-firebase/firestore";
 
-console.log('🚀 Connected to Firebase (React Native Firebase)');
+console.log("🚀 React Native Firebase v22 - Zero Config Auto-Initialization");
 
-export { auth };
+// Export individual services (modular API is preferred for Functions)
+export {auth, firestore};
+
+// Legacy compatibility for existing code
 export const db = firestore();
+
+console.log("✅ Firebase v22 Ready - Fully Automatic!");

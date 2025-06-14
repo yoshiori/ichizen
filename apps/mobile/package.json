@@ -1,8 +1,7 @@
 {
-  "name": "mobile",
+  "name": "ichizen",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "expo start",
     "dev": "expo start",
@@ -30,6 +29,7 @@
     "@react-native-firebase/app": "^22.2.1",
     "@react-native-firebase/auth": "^22.2.1",
     "@react-native-firebase/firestore": "^22.2.1",
+    "@react-native-firebase/functions": "^22.2.1",
     "@react-native-firebase/messaging": "^22.2.1",
     "@react-native-google-signin/google-signin": "^14.0.1",
     "expo": "~53.0.11",
