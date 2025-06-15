@@ -1,5 +1,10 @@
 name: CI
 
+# This workflow handles code quality checks for all components.
+# Platform-specific builds are handled by separate workflows:
+# - iOS Build Test: .github/workflows/ios-build.yml
+# - Android Build Test: .github/workflows/android-build.yml
+
 on:
   push:
     branches: [main, develop]

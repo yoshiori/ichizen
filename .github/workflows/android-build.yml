@@ -1,0 +1,193 @@
+name: Android Build Test
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [main]
+    paths:
+      - "apps/mobile/**"
+      - ".github/workflows/android-build.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "apps/mobile/**"
+      - ".github/workflows/android-build.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Quick checks for PRs
+  quick-check:
+    name: Quick Android Checks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Quick checks with Turborepo
+        run: npx turbo run mobile:check --filter=mobile
+
+  # Full build for main branch
+  android-build:
+    name: Android Build Test
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      # Restore Turborepo cache
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.cache/turbo
+            apps/mobile/.turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Cache Expo prebuild
+      - name: Get Expo prebuild cache key
+        id: expo-cache-key
+        working-directory: apps/mobile
+        run: |
+          echo "expo-hash=${{ hashFiles('**/package-lock.json', '**/app.config.js', '**/android/**/*.gradle*') }}" >> $GITHUB_OUTPUT
+
+      - name: Restore Expo prebuild cache
+        id: expo-prebuild-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/android
+          key: ${{ runner.os }}-expo-android-prebuild-${{ steps.expo-cache-key.outputs.expo-hash }}
+
+      - name: Prebuild Android with Turborepo
+        if: steps.expo-prebuild-cache.outputs.cache-hit != 'true'
+        run: |
+          # Generate native Android project using Turborepo task
+          npx turbo run mobile:prebuild:android --filter=mobile
+
+      # Cache Gradle
+      - name: Restore Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            apps/mobile/android/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties', '**/*.gradle*', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        working-directory: apps/mobile/android
+        run: chmod +x gradlew
+
+      - name: Check Android build environment
+        working-directory: apps/mobile/android
+        run: |
+          # Check Android SDK and Gradle
+          ./gradlew --version
+          $ANDROID_HOME/tools/bin/sdkmanager --list | head -20
+
+      - name: Build Android APK (debug)
+        working-directory: apps/mobile/android
+        run: |
+          # Build APK with parallel execution
+          ./gradlew assembleDebug \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
+            --no-daemon \
+            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m" \
+            -Dkotlin.compiler.execution.strategy=in-process
+
+      - name: Run Android tests
+        working-directory: apps/mobile/android
+        run: |
+          # Run unit tests
+          ./gradlew testDebugUnitTest \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
+            --no-daemon
+
+      - name: Archive Android APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-${{ github.sha }}
+          path: |
+            apps/mobile/android/app/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-test-results-${{ github.sha }}
+          path: |
+            apps/mobile/android/app/build/test-results/**/*.xml
+            apps/mobile/android/app/build/reports/**/*
+          retention-days: 7
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Android Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Build Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Cache Hits:" >> $GITHUB_STEP_SUMMARY
+          echo "  - Expo Prebuild: ${{ steps.expo-prebuild-cache.outputs.cache-hit }}" >> $GITHUB_STEP_SUMMARY
+          echo "  - Gradle: Restored from cache" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "- Artifacts:" >> $GITHUB_STEP_SUMMARY
+            echo "  - APK: android-apk-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "  - Test Results: android-test-results-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          fi

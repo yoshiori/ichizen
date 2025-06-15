@@ -70,10 +70,22 @@
       "inputs": ["apps/mobile/app.config.js", "apps/mobile/package.json", "apps/mobile/src/**"],
       "cache": true
     },
+    "mobile:prebuild:android": {
+      "dependsOn": ["mobile:check"],
+      "outputs": ["apps/mobile/android/**"],
+      "inputs": ["apps/mobile/app.config.js", "apps/mobile/package.json", "apps/mobile/src/**"],
+      "cache": true
+    },
     "mobile:ios:build": {
       "dependsOn": ["mobile:prebuild"],
       "outputs": ["apps/mobile/ios/build/**"],
       "inputs": ["apps/mobile/ios/**", "!apps/mobile/ios/build/**", "!apps/mobile/ios/Pods/**"],
+      "cache": true
+    },
+    "mobile:android:build": {
+      "dependsOn": ["mobile:prebuild:android"],
+      "outputs": ["apps/mobile/android/app/build/**"],
+      "inputs": ["apps/mobile/android/**", "!apps/mobile/android/app/build/**", "!apps/mobile/android/.gradle/**"],
       "cache": true
     }
   },
