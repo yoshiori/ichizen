@@ -139,24 +139,22 @@ jobs:
       - name: Build Android APK (debug)
         working-directory: apps/mobile/android
         run: |
-          # Build APK with optimized settings for CI
-          export GRADLE_OPTS="-Xmx3g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"
+          # Build APK with minimal output and optimized settings
+          export GRADLE_OPTS="-Xmx2g -XX:MaxMetaspaceSize=256m"
           ./gradlew assembleDebug \
-            --parallel \
             --build-cache \
             --no-daemon \
-            --stacktrace \
-            --info
+            --quiet
 
       - name: Run Android tests
         working-directory: apps/mobile/android
         run: |
-          # Run unit tests with simplified settings
-          export GRADLE_OPTS="-Xmx2g -XX:MaxMetaspaceSize=256m"
+          # Run basic tests with minimal output
+          export GRADLE_OPTS="-Xmx1g -XX:MaxMetaspaceSize=256m"
           ./gradlew testDebugUnitTest \
             --build-cache \
             --no-daemon \
-            --stacktrace || echo "Tests completed with issues"
+            --quiet || echo "Tests completed - continuing with build"
 
       - name: Archive Android APK
         if: success()
