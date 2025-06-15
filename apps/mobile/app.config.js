@@ -58,7 +58,7 @@ export default {
             minSdkVersion: 23,
             compileSdkVersion: 34,
             targetSdkVersion: 34,
-            buildToolsVersion: "34.0.0",
+            buildToolsVersion: "35.0.0",
           },
         },
       ],
