@@ -25,7 +25,10 @@
     "lint": "eslint src/ --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint src/ --ext .ts,.tsx,.js,.jsx --fix",
     "typecheck": "tsc --noEmit",
-    "seed": "npx tsx scripts/seed-data.ts"
+    "seed": "npx tsx scripts/seed-data.ts",
+    "mobile:check": "npm run typecheck && npm run lint",
+    "mobile:prebuild": "npx expo prebuild --platform ios --clean",
+    "mobile:ios:build": "cd ios && xcodebuild -workspace ichizen.xcworkspace -scheme ichizen -configuration Debug -sdk iphonesimulator -arch arm64 -derivedDataPath build build-for-testing CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",

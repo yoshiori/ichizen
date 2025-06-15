@@ -3,7 +3,7 @@ name: iOS Build Test
 on:
   workflow_dispatch: # Manual trigger
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - "apps/mobile/**"
       - ".github/workflows/ios-build.yml"
@@ -18,10 +18,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Quick checks for PRs
+  quick-check:
+    name: Quick iOS Checks
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Quick checks with Turborepo
+        run: npx turbo run mobile:check --filter=apps/mobile
+
+  # Full build for main branch
   ios-build:
     name: iOS Build Test
+    if: github.event_name != 'pull_request'
     runs-on: macos-15 # Use macOS 15 with Xcode 16 for Swift 6 support
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Check out code
@@ -32,6 +55,17 @@ jobs:
         with:
           node-version: 20
           cache: "npm"
+
+      # Restore Turborepo cache
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules/.cache/turbo
+            apps/mobile/.turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
 
       - name: Install dependencies
         run: npm ci
@@ -48,40 +82,74 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Prebuild iOS
+      # Cache Expo prebuild
+      - name: Get Expo prebuild cache key
+        id: expo-cache-key
         working-directory: apps/mobile
         run: |
-          # Generate native iOS project
-          npx expo prebuild --platform ios --clean
+          echo "expo-hash=${{ hashFiles('**/package-lock.json', '**/app.config.js', '**/ios.config.js') }}" >> $GITHUB_OUTPUT
 
-      - name: Clean pod cache and prepare iOS build
-        working-directory: apps/mobile
+      - name: Restore Expo prebuild cache
+        id: expo-prebuild-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/ios
+          key: ${{ runner.os }}-expo-prebuild-${{ steps.expo-cache-key.outputs.expo-hash }}
+
+      - name: Prebuild iOS with Turborepo
+        if: steps.expo-prebuild-cache.outputs.cache-hit != 'true'
         run: |
-          # Clean pod cache to avoid version conflicts
-          cd ios
-          pod cache clean --all
-          rm -rf ~/Library/Caches/CocoaPods
-          rm -rf Pods
-          rm -f Podfile.lock
+          # Generate native iOS project using Turborepo task
+          npx turbo run mobile:prebuild --filter=apps/mobile
+
+      # Cache CocoaPods
+      - name: Get CocoaPods cache key
+        id: pods-cache-key
+        run: |
+          echo "pods-hash=${{ hashFiles('**/Podfile.lock') }}" >> $GITHUB_OUTPUT
+
+      - name: Restore CocoaPods cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/ios/Pods
+            ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-pods-${{ steps.pods-cache-key.outputs.pods-hash }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
 
       - name: Install pods
         working-directory: apps/mobile/ios
         run: |
-          # Install CocoaPods dependencies
-          pod install --repo-update
+          if [ ! -d "Pods" ] || [ ! -f "Podfile.lock" ]; then
+            pod install --repo-update
+          else
+            pod install
+          fi
+
+      # Cache Xcode DerivedData
+      - name: Restore Xcode DerivedData cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/ios/build
+            ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-xcode-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-xcode-
 
       - name: Check iOS build environment
         working-directory: apps/mobile/ios
         run: |
           # Check Xcode and workspace
-          ls -la
           xcodebuild -version
-          xcodebuild -list -workspace ichizen.xcworkspace
+          xcodebuild -list -workspace ichizen.xcworkspace | head -20
 
-      - name: Build iOS app for simulator (basic)
+      - name: Build iOS app for simulator (incremental)
         working-directory: apps/mobile/ios
         run: |
-          # Build with minimal targets first
+          # Build with incremental compilation
           xcodebuild \
             -workspace ichizen.xcworkspace \
             -scheme ichizen \
@@ -89,11 +157,14 @@ jobs:
             -sdk iphonesimulator \
             -arch arm64 \
             -derivedDataPath build \
+            -parallelizeTargets \
+            -jobs $(sysctl -n hw.ncpu) \
             build-for-testing \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ONLY_ACTIVE_ARCH=YES
+            ONLY_ACTIVE_ARCH=YES \
+            COMPILER_INDEX_STORE_ENABLE=NO
 
       - name: Archive iOS build
         if: success()
@@ -110,6 +181,9 @@ jobs:
           echo "- Build Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
           echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Cache Hits:" >> $GITHUB_STEP_SUMMARY
+          echo "  - Expo Prebuild: ${{ steps.expo-prebuild-cache.outputs.cache-hit }}" >> $GITHUB_STEP_SUMMARY
+          echo "  - CocoaPods: Restored from ${{ steps.pods-cache-key.outputs.pods-hash }}" >> $GITHUB_STEP_SUMMARY
           if [ "${{ job.status }}" == "success" ]; then
             echo "- Artifact: ios-build-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           fi
