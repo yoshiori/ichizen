@@ -1,0 +1,87 @@
+name: iOS Build Test
+
+on:
+  workflow_dispatch: # 手動実行可能
+  push:
+    branches: [main, develop]
+    paths:
+      - "apps/mobile/**"
+      - ".github/workflows/ios-build.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "apps/mobile/**"
+      - ".github/workflows/ios-build.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-build:
+    name: iOS Build Test
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install pods
+        working-directory: apps/mobile
+        run: |
+          if [ -d "ios" ]; then
+            cd ios
+            pod install --repo-update
+          else
+            echo "iOS directory not found. Running prebuild..."
+            npx expo prebuild --platform ios --no-install
+            cd ios
+            pod install --repo-update
+          fi
+
+      - name: Build iOS app for simulator
+        working-directory: apps/mobile
+        run: |
+          # Simulator用にビルド（実デバイス用ではない）
+          npx react-native build-ios --simulator --scheme "ichizen" --mode "Release"
+
+      - name: Archive iOS build
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-build-${{ github.sha }}
+          path: apps/mobile/ios/build/Build/Products/Release-iphonesimulator/*.app
+          retention-days: 7
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## iOS Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Build Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "- Artifact: ios-build-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          fi
