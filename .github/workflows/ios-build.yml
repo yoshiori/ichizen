@@ -20,7 +20,7 @@ concurrency:
 jobs:
   ios-build:
     name: iOS Build Test
-    runs-on: macos-latest
+    runs-on: macos-15 # Use macOS 15 with Xcode 16 for Swift 6 support
     timeout-minutes: 30
 
     steps:
@@ -70,16 +70,26 @@ jobs:
           # Install CocoaPods dependencies
           pod install --repo-update
 
-      - name: Build iOS app for simulator
+      - name: Check iOS build environment
         working-directory: apps/mobile/ios
         run: |
-          # Build for simulator (not for real device)
-          xcodebuild -workspace ichizen.xcworkspace \
+          # Check Xcode and workspace
+          ls -la
+          xcodebuild -version
+          xcodebuild -list -workspace ichizen.xcworkspace
+
+      - name: Build iOS app for simulator (basic)
+        working-directory: apps/mobile/ios
+        run: |
+          # Build with minimal targets first
+          xcodebuild \
+            -workspace ichizen.xcworkspace \
             -scheme ichizen \
             -configuration Debug \
             -sdk iphonesimulator \
+            -arch arm64 \
             -derivedDataPath build \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
+            build-for-testing \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
