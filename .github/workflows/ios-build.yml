@@ -58,16 +58,16 @@ jobs:
         working-directory: apps/mobile
         run: |
           # Add Firebase configuration at the top of Podfile
-          cat > ios/Podfile.tmp << 'EOF'
-# Firebase configuration
-use_modular_headers!
-$RNFirebaseAsStaticFramework = true
-
-# Override Firebase SDK version to avoid Swift compatibility issues
-$FirebaseSDKVersion = '10.29.0'
-
-EOF
-          cat ios/Podfile >> ios/Podfile.tmp
+          {
+            echo "# Firebase configuration"
+            echo "use_modular_headers!"
+            echo '$RNFirebaseAsStaticFramework = true'
+            echo ""
+            echo "# Override Firebase SDK version to avoid Swift compatibility issues"
+            echo '$FirebaseSDKVersion = "10.29.0"'
+            echo ""
+            cat ios/Podfile
+          } > ios/Podfile.tmp
           mv ios/Podfile.tmp ios/Podfile
 
       - name: Install pods
