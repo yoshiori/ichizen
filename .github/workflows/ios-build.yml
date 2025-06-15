@@ -54,6 +54,16 @@ jobs:
           # Generate native iOS project
           npx expo prebuild --platform ios --clean
 
+      - name: Patch Podfile for Firebase
+        working-directory: apps/mobile
+        run: |
+          # Add use_modular_headers! at the top of Podfile
+          echo "# Firebase configuration" > ios/Podfile.tmp
+          echo "use_modular_headers!" >> ios/Podfile.tmp
+          echo "" >> ios/Podfile.tmp
+          cat ios/Podfile >> ios/Podfile.tmp
+          mv ios/Podfile.tmp ios/Podfile
+
       - name: Install pods
         working-directory: apps/mobile/ios
         run: |
