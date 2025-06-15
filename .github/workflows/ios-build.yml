@@ -54,21 +54,15 @@ jobs:
           # Generate native iOS project
           npx expo prebuild --platform ios --clean
 
-      - name: Patch Podfile for Firebase
+      - name: Clean pod cache and prepare iOS build
         working-directory: apps/mobile
         run: |
-          # Add Firebase configuration at the top of Podfile
-          {
-            echo "# Firebase configuration"
-            echo "use_modular_headers!"
-            echo '$RNFirebaseAsStaticFramework = true'
-            echo ""
-            echo "# Override Firebase SDK version to avoid Swift compatibility issues"
-            echo '$FirebaseSDKVersion = "10.29.0"'
-            echo ""
-            cat ios/Podfile
-          } > ios/Podfile.tmp
-          mv ios/Podfile.tmp ios/Podfile
+          # Clean pod cache to avoid version conflicts
+          cd ios
+          pod cache clean --all
+          rm -rf ~/Library/Caches/CocoaPods
+          rm -rf Pods
+          rm -f Podfile.lock
 
       - name: Install pods
         working-directory: apps/mobile/ios

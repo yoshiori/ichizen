@@ -53,13 +53,6 @@ export default {
           ios: {
             useFrameworks: "static",
             deploymentTarget: "15.1",
-            extraPods: [
-              {
-                name: "FirebaseCore",
-                configurations: ["Debug", "Release"],
-                modular_headers: true,
-              },
-            ],
           },
           android: {
             minSdkVersion: 23,
@@ -69,6 +62,9 @@ export default {
           },
         },
       ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/firestore",
     ],
   },
 };
