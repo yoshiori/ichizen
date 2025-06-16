@@ -35,6 +35,7 @@ export default {
       },
       edgeToEdgeEnabled: true,
       package: "dev.yoshiori.ichizen",
+      googleServicesFile: "./google-services.json",
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -62,6 +63,7 @@ export default {
           },
         },
       ],
+      ["@react-native-firebase/app"],
     ],
   },
 };

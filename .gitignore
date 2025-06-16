@@ -92,7 +92,9 @@ node_modules/
 
 # Firebase security files (contain API keys)
 **/google-services.json
+**/google-services.json.b64
 **/GoogleService-Info.plist
+**/GoogleService-Info.plist.b64
 
 # Expo prebuild generated files (auto-generated, should not be committed)
 apps/mobile/android/

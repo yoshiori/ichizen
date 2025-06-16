@@ -6,13 +6,16 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "prebuildCommand": "echo $GOOGLE_SERVICES_JSON | base64 -d > android/app/google-services.json"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "prebuildCommand": "echo $GOOGLE_SERVICES_JSON | base64 -d > android/app/google-services.json"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "prebuildCommand": "echo $GOOGLE_SERVICES_JSON | base64 -d > android/app/google-services.json"
     }
   },
   "submit": {
