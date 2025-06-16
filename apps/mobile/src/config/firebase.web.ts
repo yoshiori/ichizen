@@ -4,14 +4,18 @@ import {getAuth, connectAuthEmulator} from "firebase/auth";
 import {getFirestore, connectFirestoreEmulator} from "firebase/firestore";
 import {getFunctions, connectFunctionsEmulator} from "firebase/functions";
 
-// Firebase configuration
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  projectId: "ichizen-daily-good-deeds",
-  appId: "1:179557978249:android:08a1c5539a35eae9a03658",
-  apiKey: "AIzaSyAH5s9WzkRGioFhBFAVPlSgTcWT1eY62_k",
-  authDomain: "ichizen-daily-good-deeds.firebaseapp.com",
-  storageBucket: "ichizen-daily-good-deeds.firebasestorage.app",
-  messagingSenderId: "179557978249",
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "ichizen-daily-good-deeds",
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || "1:179557978249:web:08a1c5539a35eae9a03658",
+  apiKey:
+    process.env.EXPO_PUBLIC_FIREBASE_API_KEY ||
+    (() => {
+      throw new Error("EXPO_PUBLIC_FIREBASE_API_KEY environment variable is required");
+    })(),
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "ichizen-daily-good-deeds.firebaseapp.com",
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "ichizen-daily-good-deeds.firebasestorage.app",
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "179557978249",
 };
 
 // Initialize Firebase

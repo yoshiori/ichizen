@@ -42,6 +42,7 @@
     "@react-native-firebase/functions": "^22.2.1",
     "@react-native-firebase/messaging": "^22.2.1",
     "@react-native-google-signin/google-signin": "^14.0.1",
+    "dotenv": "^16.5.0",
     "expo": "~53.0.11",
     "expo-status-bar": "~2.2.3",
     "i18next": "^25.2.1",
