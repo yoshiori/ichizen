@@ -78,17 +78,22 @@
     "functions:test": {
       "dependsOn": ["functions:build"],
       "outputs": [],
-      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/jest.config.js", "apps/functions/__tests__/**"]
+      "inputs": [
+        "apps/functions/src/**/*.{ts,js}",
+        "apps/functions/jest.config.js",
+        "apps/functions/__tests__/**",
+        "apps/functions/package.json"
+      ]
     },
     "functions:lint": {
       "dependsOn": [],
       "outputs": [],
-      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/eslint.config.js"]
+      "inputs": ["apps/functions/**/*.{ts,js}", "apps/functions/eslint.config.js", "apps/functions/package.json"]
     },
     "functions:typecheck": {
       "dependsOn": [],
       "outputs": [],
-      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/tsconfig.json"]
+      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/tsconfig.json", "apps/functions/package.json"]
     },
     "mobile:check": {
       "dependsOn": ["mobile#typecheck", "mobile#lint"],
