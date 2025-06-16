@@ -8,24 +8,27 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "outputs": [],
+      "outputs": ["coverage/**"],
       "inputs": [
         "src/**/*.{ts,tsx,js,jsx}",
-        "**/__tests__/**",
+        "**/__tests__/**/*.{ts,tsx,js,jsx}",
         "**/*.test.{ts,tsx,js,jsx}",
+        "**/*.spec.{ts,tsx,js,jsx}",
         "jest.config.{js,ts}",
-        "jest-setup.{js,ts}"
+        "jest-setup.{js,ts}",
+        "jest.{js,ts}",
+        "package.json"
       ]
     },
     "lint": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "outputs": [],
-      "inputs": ["src/**/*.{ts,tsx,js,jsx}", "eslint.config.{js,ts}", ".eslintrc.{js,json}"]
+      "inputs": ["src/**/*.{ts,tsx,js,jsx}", "eslint.config.{js,ts}", ".eslintrc.{js,json}", "package.json"]
     },
     "typecheck": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "outputs": [],
-      "inputs": ["src/**/*.{ts,tsx}", "**/*.{ts,tsx}", "tsconfig.json", "tsconfig.*.json"]
+      "inputs": ["src/**/*.{ts,tsx}", "**/*.{ts,tsx}", "tsconfig.json", "tsconfig.*.json", "package.json"]
     },
     "format": {
       "outputs": [],
@@ -54,38 +57,88 @@
       "persistent": true
     },
     "functions:deploy": {
-      "dependsOn": ["build", "test", "lint"],
-      "inputs": ["apps/functions/**", "firestore.rules", "firestore.indexes.json", "firebase.json"],
+      "dependsOn": ["functions#build", "functions#test", "functions#lint", "functions#typecheck"],
+      "inputs": [
+        "apps/functions/src/**/*.{ts,js}",
+        "apps/functions/package.json",
+        "apps/functions/tsconfig.json",
+        "firestore.rules",
+        "firestore.indexes.json",
+        "firebase.json"
+      ],
       "outputs": [],
-      "cache": false
+      "cache": false,
+      "env": ["FIREBASE_PROJECT", "GOOGLE_APPLICATION_CREDENTIALS"]
+    },
+    "functions:build": {
+      "dependsOn": ["^build"],
+      "outputs": ["apps/functions/lib/**"],
+      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/tsconfig.json", "apps/functions/package.json"]
+    },
+    "functions:test": {
+      "dependsOn": ["functions:build"],
+      "outputs": [],
+      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/jest.config.js", "apps/functions/__tests__/**"]
+    },
+    "functions:lint": {
+      "dependsOn": [],
+      "outputs": [],
+      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/eslint.config.js"]
+    },
+    "functions:typecheck": {
+      "dependsOn": [],
+      "outputs": [],
+      "inputs": ["apps/functions/src/**/*.{ts,js}", "apps/functions/tsconfig.json"]
     },
     "mobile:check": {
-      "dependsOn": [],
+      "dependsOn": ["mobile#typecheck", "mobile#lint"],
       "outputs": [],
       "inputs": ["apps/mobile/src/**/*.{ts,tsx,js,jsx}", "apps/mobile/tsconfig.json", "apps/mobile/eslint.config.js"]
     },
     "mobile:prebuild": {
       "dependsOn": ["mobile:check"],
       "outputs": ["apps/mobile/ios/**", "apps/mobile/android/**"],
-      "inputs": ["apps/mobile/app.config.js", "apps/mobile/package.json", "apps/mobile/src/**"],
+      "inputs": [
+        "apps/mobile/app.config.js",
+        "apps/mobile/package.json",
+        "apps/mobile/src/**",
+        "apps/mobile/assets/**",
+        "apps/mobile/.env.example"
+      ],
       "cache": true
     },
     "mobile:prebuild:android": {
       "dependsOn": ["mobile:check"],
       "outputs": ["apps/mobile/android/**"],
-      "inputs": ["apps/mobile/app.config.js", "apps/mobile/package.json", "apps/mobile/src/**"],
+      "inputs": [
+        "apps/mobile/app.config.js",
+        "apps/mobile/package.json",
+        "apps/mobile/src/**",
+        "apps/mobile/assets/**",
+        "apps/mobile/.env.example"
+      ],
       "cache": true
     },
     "mobile:ios:build": {
       "dependsOn": ["mobile:prebuild"],
       "outputs": ["apps/mobile/ios/build/**"],
-      "inputs": ["apps/mobile/ios/**", "!apps/mobile/ios/build/**", "!apps/mobile/ios/Pods/**"],
+      "inputs": [
+        "apps/mobile/ios/**",
+        "!apps/mobile/ios/build/**",
+        "!apps/mobile/ios/Pods/**",
+        "!apps/mobile/ios/DerivedData/**"
+      ],
       "cache": true
     },
     "mobile:android:build": {
       "dependsOn": ["mobile:prebuild:android"],
       "outputs": ["apps/mobile/android/app/build/**"],
-      "inputs": ["apps/mobile/android/**", "!apps/mobile/android/app/build/**", "!apps/mobile/android/.gradle/**"],
+      "inputs": [
+        "apps/mobile/android/**",
+        "!apps/mobile/android/app/build/**",
+        "!apps/mobile/android/.gradle/**",
+        "!apps/mobile/android/build/**"
+      ],
       "cache": true
     }
   },

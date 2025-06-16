@@ -37,7 +37,7 @@ jobs:
         run: npm ci
 
       - name: Quick checks with Turborepo
-        run: npx turbo run mobile:check --filter=mobile
+        run: npx turbo run mobile:check
 
   # Full build for main branch
   ios-build:
@@ -101,7 +101,7 @@ jobs:
         if: steps.expo-prebuild-cache.outputs.cache-hit != 'true'
         run: |
           # Generate native iOS project using Turborepo task
-          npx turbo run mobile:prebuild --filter=mobile
+          npx turbo run mobile:prebuild
 
       # Cache CocoaPods
       - name: Get CocoaPods cache key
