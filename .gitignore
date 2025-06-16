@@ -94,3 +94,15 @@ node_modules/
 # Expo prebuild generated files (auto-generated, should not be committed)
 apps/mobile/android/
 apps/mobile/ios/
+
+# Test results and reports (should not be committed)
+**/test-results/
+**/playwright-report/
+**/coverage/
+**/*.lcov
+
+# Build artifacts and logs
+**/dist/
+**/build/
+**/*-debug.log
+**/firestore-debug.log
