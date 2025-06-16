@@ -115,20 +115,54 @@ npm run functions:dev       # Cloud Functionsのみ
 npm run functions:deploy    # 関数デプロイ
 ```
 
-### モバイルアプリ開発方法
+### Standalone App 開発フロー
 
 ```bash
-# Android開発 (推奨)
-npm run mobile:android:build              # デバッグAPK作成
+# 1. プロダクション Bundle 生成
+NODE_ENV=production npx expo export --platform android
+
+# 2. Native プロジェクト準備
+npx expo prebuild --platform android --clean
+
+# 3. Bundle をアセットに配置 (※手動で実行)
+cp dist/_expo/static/js/android/index-*.hbc android/app/src/main/assets/index.android.bundle
+
+# 4. APK ビルド
+cd android && ./gradlew assembleDebug --no-configuration-cache
+
+# 5. エミュレータにインストール・起動
 adb install android/app/build/outputs/apk/debug/app-debug.apk
 adb shell am start -n dev.yoshiori.ichizen/.MainActivity
-
-# iOS開発 (macOS必須)
-npm run mobile:ios:build                  # iOS archive作成
-
-# Firebase エミュレータ
-npx firebase emulators:start
 ```
+
+**注意**: 上記手順3は自動化されていないため、Bundle ファイル名を確認して手動でコピーしてください。
+
+### iOS開発
+
+```bash
+# iOS開発 (macOS必須) - 未テスト
+npm run mobile:ios:build                  # iOS archive作成
+```
+
+### Firebase エミュレータでの開発
+
+```bash
+# 1. Firebase エミュレータ起動（別ターミナル）
+npx firebase emulators:start --only firestore,auth,functions
+
+# 2. エミュレータ用環境変数設定
+# .env ファイルで EXPO_PUBLIC_FIREBASE_ENV=emulator に変更
+
+# 3. Standalone App ビルド・インストール（上記手順と同じ）
+NODE_ENV=production npx expo export --platform android
+npx expo prebuild --platform android --clean
+cp dist/_expo/static/js/android/index-*.hbc android/app/src/main/assets/index.android.bundle
+cd android && ./gradlew assembleDebug --no-configuration-cache
+adb install android/app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n dev.yoshiori.ichizen/.MainActivity
+```
+
+**エミュレータUI:** http://127.0.0.1:4002/
 
 ## 6. 現在のステータス
 
@@ -142,8 +176,8 @@ npx firebase emulators:start
 
 ### 利用可能な機能
 
-- ✅ **Androidアプリ**: エミュレータ・実機動作
-- ✅ **Web版**: 開発・テスト用
+- ✅ **Androidアプリ**: Standalone App として動作確認済み
+- ❌ **Web版**: Firebase React Native SDK制約により使用不可
 - ✅ **Cloud Functions**: 本番デプロイ済み
 - ✅ **CI/CD**: GitHub Actions完全自動化
 

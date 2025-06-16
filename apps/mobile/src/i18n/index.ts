@@ -1,56 +1,63 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as RNLocalize from 'react-native-localize';
+import i18n from "i18next";
+import {initReactI18next} from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as RNLocalize from "react-native-localize";
 
-import ja from './locales/ja.json';
-import en from './locales/en.json';
+import ja from "./locales/ja.json";
+import en from "./locales/en.json";
 
-const LANGUAGE_DETECTOR = {
-  type: 'languageDetector' as const,
-  async: true,
-  detect: async (callback: (lng: string) => void) => {
-    try {
-      const persistedLanguage = await AsyncStorage.getItem('user-language');
-      if (persistedLanguage) {
-        callback(persistedLanguage);
-        return;
-      }
-      
-      const bestLanguage = RNLocalize.findBestLanguageTag(['en', 'ja']);
-      callback(bestLanguage?.languageTag || 'en');
-    } catch (error) {
-      console.log('Error reading language', error);
-      callback('en');
-    }
-  },
-  init: () => {},
-  cacheUserLanguage: async (language: string) => {
-    try {
-      await AsyncStorage.setItem('user-language', language);
-    } catch (error) {
-      console.log('Error saving language', error);
-    }
+// Detect language synchronously to avoid Suspense issues
+const detectLanguageSync = (): string => {
+  try {
+    const bestLanguage = RNLocalize.findBestLanguageTag(["en", "ja"]);
+    return bestLanguage?.languageTag || "en";
+  } catch (error) {
+    console.log("Error detecting language", error);
+    return "en";
   }
 };
 
-i18n
-  .use(LANGUAGE_DETECTOR)
-  .use(initReactI18next)
-  .init({
-    compatibilityJSON: 'v4',
-    resources: {
-      en: {
-        translation: en
-      },
-      ja: {
-        translation: ja
-      }
+// Initialize i18n synchronously
+i18n.use(initReactI18next).init({
+  compatibilityJSON: "v4",
+  lng: detectLanguageSync(), // Set language synchronously
+  resources: {
+    en: {
+      translation: en,
     },
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false
+    ja: {
+      translation: ja,
+    },
+  },
+  fallbackLng: "en",
+  interpolation: {
+    escapeValue: false,
+  },
+});
+
+// Asynchronously load persisted language and update
+const loadPersistedLanguage = async () => {
+  try {
+    const persistedLanguage = await AsyncStorage.getItem("user-language");
+    if (persistedLanguage && persistedLanguage !== i18n.language) {
+      await i18n.changeLanguage(persistedLanguage);
     }
-  });
+  } catch (error) {
+    console.log("Error loading persisted language", error);
+  }
+};
+
+// Load persisted language after initialization
+loadPersistedLanguage();
+
+// Function to save language preference
+export const saveLanguagePreference = async (language: string) => {
+  try {
+    await AsyncStorage.setItem("user-language", language);
+    await i18n.changeLanguage(language);
+  } catch (error) {
+    console.log("Error saving language preference", error);
+  }
+};
 
 export default i18n;

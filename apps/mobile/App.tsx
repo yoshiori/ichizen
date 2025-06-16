@@ -1,15 +1,39 @@
-import React from 'react';
-import './src/i18n';
-import { ErrorBoundary } from './src/components/ErrorBoundary';
-import { AuthProvider } from './src/contexts/AuthContext';
-import { TabNavigation } from './src/components/TabNavigation';
+import React, {Suspense} from "react";
+import {View, Text, ActivityIndicator, StyleSheet} from "react-native";
+import "./src/i18n";
+import {ErrorBoundary} from "./src/components/ErrorBoundary";
+import {AuthProvider} from "./src/contexts/AuthContext";
+import {TabNavigation} from "./src/components/TabNavigation";
+
+const LoadingScreen = () => (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="large" color="#007AFF" />
+    <Text style={styles.loadingText}>アプリを読み込み中...</Text>
+  </View>
+);
 
 export default function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <TabNavigation />
-      </AuthProvider>
+      <Suspense fallback={<LoadingScreen />}>
+        <AuthProvider>
+          <TabNavigation />
+        </AuthProvider>
+      </Suspense>
     </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#6c757d",
+  },
+});

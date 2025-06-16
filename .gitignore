@@ -90,6 +90,9 @@ node_modules/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Expo
+.expo/
+
 # Firebase security files (contain API keys)
 **/google-services.json
 **/google-services.json.b64
