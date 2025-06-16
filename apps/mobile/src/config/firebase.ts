@@ -2,7 +2,7 @@
 import authModule from "@react-native-firebase/auth";
 import firestoreModule from "@react-native-firebase/firestore";
 import functionsModule from "@react-native-firebase/functions";
-import {env, useEmulator, isDevelopment} from "./env";
+import {env, useEmulator} from "./env";
 
 // Initialize services using default instances (auto-initialized from google-services.json)
 const authService = authModule();
