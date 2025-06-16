@@ -69,11 +69,14 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# dotenv environment variables file (ALL env files for security)
 .env
+.env.*
 .env.local
+.env.production
 .env.production.local
 .env.development.local
+.env.staging
 
 # Keep example and production configs but secure sensitive data
 # .env.example - track this
@@ -116,3 +119,21 @@ firestore.temp.rules
 # Development/test files (should not be in production)
 test-app.html
 start-web-server.js
+
+# Android build artifacts
+**/android/**/build/
+**/android/**/.gradle/
+**/android/**/.cxx/
+debug.keystore
+*.apk
+*.aab
+
+# iOS build artifacts
+**/ios/**/DerivedData/
+**/ios/**/build/
+**/ios/**/*.xcworkspace/xcuserdata/
+*.ipa
+*.mobileprovision
+
+# Functions build
+**/functions/lib/
