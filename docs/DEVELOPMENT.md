@@ -19,12 +19,41 @@ cd ichizen
 # Install all dependencies
 npm install
 
-# Setup Firebase emulators
-npx firebase emulators:start
-
-# Setup initial development data
-node scripts/setup-initial-data.js
+# Install Firebase CLI globally
+npm install -g firebase-tools
 ```
+
+### Firebase Emulator Development Environment
+
+**完全なFirebaseエミュレータ開発環境を構築:**
+
+```bash
+# 1. Firebase エミュレータ起動 (別ターミナル)
+npx firebase emulators:start --only firestore,auth,functions
+
+# 2. 開発データのセットアップ (エミュレータ起動後)
+node scripts/setup-initial-data.js
+
+# 3. モバイルアプリ環境をエミュレータ用に設定
+cd apps/mobile
+# .env ファイルを編集: EXPO_PUBLIC_FIREBASE_ENV=emulator
+
+# 4. Standalone App ビルドとテスト
+NODE_ENV=production npx expo export --platform android
+npx expo prebuild --platform android --clean
+mkdir -p android/app/src/main/assets
+cp dist/_expo/static/js/android/index-*.hbc android/app/src/main/assets/index.android.bundle
+cd android && ./gradlew assembleDebug --no-configuration-cache
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n dev.yoshiori.ichizen/.MainActivity
+```
+
+**エミュレータUI:**
+
+- **全体**: http://127.0.0.1:4002/
+- **Firestore**: http://127.0.0.1:4002/firestore
+- **Authentication**: http://127.0.0.1:4002/auth
+- **Functions**: http://127.0.0.1:4002/functions
 
 ## 🛠 Development Commands
 
@@ -84,7 +113,11 @@ npm run functions:deploy    # Deploy functions (96ms with cache)
 
 ### 正しい開発フロー
 
-Firebase React Native SDKを使用するプロジェクトでは、**ネイティブビルド**が必須です:
+Firebase React Native SDKを使用するプロジェクトでは、**ネイティブビルド**が必須です。
+
+📖 **詳細な Standalone App 開発ガイドは [STANDALONE_APP_DEVELOPMENT.md](./STANDALONE_APP_DEVELOPMENT.md) を参照してください。**
+
+**基本的な手順**:
 
 ```bash
 # 1. ネイティブビルド作成

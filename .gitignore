@@ -121,6 +121,9 @@ firestore.temp.rules
 *.temp.rules
 *.rules.backup
 
+# Firebase development rules (unsafe for production)
+firestore.rules.dev
+
 # Development/test files (should not be in production)
 test-app.html
 start-web-server.js

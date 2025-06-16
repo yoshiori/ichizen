@@ -88,6 +88,10 @@ npm run dev
 
 ### Development Commands
 
+⚠️ **Important**: This project uses React Native Firebase SDK, which requires **Standalone App development**. Traditional Expo Go or Metro development is not supported.
+
+📖 **See [Standalone App Development Guide](docs/STANDALONE_APP_DEVELOPMENT.md) for detailed instructions.**
+
 ```bash
 # Build all packages (Turborepo parallel execution)
 npm run build
@@ -109,18 +113,35 @@ npm run functions:dev       # Cloud Functions development
 npm run functions:deploy    # Deploy functions with Turbo optimization
 ```
 
-### Firebase Setup
+### Firebase Emulator Development
+
+**完全なFirebaseエミュレータ開発環境:**
 
 ```bash
 # Install Firebase CLI
 npm install -g firebase-tools
 
-# Start Firebase emulators
-npx firebase emulators:start
+# Start Firebase emulators (separate terminal)
+npx firebase emulators:start --only firestore,auth,functions
 
-# Setup initial development data
+# Setup initial development data (after emulator starts)
 node scripts/setup-initial-data.js
+
+# Configure mobile app for emulator
+cd apps/mobile
+# Edit .env: EXPO_PUBLIC_FIREBASE_ENV=emulator
+
+# Build and test Standalone App
+NODE_ENV=production npx expo export --platform android
+npx expo prebuild --platform android --clean
+mkdir -p android/app/src/main/assets
+cp dist/_expo/static/js/android/index-*.hbc android/app/src/main/assets/index.android.bundle
+cd android && ./gradlew assembleDebug --no-configuration-cache
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n dev.yoshiori.ichizen/.MainActivity
 ```
+
+**Emulator UI**: http://127.0.0.1:4002/
 
 ## 📂 Project Structure
 
