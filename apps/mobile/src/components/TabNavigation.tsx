@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import {View, Text, TouchableOpacity, StyleSheet} from "react-native";
 import {useTranslation} from "react-i18next";
 
@@ -18,23 +18,26 @@ export const TabNavigation: React.FC = () => {
   const {t} = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>("home");
 
-  const tabs: Tab[] = [
-    {
-      key: "home",
-      title: t("common.today", "今日"),
-      icon: "🌟",
-    },
-    {
-      key: "history",
-      title: t("history.title", "履歴"),
-      icon: "📊",
-    },
-    {
-      key: "follow",
-      title: t("follow.title", "フォロー"),
-      icon: "👥",
-    },
-  ];
+  const tabs: Tab[] = useMemo(
+    () => [
+      {
+        key: "home",
+        title: t("common.today", "今日"),
+        icon: "🌟",
+      },
+      {
+        key: "history",
+        title: t("history.title", "履歴"),
+        icon: "📊",
+      },
+      {
+        key: "follow",
+        title: t("follow.title", "フォロー"),
+        icon: "👥",
+      },
+    ],
+    [t]
+  );
 
   const renderContent = () => {
     switch (activeTab) {
