@@ -55,7 +55,7 @@ export default {
             deploymentTarget: "15.1",
           },
           android: {
-            minSdkVersion: 23,
+            minSdkVersion: 24,
             compileSdkVersion: 34,
             targetSdkVersion: 34,
             buildToolsVersion: "35.0.0",
