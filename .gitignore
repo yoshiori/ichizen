@@ -106,3 +106,13 @@ apps/mobile/ios/
 **/build/
 **/*-debug.log
 **/firestore-debug.log
+
+# Firebase temporary/backup files
+firestore.rules.backup
+firestore.temp.rules
+*.temp.rules
+*.rules.backup
+
+# Development/test files (should not be in production)
+test-app.html
+start-web-server.js
