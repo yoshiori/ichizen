@@ -30,8 +30,8 @@ apps/mobile/src/
 ├── contexts/           # React state management
 │   └── AuthContext.tsx   # User authentication state
 ├── config/             # Environment configuration
-│   ├── firebase.ts       # Firebase initialization
-│   └── firebase.dev.ts   # Development config
+│   ├── env.ts            # Type-safe environment validation (Zod)
+│   └── firebase.ts       # Firebase initialization (auto-switching)
 ├── i18n/              # Internationalization
 │   ├── locales/ja.json   # Japanese translations
 │   └── locales/en.json   # English translations
@@ -381,22 +381,49 @@ jobs:
 
 ### Environment Management
 
-```typescript
-// Environment Configuration
-interface Environment {
-  development: {
-    firebase: FirebaseEmulator;
-    database: LocalFirestore;
-    functions: LocalFunctions;
-  };
+#### Modern Type-Safe Configuration (2024-2025)
 
-  production: {
-    firebase: FirebaseProject;
-    database: CloudFirestore;
-    functions: CloudFunctions;
-  };
+```typescript
+// Zod-based Environment Validation
+const envSchema = z.object({
+  EXPO_PUBLIC_FIREBASE_API_KEY: z.string().min(1),
+  EXPO_PUBLIC_FIREBASE_PROJECT_ID: z.string().min(1),
+  EXPO_PUBLIC_ENVIRONMENT: z.enum(["development", "staging", "production"]),
+  // ... other validations
+});
+
+// Type-safe environment access
+export const env = validateEnv(); // Throws if invalid
+
+// Usage in components
+import {useConfig} from "./hooks/useConfig";
+
+const config = useConfig();
+if (config.isDevelopment) {
+  // Auto-connect to Firebase emulator
 }
 ```
+
+#### Environment Switching
+
+```bash
+# Development (default, with emulator)
+npm run android
+
+# Production
+npm run android:prod
+
+# Staging
+npm run android:staging
+```
+
+**Key Features:**
+
+- ✅ **Zero manual file switching**
+- ✅ **Type-safe configuration**
+- ✅ **Runtime validation**
+- ✅ **IntelliSense support**
+- ✅ **Clear error messages**
 
 ### Scalability Considerations
 

@@ -36,7 +36,7 @@ node scripts/setup-initial-data.js
 
 # 3. モバイルアプリ環境をエミュレータ用に設定
 cd apps/mobile
-# .env ファイルを編集: EXPO_PUBLIC_FIREBASE_ENV=emulator
+# 環境は自動的に開発環境（エミュレータ接続）に設定されます
 
 # 4. Standalone App ビルドとテスト
 NODE_ENV=production npx expo export --platform android
@@ -152,16 +152,85 @@ npm run mobile:ios:build            # iOS archive作成
 
 ### Environment Configuration
 
-Create `.env.local` in `apps/mobile/`:
+#### 🔥 Modern Environment Management (2024-2025)
+
+このプロジェクトは **Zod** と **TypeScript** を使用した型安全な環境変数管理システムを採用しています。
+
+**特徴:**
+
+- ✅ **型安全性**: Zod によるランタイムバリデーション
+- ✅ **自動切り替え**: 手動ファイル編集不要
+- ✅ **エラーハンドリング**: 詳細なエラーメッセージ
+- ✅ **開発体験向上**: IntelliSense 対応
+
+#### 環境ファイルの構成
 
 ```bash
-EXPO_PUBLIC_FIREBASE_API_KEY=your-api-key
-EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your-domain
-EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-bucket
-EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
+apps/mobile/
+├── .env.development    # 開発環境（エミュレータ使用）
+├── .env.staging        # ステージング環境（オプション）
+├── .env.production     # 本番環境
+└── .env                # Git無視（実行時に使用）
 ```
+
+#### セットアップ
+
+1. **環境ファイルのコピー**:
+
+   ```bash
+   cd apps/mobile
+   cp .env.development .env
+   ```
+
+2. **Firebase 設定の追加** (`.env` ファイルを編集):
+   ```bash
+   # Firebase Project Configuration
+   EXPO_PUBLIC_FIREBASE_API_KEY=your-api-key
+   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your-domain.firebaseapp.com
+   EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+   EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-bucket.appspot.com
+   EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+   EXPO_PUBLIC_FIREBASE_APP_ID=your-app-id
+   ```
+
+#### 使用方法
+
+```bash
+# 開発環境（デフォルト、エミュレータ使用）
+npm run android         # = npm run android:dev
+npm run ios            # = npm run ios:dev
+
+# ステージング環境
+npm run android:staging
+npm run ios:staging
+
+# 本番環境
+npm run android:prod
+npm run ios:prod
+
+# 環境変数の検証
+npm run env:validate
+
+# 型チェック + Lint + 環境検証
+npm run check
+```
+
+#### 型安全な設定へのアクセス
+
+````typescript
+import { useConfig } from '../hooks/useConfig';
+
+function MyComponent() {
+  const config = useConfig();
+
+  if (config.isDevelopment) {
+    console.log('開発環境で実行中');
+  }
+
+  // TypeScript が型を保証
+  console.log(config.firebase.projectId);
+  console.log(config.environment); // "development" | "staging" | "production"
+}
 
 ## ☁️ Backend Development
 
@@ -179,7 +248,7 @@ npm run test               # Run Jest tests
 
 # Deployment
 npm run deploy             # Deploy to Firebase
-```
+````
 
 ### Firebase Emulators
 

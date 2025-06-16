@@ -61,8 +61,10 @@
     ]
   },
   "dependencies": {
+    "dotenv-cli": "^8.0.0",
     "expo": "~53.0.11",
     "react": "19.0.0",
-    "react-native": "0.79.3"
+    "react-native": "0.79.3",
+    "zod": "^3.25.64"
   }
 }

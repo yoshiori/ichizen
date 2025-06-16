@@ -47,6 +47,12 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+
+# Environment-specific files (keep templates)
+# .env.development (keep for template)
+# .env.production (keep for template)
+# .env.staging (keep for template)
 
 # typescript
 *.tsbuildinfo
