@@ -19,6 +19,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: "dev.yoshiori.ichizen",
+      googleServicesFile: "./GoogleService-Info.plist",
       infoPlist: {
         CFBundleURLTypes: [
           {
