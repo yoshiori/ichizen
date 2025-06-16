@@ -5,9 +5,11 @@ This project includes automatic session continuation configuration for Claude Co
 ## Features
 
 ### 🤖 Auto-Continue Functionality
+
 When you're in the ichizen project directory, the `claude` command automatically continues your previous session using `--continue`.
 
 ### 📁 Directory Detection
+
 The configuration automatically detects when you're in the ichizen project and applies auto-continue behavior.
 
 ## Usage
@@ -95,18 +97,21 @@ direnv allow  # Allow the project configuration to load
 ## Troubleshooting
 
 ### Configuration not loading
+
 ```bash
 direnv reload  # Reload the environment
 direnv allow   # Re-allow if needed
 ```
 
 ### Function not working
+
 ```bash
 source .claude-project-config.sh  # Manually source the config
 type claude                       # Check if function is defined
 ```
 
 ### Reset to default behavior
+
 ```bash
 unset -f claude  # Remove the function to use original claude command
 ```
