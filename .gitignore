@@ -83,3 +83,14 @@ node_modules/
 .dataconnect
 # Turborepo cache
 .turbo/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Firebase security files (contain API keys)
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Expo prebuild generated files (auto-generated, should not be committed)
+apps/mobile/android/
+apps/mobile/ios/
