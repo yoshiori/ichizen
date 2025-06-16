@@ -14,8 +14,15 @@ export const signInWithApple = async (): Promise<FirebaseAuthTypes.User> => {
 };
 
 export const signInAnonymous = async (): Promise<FirebaseAuthTypes.User> => {
-  const result = await auth.signInAnonymously();
-  return result.user;
+  try {
+    console.log("🔄 Starting anonymous sign-in...");
+    const result = await auth.signInAnonymously();
+    console.log("✅ Anonymous sign-in successful:", result.user?.uid);
+    return result.user;
+  } catch (error) {
+    console.error("❌ Anonymous sign-in failed:", error);
+    throw error;
+  }
 };
 
 export const getCurrentUser = (): FirebaseAuthTypes.User | null => {

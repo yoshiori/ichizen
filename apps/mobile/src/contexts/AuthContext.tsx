@@ -1,6 +1,7 @@
 import React, {createContext, useContext, useEffect, useState, ReactNode, startTransition} from "react";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
 import {onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple} from "../services/auth";
+import {testFirebaseConnection} from "../config/firebase";
 import {User} from "../types/firebase";
 import {useFCMSetup} from "../hooks/useFCMSetup";
 import {useUserInitialization} from "../hooks/useUserInitialization";
@@ -77,45 +78,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
     let unsubscribe: (() => void) | null = null;
 
-    try {
-      unsubscribe = onAuthStateChange(async (firebaseUser) => {
-        if (!mounted) return;
+    const initializeAuth = async () => {
+      try {
+        // Test Firebase connection before setting up auth listener
+        await testFirebaseConnection();
 
-        clearTimeout(initTimeout);
+        unsubscribe = onAuthStateChange(async (firebaseUser) => {
+          if (!mounted) return;
 
-        startTransition(() => {
-          setFirebaseUser(firebaseUser);
-        });
+          clearTimeout(initTimeout);
 
-        if (firebaseUser) {
-          try {
-            await initializeUserData(firebaseUser);
+          startTransition(() => {
+            setFirebaseUser(firebaseUser);
+          });
 
-            // Setup FCM after user is authenticated
-            await setupFCMForUser(firebaseUser.uid);
-          } catch (error) {
-            console.error("User initialization error:", error);
-            // Error state is handled by useUserInitialization hook
+          if (firebaseUser) {
+            try {
+              await initializeUserData(firebaseUser);
+
+              // Setup FCM after user is authenticated
+              await setupFCMForUser(firebaseUser.uid);
+            } catch (error) {
+              console.error("User initialization error:", error);
+              // Error state is handled by useUserInitialization hook
+            }
+          } else {
+            clearUser();
           }
-        } else {
-          clearUser();
-        }
 
+          if (mounted) {
+            startTransition(() => {
+              setLoading(false);
+            });
+          }
+        });
+      } catch (error) {
+        console.error("Firebase auth state change setup failed:", error);
         if (mounted) {
           startTransition(() => {
             setLoading(false);
+            setAuthError(error instanceof Error ? error.message : "Auth setup failed");
           });
         }
-      });
-    } catch (error) {
-      console.error("Firebase auth state change setup failed:", error);
-      if (mounted) {
-        startTransition(() => {
-          setLoading(false);
-          setAuthError(error instanceof Error ? error.message : "Auth setup failed");
-        });
       }
-    }
+    };
+
+    initializeAuth();
 
     return () => {
       mounted = false;
