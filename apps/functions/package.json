@@ -2,19 +2,19 @@
   "name": "functions",
   "scripts": {
     "dev": "tsc --watch",
-    "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint --ext .js,.ts .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,js}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js}\"",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions --project ${FIREBASE_PROJECT:-ichizen-daily-good-deeds}",
-    "logs": "firebase functions:log",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "typecheck": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,js}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,js}\""
+    "logs": "firebase functions:log"
   },
   "engines": {
     "node": "20"
