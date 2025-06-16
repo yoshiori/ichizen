@@ -85,6 +85,23 @@ ichizen/ (Turborepo root)
 
 ## 5. 開発コマンド
 
+### ⚠️ 重要: Firebase React Native SDK使用時の開発制約
+
+このプロジェクトは **React Native Firebase SDK** を使用しているため:
+
+❌ **使用不可:**
+
+- Expo Go での開発
+- `expo start` / Metro サーバーでの開発
+- ブラウザでの開発・テスト
+- `npm run mobile:dev` コマンド
+
+✅ **正しい開発フロー:**
+
+1. ネイティブビルド (APK/IPA作成)
+2. エミュレータ/実機へのインストール
+3. ネイティブアプリでのテスト
+
 ### Turborepo統一コマンド
 
 ```bash
@@ -92,22 +109,22 @@ npm run build                # 全パッケージビルド
 npm run test                 # 全テスト実行
 npm run lint                 # 全パッケージLint
 npm run typecheck           # TypeScript型チェック
-npm run dev                  # 全開発サーバー並列起動
 
-# 個別パッケージ
-npm run mobile:dev          # モバイルアプリのみ
+# Cloud Functions開発
 npm run functions:dev       # Cloud Functionsのみ
 npm run functions:deploy    # 関数デプロイ
 ```
 
-### 実行方法
+### モバイルアプリ開発方法
 
 ```bash
-# Android開発
-npm run android             # Turbo prebuild → expo run:android
+# Android開発 (推奨)
+npm run mobile:android:build              # デバッグAPK作成
+adb install android/app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n dev.yoshiori.ichizen/.MainActivity
 
-# iOS開発
-npm run ios                 # Turbo prebuild → expo run:ios
+# iOS開発 (macOS必須)
+npm run mobile:ios:build                  # iOS archive作成
 
 # Firebase エミュレータ
 npx firebase emulators:start

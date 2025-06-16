@@ -34,9 +34,11 @@ All commands leverage Turborepo's intelligent caching and parallel execution:
 
 ```bash
 # Development
-npm run dev                  # Start all dev servers in parallel
-npm run mobile:dev          # Mobile app development server only
 npm run functions:dev       # Cloud Functions development only
+
+# ⚠️ モバイルアプリ: Metro/Expo開発サーバーは使用不可
+# npm run mobile:dev  ← Firebase SDK使用のため動作しません
+# 代わりにネイティブビルドを使用してください
 
 # Building
 npm run build               # Build all packages (parallel)
@@ -69,30 +71,50 @@ npm run functions:deploy    # Deploy functions (96ms with cache)
 
 ## 📱 Mobile Development
 
-### React Native with Expo
+### ⚠️ 重要: Firebase React Native SDK使用時の制約
+
+このプロジェクトは **React Native Firebase SDK** を使用しているため、以下の開発方法は**使用できません**:
+
+❌ **制限事項:**
+
+- **Expo Go**: ネイティブ依存関係のため動作不可
+- **Metro サーバー**: `expo start` コマンドは機能しない
+- **ブラウザ開発**: `expo start --web` は使用不可
+- **ホットリロード**: コード変更は再ビルドが必要
+
+### 正しい開発フロー
+
+Firebase React Native SDKを使用するプロジェクトでは、**ネイティブビルド**が必須です:
 
 ```bash
-# Start development server
+# 1. ネイティブビルド作成
 cd apps/mobile
-npx expo start
+npm run mobile:android:build    # Android APK作成
 
-# Platform-specific builds
-npx expo run:android        # Android development build
-npx expo run:ios           # iOS development build
+# 2. エミュレータにインストール
+adb install android/app/build/outputs/apk/debug/app-debug.apk
 
-# Web development
-npx expo start --web       # Browser development
+# 3. アプリ起動
+adb shell am start -n dev.yoshiori.ichizen/.MainActivity
+
+# 4. コード変更時は再ビルドが必要
+# (変更後は手順1-3を繰り返し)
 ```
 
 ### Platform Testing
 
 ```bash
-# Android
-emulator -avd Medium_Phone_API_36.0  # Start Android emulator
-npm run android                      # Build and run
+# Android エミュレータ起動
+emulator -avd Medium_Phone_API_36.0  # Android emulatorを起動
 
-# iOS (macOS only)
-npm run ios                          # Build and run in simulator
+# Android APK ビルド & テスト
+npm run mobile:android:build        # デバッグAPK作成
+adb install android/app/build/outputs/apk/debug/app-debug.apk
+adb shell am start -n dev.yoshiori.ichizen/.MainActivity
+
+# iOS (macOS のみ)
+npm run mobile:ios:build            # iOS archive作成
+# Xcode Simulatorで手動インストール
 ```
 
 ### Environment Configuration
@@ -190,13 +212,18 @@ npm run test -- --coverage
 
 ### Mobile App Debugging
 
-```bash
-# React Native debugging
-npx react-native log-android     # Android logs
-npx react-native log-ios         # iOS logs
+**Firebase React Native SDK使用時のデバッグ方法:**
 
-# Expo debugging
-npx expo start --dev-client      # Debug with Expo tools
+```bash
+# Android ログ確認
+adb logcat | grep ichizen        # アプリ固有のログ
+adb logcat *:E                   # エラーログのみ
+
+# iOS ログ確認 (macOS)
+xcrun simctl spawn booted log stream --predicate 'process CONTAINS "ichizen"'
+
+# ⚠️ 注意: Expo DevToolsは使用不可
+# npx expo start --dev-client  ← Firebase SDKのため動作しません
 ```
 
 ### Firebase Debugging
@@ -211,9 +238,31 @@ firebase emulators:start --inspect-functions
 
 ### Common Issues
 
-1. **Metro bundler cache**: `npx expo start --clear`
-2. **Node modules**: `rm -rf node_modules && npm install`
-3. **Expo cache**: `npx expo install --fix`
+**Firebase React Native SDK環境での一般的な問題:**
+
+1. **ビルドエラー**: `npm run mobile:android:build` の失敗
+
+   ```bash
+   cd apps/mobile
+   npx expo prebuild --platform android --clean
+   npm run mobile:android:build
+   ```
+
+2. **依存関係の問題**: `rm -rf node_modules && npm install`
+
+3. **APKインストール失敗**:
+
+   ```bash
+   adb uninstall dev.yoshiori.ichizen  # 既存アプリ削除
+   adb install android/app/build/outputs/apk/debug/app-debug.apk
+   ```
+
+4. **Firebase接続エラー**: google-services.json設定確認
+
+⚠️ **Metro/Expo関連の解決方法は使用不可:**
+
+- `npx expo start --clear` ← 動作しません
+- `npx expo install --fix` ← 不要です
 
 ## 📦 Dependencies
 
