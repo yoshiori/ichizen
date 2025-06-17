@@ -5,7 +5,7 @@
  */
 
 // Define message type for web messaging stubs
-interface NotificationMessage {
+interface FCMMessage {
   notification?: {
     title?: string;
     body?: string;
@@ -32,7 +32,7 @@ export const setupTokenRefreshListener = (_onTokenRefresh: (token: string) => vo
 /**
  * Handle foreground messages (Web version)
  */
-export const setupForegroundMessageListener = (_onMessage: (message: NotificationMessage) => void): (() => void) => {
+export const setupForegroundMessageListener = (_onMessage: (message: FCMMessage) => void): (() => void) => {
   console.log("Web環境：フォアグラウンドメッセージリスナーは現在サポートされていません");
   return () => {};
 };
@@ -55,9 +55,7 @@ export const getInitialNotification = async () => {
 /**
  * Handle notification opened app (Web version)
  */
-export const setupNotificationOpenedListener = (
-  _onNotificationOpened: (message: NotificationMessage) => void
-): (() => void) => {
+export const setupNotificationOpenedListener = (_onNotificationOpened: (message: FCMMessage) => void): (() => void) => {
   console.log("Web環境：通知オープンリスナーは現在サポートされていません");
   return () => {};
 };

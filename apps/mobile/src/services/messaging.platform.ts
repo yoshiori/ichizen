@@ -3,23 +3,29 @@
  * Uses alternative implementation for web environment, original implementation for mobile environment
  */
 
-import { Platform } from 'react-native';
+import {Platform} from "react-native";
+import type {MessagingService} from "../types/messaging";
 
 // Platform detection - for React Native apps, always use mobile implementation
-const isWeb = Platform.OS === 'web' && (typeof window !== 'undefined' && !(window as any).ReactNativeWebView);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isWeb = Platform.OS === "web" && typeof window !== "undefined" && !(window as any).ReactNativeWebView;
 
-// Conditional import
-let messagingService: any;
+// Load appropriate messaging service
+const getMessagingService = (): MessagingService => {
+  if (isWeb) {
+    // Use alternative implementation for web environment
+    console.log("🌐 Initialized messaging service for web environment");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require("./messaging.web") as MessagingService;
+  } else {
+    // Use normal implementation for mobile environment
+    console.log("📱 Initialized messaging service for mobile environment");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require("./messaging") as MessagingService;
+  }
+};
 
-if (isWeb) {
-  // Use alternative implementation for web environment
-  messagingService = require('./messaging.web');
-  console.log('🌐 Initialized messaging service for web environment');
-} else {
-  // Use normal implementation for mobile environment
-  messagingService = require('./messaging');
-  console.log('📱 Initialized messaging service for mobile environment');
-}
+const messagingService = getMessagingService();
 
 // Export with unified interface
 export const {
@@ -28,5 +34,5 @@ export const {
   setupForegroundMessageListener,
   setupBackgroundMessageListener,
   getInitialNotification,
-  setupNotificationOpenedListener
+  setupNotificationOpenedListener,
 } = messagingService;

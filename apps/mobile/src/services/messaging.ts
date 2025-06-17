@@ -1,5 +1,6 @@
-import messaging from '@react-native-firebase/messaging';
-import { Platform } from 'react-native';
+import messaging from "@react-native-firebase/messaging";
+import type {FirebaseMessagingTypes} from "@react-native-firebase/messaging";
+import {Platform} from "react-native";
 
 /**
  * Request notification permissions and return FCM token
@@ -7,24 +8,24 @@ import { Platform } from 'react-native';
 export const requestNotificationPermission = async (): Promise<string | null> => {
   try {
     // Request permission for iOS
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       const authStatus = await messaging().requestPermission();
       const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
       if (!enabled) {
-        console.log('Notification permission denied');
+        console.log("Notification permission denied");
         return null;
       }
     }
 
     // Get FCM token
     const token = await messaging().getToken();
-    console.log('FCM Token:', token);
+    console.log("FCM Token:", token);
     return token;
   } catch (error) {
-    console.error('Error getting FCM token:', error);
+    console.error("Error getting FCM token:", error);
     return null;
   }
 };
@@ -32,9 +33,7 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
 /**
  * Handle token refresh
  */
-export const setupTokenRefreshListener = (
-  onTokenRefresh: (token: string) => void
-): () => void => {
+export const setupTokenRefreshListener = (onTokenRefresh: (token: string) => void): (() => void) => {
   return messaging().onTokenRefresh(onTokenRefresh);
 };
 
@@ -42,8 +41,8 @@ export const setupTokenRefreshListener = (
  * Handle foreground messages
  */
 export const setupForegroundMessageListener = (
-  onMessage: (message: any) => void
-): () => void => {
+  onMessage: (message: FirebaseMessagingTypes.RemoteMessage) => void
+): (() => void) => {
   return messaging().onMessage(onMessage);
 };
 
@@ -52,7 +51,7 @@ export const setupForegroundMessageListener = (
  */
 export const setupBackgroundMessageListener = (): void => {
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-    console.log('Background message:', remoteMessage);
+    console.log("Background message:", remoteMessage);
   });
 };
 
@@ -64,7 +63,7 @@ export const getInitialNotification = async () => {
     const remoteMessage = await messaging().getInitialNotification();
     return remoteMessage;
   } catch (error) {
-    console.error('Error getting initial notification:', error);
+    console.error("Error getting initial notification:", error);
     return null;
   }
 };
@@ -73,7 +72,7 @@ export const getInitialNotification = async () => {
  * Handle notification opened app
  */
 export const setupNotificationOpenedListener = (
-  onNotificationOpened: (message: any) => void
-): () => void => {
+  onNotificationOpened: (message: FirebaseMessagingTypes.RemoteMessage) => void
+): (() => void) => {
   return messaging().onNotificationOpenedApp(onNotificationOpened);
 };

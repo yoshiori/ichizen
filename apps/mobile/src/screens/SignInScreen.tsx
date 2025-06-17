@@ -1,22 +1,20 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useAuth, AuthMethod } from '../contexts/AuthContext';
-import { useTranslation } from 'react-i18next';
+import React, {useState} from "react";
+import {View, Text, TouchableOpacity, StyleSheet, Alert} from "react-native";
+import {useAuth, AuthMethod} from "../contexts/AuthContext";
+import {useTranslation} from "react-i18next";
 
 const SignInScreen: React.FC = () => {
-  const { signIn } = useAuth();
-  const { t } = useTranslation();
+  const {signIn} = useAuth();
+  const {t} = useTranslation();
   const [loading, setLoading] = useState<AuthMethod | null>(null);
 
   const handleSignIn = async (method: AuthMethod) => {
     try {
       setLoading(method);
       await signIn(method);
-    } catch (error: any) {
-      Alert.alert(
-        t('signIn.error.title'),
-        error.message || t('signIn.error.general')
-      );
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : t("signIn.error.general");
+      Alert.alert(t("signIn.error.title"), errorMessage);
     } finally {
       setLoading(null);
     }
@@ -24,28 +22,28 @@ const SignInScreen: React.FC = () => {
 
   const getButtonText = (method: AuthMethod) => {
     if (loading === method) {
-      return t('signIn.loading');
+      return t("signIn.loading");
     }
-    
+
     switch (method) {
-      case 'google':
-        return t('signIn.google');
-      case 'apple':
-        return t('signIn.apple');
-      case 'anonymous':
-        return t('signIn.guest');
+      case "google":
+        return t("signIn.google");
+      case "apple":
+        return t("signIn.apple");
+      case "anonymous":
+        return t("signIn.guest");
       default:
-        return '';
+        return "";
     }
   };
 
   const getButtonStyle = (method: AuthMethod) => {
     switch (method) {
-      case 'google':
+      case "google":
         return [styles.button, styles.googleButton];
-      case 'apple':
+      case "apple":
         return [styles.button, styles.appleButton];
-      case 'anonymous':
+      case "anonymous":
         return [styles.button, styles.guestButton];
       default:
         return styles.button;
@@ -54,11 +52,11 @@ const SignInScreen: React.FC = () => {
 
   const getTextStyle = (method: AuthMethod) => {
     switch (method) {
-      case 'google':
+      case "google":
         return [styles.buttonText, styles.googleText];
-      case 'apple':
+      case "apple":
         return [styles.buttonText, styles.appleText];
-      case 'anonymous':
+      case "anonymous":
         return [styles.buttonText, styles.guestText];
       default:
         return styles.buttonText;
@@ -68,40 +66,40 @@ const SignInScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('signIn.title')}</Text>
-        <Text style={styles.subtitle}>{t('signIn.subtitle')}</Text>
+        <Text style={styles.title}>{t("signIn.title")}</Text>
+        <Text style={styles.subtitle}>{t("signIn.subtitle")}</Text>
       </View>
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          style={getButtonStyle('google')}
-          onPress={() => handleSignIn('google')}
+          style={getButtonStyle("google")}
+          onPress={() => handleSignIn("google")}
           disabled={loading !== null}
         >
           <Text style={styles.buttonIcon}>🌐</Text>
-          <Text style={getTextStyle('google')}>{getButtonText('google')}</Text>
+          <Text style={getTextStyle("google")}>{getButtonText("google")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={getButtonStyle('apple')}
-          onPress={() => handleSignIn('apple')}
+          style={getButtonStyle("apple")}
+          onPress={() => handleSignIn("apple")}
           disabled={loading !== null}
         >
           <Text style={styles.buttonIcon}>🍎</Text>
-          <Text style={getTextStyle('apple')}>{getButtonText('apple')}</Text>
+          <Text style={getTextStyle("apple")}>{getButtonText("apple")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={getButtonStyle('anonymous')}
-          onPress={() => handleSignIn('anonymous')}
+          style={getButtonStyle("anonymous")}
+          onPress={() => handleSignIn("anonymous")}
           disabled={loading !== null}
         >
           <Text style={styles.buttonIcon}>👤</Text>
-          <Text style={getTextStyle('anonymous')}>{getButtonText('anonymous')}</Text>
+          <Text style={getTextStyle("anonymous")}>{getButtonText("anonymous")}</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.footer}>{t('signIn.privacy')}</Text>
+      <Text style={styles.footer}>{t("signIn.privacy")}</Text>
     </View>
   );
 };
@@ -109,25 +107,25 @@ const SignInScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
+    backgroundColor: "#f8f9fa",
+    justifyContent: "center",
     padding: 20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 50,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: "bold",
+    color: "#2c3e50",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: '#7f8c8d',
-    textAlign: 'center',
+    color: "#7f8c8d",
+    textAlign: "center",
     lineHeight: 24,
   },
   buttonContainer: {
@@ -135,9 +133,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 12,
@@ -149,30 +147,30 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   googleButton: {
-    backgroundColor: '#4285f4',
+    backgroundColor: "#4285f4",
   },
   googleText: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   appleButton: {
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
   },
   appleText: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   guestButton: {
-    backgroundColor: '#95a5a6',
+    backgroundColor: "#95a5a6",
   },
   guestText: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   footer: {
     fontSize: 12,
-    color: '#95a5a6',
-    textAlign: 'center',
+    color: "#95a5a6",
+    textAlign: "center",
     lineHeight: 18,
   },
 });
