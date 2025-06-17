@@ -58,7 +58,7 @@
   },
   "packageManager": "npm@10.8.2",
   "lint-staged": {
-    "*": [
+    "**/*": [
       "detect-secrets-hook --baseline .secrets.baseline"
     ],
     "apps/**/*.{js,jsx,ts,tsx}": [
