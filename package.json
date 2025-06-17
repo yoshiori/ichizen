@@ -54,6 +54,7 @@
   "packageManager": "npm@10.8.2",
   "lint-staged": {
     "**/*.{js,ts,tsx}": [
+      "detect-secrets-hook --baseline .secrets.baseline",
       "eslint --fix",
       "prettier --write"
     ],
