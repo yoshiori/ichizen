@@ -2,7 +2,6 @@
   "name": "ichizen",
   "version": "1.0.0",
   "description": "Daily small good deeds tracking app",
-  "type": "module",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -59,7 +58,13 @@
   },
   "packageManager": "npm@10.8.2",
   "lint-staged": {
-    "**/*.{js,jsx,ts,tsx}": [
+    "apps/**/*.{js,jsx,ts,tsx}": [
+      "detect-secrets-hook --baseline .secrets.baseline",
+      "eslint --fix",
+      "eslint --max-warnings 0",
+      "prettier --write"
+    ],
+    "packages/**/*.{js,jsx,ts,tsx}": [
       "detect-secrets-hook --baseline .secrets.baseline",
       "eslint --fix",
       "eslint --max-warnings 0",
