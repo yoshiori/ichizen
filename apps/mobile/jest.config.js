@@ -31,7 +31,11 @@ export default {
         maxWorkers: 1,
         forceExit: true,
         detectOpenHandles: true,
-        workerIdleMemoryLimit: "512MB",
+        workerIdleMemoryLimit: "256MB",
+        cache: false,
+        clearMocks: true,
+        resetMocks: true,
+        restoreMocks: true,
       }
     : {}),
   // Coverage thresholds (disabled in CI for now)
