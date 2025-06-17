@@ -145,7 +145,12 @@ export const sendFollowNotification = async (
       type: payload.type,
       fromUserName: payload.fromUserName,
       language,
-      data: payload.data,
+      data: payload.data
+        ? (Object.fromEntries(Object.entries(payload.data).filter(([_, v]) => v !== undefined)) as Record<
+            string,
+            string
+          >)
+        : {},
     });
 
     // Actual sending is done by Cloud Functions, so return success here
