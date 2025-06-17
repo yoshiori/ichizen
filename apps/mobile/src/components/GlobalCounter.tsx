@@ -5,6 +5,11 @@ import {GlobalCounterData, CounterUpdateData} from "../types";
 import {subscribeToGlobalCounter, type Unsubscriber} from "../services/globalCounterSubscription";
 import {subscribeToStatistics as subscribeToStats} from "../services/counterStatistics";
 
+interface StatisticsData {
+  weekly: number;
+  monthly: number;
+}
+
 interface GlobalCounterProps extends GlobalCounterData {
   style?: ViewStyle;
   animateChanges?: boolean;
@@ -105,7 +110,7 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     if (!subscribeToStatistics) return;
 
     try {
-      const unsubscriber = subscribeToStats((stats: any) => {
+      const unsubscriber = subscribeToStats((stats: StatisticsData) => {
         setStatisticsData({
           weeklyCount: stats.weekly,
           monthlyCount: stats.monthly,

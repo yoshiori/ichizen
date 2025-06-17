@@ -9,6 +9,14 @@ import {
 } from "../services/messaging.platform";
 import {updateUserFCMToken} from "../services/firestore";
 
+interface FCMMessage {
+  notification?: {
+    title?: string;
+    body?: string;
+  };
+  data?: Record<string, string>;
+}
+
 interface UseFCMSetupReturn {
   setupFCMForUser: (userId: string) => Promise<void>;
 }
@@ -52,13 +60,13 @@ export const useFCMSetup = (): UseFCMSetupReturn => {
       });
 
       // Setup foreground message listener
-      const unsubscribeForeground = setupForegroundMessageListener((message: any) => {
+      const unsubscribeForeground = setupForegroundMessageListener((message: FCMMessage) => {
         console.log("Foreground message:", message);
         // Handle foreground notification display
       });
 
       // Setup notification opened listener
-      const unsubscribeOpened = setupNotificationOpenedListener((message: any) => {
+      const unsubscribeOpened = setupNotificationOpenedListener((message: FCMMessage) => {
         console.log("Notification opened app:", message);
         // Handle navigation or actions when notification is tapped
       });

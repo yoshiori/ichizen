@@ -1,10 +1,13 @@
 // React Native Firebase v22 - Recommended initialization pattern
 import {Platform} from "react-native";
+import type {FirebaseAuthTypes} from "@react-native-firebase/auth";
+import type {FirebaseFirestoreTypes} from "@react-native-firebase/firestore";
+import type {FirebaseFunctionsTypes} from "@react-native-firebase/functions";
 
 // Firebase modules - import but don't initialize yet
-let auth: any = null;
-let firestore: any = null;
-let functions: any = null;
+let auth: FirebaseAuthTypes.Module | null = null;
+let firestore: FirebaseFirestoreTypes.Module | null = null;
+let functions: FirebaseFunctionsTypes.Module | null = null;
 
 // Environment configuration
 const FIREBASE_ENV = process.env.EXPO_PUBLIC_FIREBASE_ENV || "production";

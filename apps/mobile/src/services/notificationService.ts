@@ -4,17 +4,17 @@
  */
 
 // import { callFunction } from './cloudFunctions'; // Not available in React Native Firebase
-import { getFollowers } from './firestore';
+import {getFollowers} from "./firestore";
 
 export interface NotificationData {
-  type: 'follow_task_completed' | 'new_follower';
+  type: "follow_task_completed" | "new_follower";
   fromUserId: string;
   fromUserName: string;
   toUserId: string;
   data?: {
     taskId?: string;
     taskTitle?: string;
-    [key: string]: any;
+    [key: string]: string | undefined;
   };
 }
 
@@ -39,7 +39,7 @@ const validateNotificationData = (data: NotificationData): boolean => {
     return false;
   }
 
-  const validTypes = ['follow_task_completed', 'new_follower'];
+  const validTypes = ["follow_task_completed", "new_follower"];
   return validTypes.includes(data.type);
 };
 
@@ -54,25 +54,24 @@ export const triggerFollowNotification = async (
     if (!validateNotificationData(notificationData)) {
       return {
         success: false,
-        error: 'Invalid notification data - validation failed'
+        error: "Invalid notification data - validation failed",
       };
     }
 
     // Call Cloud Function to send notification
     // Note: In React Native, this would typically be handled via server-side API
     // For now, we'll return a stub response
-    console.warn('Cloud Functions not available in React Native - notification not sent');
-    
+    console.warn("Cloud Functions not available in React Native - notification not sent");
+
     return {
       success: true,
-      messageId: 'stub-message-id'
+      messageId: "stub-message-id",
     };
-
   } catch (error) {
-    console.error('❌ Error triggering follow notification:', error);
+    console.error("❌ Error triggering follow notification:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
@@ -89,11 +88,11 @@ export const handleTaskCompletion = async (
   try {
     // Get list of followers
     const followers = await getFollowers(userId);
-    
+
     if (followers.length === 0) {
       return {
         success: true,
-        notificationsSent: 0
+        notificationsSent: 0,
       };
     }
 
@@ -102,48 +101,47 @@ export const handleTaskCompletion = async (
     // Send notification to each follower
     const notificationPromises = followers.map(async (follower) => {
       const notificationData: NotificationData = {
-        type: 'follow_task_completed',
+        type: "follow_task_completed",
         fromUserId: userId,
         fromUserName: userName,
         toUserId: follower,
         data: {
           taskId,
-          taskTitle
-        }
+          taskTitle,
+        },
       };
 
       const result = await triggerFollowNotification(notificationData);
-      
+
       if (result.success) {
-        return { success: true };
+        return {success: true};
       } else {
         console.error(`❌ Failed to send notification to ${follower}:`, result.error);
-        return { 
-          success: false, 
-          error: result.error || 'Unknown error'
+        return {
+          success: false,
+          error: result.error || "Unknown error",
         };
       }
     });
 
     // Execute all notification sends in parallel
     const results = await Promise.all(notificationPromises);
-    
-    const successful = results.filter(r => r.success).length;
-    const failed = results.filter(r => !r.success);
-    const errors = failed.map(f => f.error).filter(Boolean) as string[];
+
+    const successful = results.filter((r) => r.success).length;
+    const failed = results.filter((r) => !r.success);
+    const errors = failed.map((f) => f.error).filter(Boolean) as string[];
 
     return {
       success: true,
       notificationsSent: successful,
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
     };
-
   } catch (error) {
-    console.error('❌ Error handling task completion notifications:', error);
+    console.error("❌ Error handling task completion notifications:", error);
     return {
       success: false,
       notificationsSent: 0,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
@@ -157,11 +155,11 @@ export const sendNewFollowerNotification = async (
   toUserId: string
 ): Promise<NotificationTriggerResult> => {
   const notificationData: NotificationData = {
-    type: 'new_follower',
+    type: "new_follower",
     fromUserId,
     fromUserName,
     toUserId,
-    data: {}
+    data: {},
   };
 
   return triggerFollowNotification(notificationData);
