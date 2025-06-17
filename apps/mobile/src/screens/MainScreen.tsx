@@ -21,7 +21,7 @@ export const MainScreen: React.FC = () => {
   // Custom hooks for separated concerns
   const {currentTask, refreshUsed, isCompleted, refreshTask, markCompleted} = useTaskManager(user?.id);
   const {globalCounters, incrementCounter, updateCounters} = useGlobalCounter();
-  const {isInitialized, initializationError} = useAppInitialization(firebaseUser?.uid);
+  const {isInitialized: _isInitialized, initializationError} = useAppInitialization(firebaseUser?.uid);
   const {showFeedback, isLoading, showFeedbackWithDelay, hideFeedback, setLoading} = useFeedbackManager();
 
   const currentLanguage = (user?.language || i18n.language) as Language;

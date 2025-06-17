@@ -2,6 +2,7 @@
   "name": "ichizen",
   "version": "1.0.0",
   "description": "Daily small good deeds tracking app",
+  "type": "module",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -40,6 +41,10 @@
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-native": "^5.0.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "expo-build-properties": "^0.14.6",
     "firebase-tools": "^14.6.0",
     "husky": "^9.1.7",
@@ -54,9 +59,10 @@
   },
   "packageManager": "npm@10.8.2",
   "lint-staged": {
-    "**/*.{js,ts,tsx}": [
+    "**/*.{js,jsx,ts,tsx}": [
       "detect-secrets-hook --baseline .secrets.baseline",
       "eslint --fix",
+      "eslint --max-warnings 0",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [

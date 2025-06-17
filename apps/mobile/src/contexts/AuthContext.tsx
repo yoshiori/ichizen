@@ -1,7 +1,6 @@
 import React, {createContext, useContext, useEffect, useState, ReactNode, startTransition} from "react";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
 import {onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple} from "../services/auth";
-import {testFirebaseConnection} from "../config/firebase";
 import {User} from "../types/firebase";
 import {useFCMSetup} from "../hooks/useFCMSetup";
 import {useUserInitialization} from "../hooks/useUserInitialization";

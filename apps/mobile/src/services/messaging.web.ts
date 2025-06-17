@@ -4,6 +4,15 @@
  * since React Native Firebase Messaging doesn't work in web
  */
 
+// Define message type for web messaging stubs
+interface NotificationMessage {
+  notification?: {
+    title?: string;
+    body?: string;
+  };
+  data?: Record<string, string>;
+}
+
 /**
  * Request notification permissions and return FCM token (Web version)
  */
@@ -15,7 +24,7 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
 /**
  * Handle token refresh (Web version)
  */
-export const setupTokenRefreshListener = (onTokenRefresh: (token: string) => void): (() => void) => {
+export const setupTokenRefreshListener = (_onTokenRefresh: (token: string) => void): (() => void) => {
   console.log("Web環境：トークンリフレッシュリスナーは現在サポートされていません");
   return () => {};
 };
@@ -23,7 +32,7 @@ export const setupTokenRefreshListener = (onTokenRefresh: (token: string) => voi
 /**
  * Handle foreground messages (Web version)
  */
-export const setupForegroundMessageListener = (onMessage: (message: any) => void): (() => void) => {
+export const setupForegroundMessageListener = (_onMessage: (message: NotificationMessage) => void): (() => void) => {
   console.log("Web環境：フォアグラウンドメッセージリスナーは現在サポートされていません");
   return () => {};
 };
@@ -46,7 +55,9 @@ export const getInitialNotification = async () => {
 /**
  * Handle notification opened app (Web version)
  */
-export const setupNotificationOpenedListener = (onNotificationOpened: (message: any) => void): (() => void) => {
+export const setupNotificationOpenedListener = (
+  _onNotificationOpened: (message: NotificationMessage) => void
+): (() => void) => {
   console.log("Web環境：通知オープンリスナーは現在サポートされていません");
   return () => {};
 };
