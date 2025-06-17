@@ -178,9 +178,7 @@ The project includes specific optimizations for CI environments to prevent memor
 
 #### Node.js Memory Settings
 
-- **--max-old-space-size=4096**: Increase heap size to 4GB
-- **--gc-interval=100**: More frequent garbage collection
-- **--gc-global**: Global garbage collection optimization
+- **--max-old-space-size=4096**: Increase heap size to 4GB for CI environments
 
 #### Usage
 

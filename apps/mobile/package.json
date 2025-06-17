@@ -20,7 +20,7 @@
     "build:staging": "dotenv -f .env.staging -- expo export",
     "build:prod": "dotenv -f .env.production -- expo export",
     "test": "jest",
-    "test:ci": "NODE_OPTIONS='--max-old-space-size=4096 --gc-interval=100 --gc-global' jest --watchAll=false --runInBand --detectOpenHandles --forceExit",
+    "test:ci": "NODE_OPTIONS='--max-old-space-size=4096' jest --watchAll=false --runInBand --detectOpenHandles --forceExit",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
