@@ -163,6 +163,32 @@ npm run mobile:ios:build            # iOS archive作成
 - ✅ **エラーハンドリング**: 詳細なエラーメッセージ
 - ✅ **開発体験向上**: IntelliSense 対応
 
+## 🔧 CI/CD Optimization
+
+### Memory Management for GitHub Actions
+
+The project includes specific optimizations for CI environments to prevent memory issues during testing:
+
+#### Jest Configuration for CI
+
+- **maxWorkers: 1**: Run tests sequentially to reduce memory usage
+- **forceExit**: Ensure Jest exits cleanly
+- **detectOpenHandles**: Identify memory leaks
+- **workerIdleMemoryLimit**: "512MB" limit per worker
+
+#### Node.js Memory Settings
+
+- **--max-old-space-size=4096**: Increase heap size to 4GB
+- **--gc-interval=100**: More frequent garbage collection
+- **--gc-global**: Global garbage collection optimization
+
+#### Usage
+
+```bash
+# CI-optimized test command
+npm run test:ci  # Automatically used in GitHub Actions
+```
+
 #### 環境ファイルの構成
 
 ```bash

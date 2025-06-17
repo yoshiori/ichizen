@@ -25,6 +25,15 @@ export default {
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "html"],
+  // Optimize memory usage for CI environments
+  ...(process.env.CI
+    ? {
+        maxWorkers: 1,
+        forceExit: true,
+        detectOpenHandles: true,
+        workerIdleMemoryLimit: "512MB",
+      }
+    : {}),
   // Coverage thresholds (disabled in CI for now)
   ...(process.env.CI
     ? {}

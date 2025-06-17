@@ -77,7 +77,7 @@ jobs:
         run: npm run mobile:build
 
       - name: Run mobile tests
-        run: npm run mobile:test
+        run: cd apps/mobile && npm run test:ci
 
   functions-specific:
     name: Cloud Functions Tests
