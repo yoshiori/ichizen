@@ -11,6 +11,7 @@ const {
   doc,
   setDoc,
   serverTimestamp,
+  writeBatch,
 } = require("firebase/firestore");
 
 // Firebase configuration for emulator
@@ -21,8 +22,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Connect to emulator
-connectFirestoreEmulator(db, "localhost", 8080);
+// Connect to emulator (only if not already connected)
+if (!db._delegate._databaseId.projectId.includes('emulator')) {
+  try {
+    connectFirestoreEmulator(db, "localhost", 8080);
+    console.log("🔧 Connected to Firestore emulator");
+  } catch (error) {
+    console.log("⚠️  Emulator connection may already be established");
+  }
+}
 
 async function setupInitialData() {
   console.log("📝 Starting initial data setup...");
@@ -89,15 +97,21 @@ async function setupInitialData() {
     ];
 
     console.log("📋 Creating sample tasks...");
+    // Use batch write for better performance and atomicity
+    const batch = writeBatch(db);
+    
     for (const task of sampleTasks) {
       const taskRef = doc(db, "tasks", task.id);
-      await setDoc(taskRef, {
+      batch.set(taskRef, {
         ...task,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      console.log(`✅ Created task "${task.text.en}"`);
+      console.log(`📝 Queued task "${task.text.en}"`);
     }
+    
+    await batch.commit();
+    console.log(`✅ Created ${sampleTasks.length} tasks`);
 
     // 2. Initialize global counter
     console.log("🌍 Initializing global counter...");
@@ -131,7 +145,20 @@ async function setupInitialData() {
     console.log("📊 Emulator UI: http://127.0.0.1:4002/firestore");
   } catch (error) {
     console.error("❌ Setup error:", error);
+    process.exit(1);
   }
+}
+
+// Handle process termination gracefully
+process.on('SIGINT', () => {
+  console.log('\n🛑 Setup interrupted by user');
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 Setup terminated');
+  process.exit(0);
+});
 }
 
 setupInitialData();

@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# 「今日の小さな善行」アプリ デプロイスクリプト
+# Deploy script for "Daily Small Good Deeds" app
 # Usage: ./scripts/deploy.sh [functions|rules|all]
 
 set -e
 
-# カラー出力
+# Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# ログ関数
+# Logging functions
 log_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
@@ -29,63 +29,70 @@ log_error() {
     echo -e "${RED}❌ $1${NC}"
 }
 
-# 引数の解析
+# Parse arguments
 DEPLOY_TARGET=${1:-all}
 
-log_info "🚀 「今日の小さな善行」アプリのデプロイを開始します"
-log_info "デプロイ対象: $DEPLOY_TARGET"
+log_info "🚀 Starting deployment of 'Daily Small Good Deeds' app"
+log_info "Deploy target: $DEPLOY_TARGET"
 
-# プロジェクトルートに移動
+# Navigate to project root
 cd "$(dirname "$0")/.."
 
-# Firebase CLIの確認
+# Check Firebase CLI
 if ! command -v firebase &> /dev/null; then
-    log_error "Firebase CLI がインストールされていません"
-    log_info "インストール方法: npm install -g firebase-tools"
+    log_error "Firebase CLI is not installed"
+    log_info "Installation: npm install -g firebase-tools"
     exit 1
 fi
 
-# Firebaseプロジェクトの確認
+# Check Firebase project
 PROJECT_ID=$(firebase use 2>/dev/null || echo "")
 if [ -z "$PROJECT_ID" ]; then
-    log_error "Firebaseプロジェクトが設定されていません"
-    log_info "設定方法: firebase use ichizen-daily-good-deeds"
+    log_error "Firebase project is not configured"
+    log_info "Configuration: firebase use ichizen-daily-good-deeds"
     exit 1
 fi
 
-log_info "Firebase プロジェクト: $PROJECT_ID"
+log_info "Firebase project: $PROJECT_ID"
 
-# Functions のビルドとテスト
+# Build and test Functions
 if [ "$DEPLOY_TARGET" = "functions" ] || [ "$DEPLOY_TARGET" = "all" ]; then
-    log_info "📦 Cloud Functions をビルドしています..."
+    log_info "📦 Building Cloud Functions..."
     
-    cd functions
+    # Use Turborepo for building functions
+    log_info "Using Turborepo build system..."
     
-    # 依存関係のインストール
+    # Install dependencies if needed
     if [ ! -d "node_modules" ]; then
-        log_info "依存関係をインストールしています..."
+        log_info "Installing dependencies..."
         npm install
     fi
     
-    # Lint チェック
-    log_info "🔍 コード品質をチェックしています..."
+    # Lint check using Turborepo
+    log_info "🔍 Checking code quality..."
     npm run lint
     
-    # TypeScript ビルド
-    log_info "🔨 TypeScript をビルドしています..."
+    # TypeScript check using Turborepo
+    log_info "🔍 Running type check..."
+    npm run typecheck
+    
+    # Build functions using Turborepo
+    log_info "🔨 Building with Turborepo..."
     npm run build
     
-    # テスト実行（あれば）
-    if npm run test --if-present 2>/dev/null; then
-        log_success "テストが完了しました"
+    # Run tests using Turborepo (if available)
+    log_info "🧪 Running tests..."
+    if npm run test 2>/dev/null; then
+        log_success "Tests completed"
+    else
+        log_warning "No tests found or tests failed"
     fi
     
-    cd ..
-    log_success "Cloud Functions のビルドが完了しました"
+    log_success "Cloud Functions build completed"
 fi
 
-# デプロイ実行
-log_info "🚀 Firebase へデプロイしています..."
+# Execute deployment
+log_info "🚀 Deploying to Firebase..."
 
 case $DEPLOY_TARGET in
     functions)
@@ -98,23 +105,26 @@ case $DEPLOY_TARGET in
         firebase deploy --only functions,firestore:rules,firestore:indexes
         ;;
     *)
-        log_error "無効なデプロイ対象: $DEPLOY_TARGET"
-        log_info "使用可能な対象: functions, rules, all"
+        log_error "Invalid deploy target: $DEPLOY_TARGET"
+        log_info "Available targets: functions, rules, all"
         exit 1
         ;;
 esac
 
-# デプロイ完了
-log_success "🎉 デプロイが完了しました！"
+# Deployment completed
+log_success "🎉 Deployment completed!"
 log_info "📊 Firebase Console: https://console.firebase.google.com/project/$PROJECT_ID"
 log_info "⚡ Functions URL: https://asia-northeast1-$PROJECT_ID.cloudfunctions.net"
 
-# デプロイ後のテストを提案
-log_warning "📋 デプロイ後の確認事項:"
-echo "   1. Cloud Functions の動作確認"
-echo "   2. Firestore ルールの動作確認"
-echo "   3. モバイルアプリからの接続テスト"
+# Suggest post-deployment testing
+log_warning "📋 Post-deployment checklist:"
+echo "   1. Verify Cloud Functions operation"
+echo "   2. Verify Firestore rules operation"
+echo "   3. Test mobile app connectivity"
 echo ""
-log_info "🧪 テスト実行方法:"
-echo "   cd apps/mobile && npm test"
+log_info "🧪 Test execution:"
+echo "   npm run test                    # Run all tests with Turborepo"
+echo "   npm run test:functions          # Test Cloud Functions only"
+echo "   npm run test:mobile             # Test mobile app only"
+echo "   npm run dev:android             # Test with Android emulator"
 echo ""
