@@ -34,19 +34,46 @@ export const onAuthStateChange = (callback: (user: FirebaseAuthTypes.User | null
 };
 
 export const initializeUser = async (firebaseUser: FirebaseAuthTypes.User): Promise<User> => {
-  let user = await getUser(firebaseUser.uid);
+  console.log("🔥 Initializing user:", firebaseUser.uid);
+  try {
+    // Add timeout for Firestore operations
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Firestore operation timeout")), 5000);
+    });
 
-  if (!user) {
-    // Create new user if doesn't exist
-    const userData: Omit<User, "id"> = {
-      language: "ja", // Default to Japanese, can be changed based on device locale
+    const userPromise = (async () => {
+      let user = await getUser(firebaseUser.uid);
+
+      if (!user) {
+        console.log("🔥 User doesn't exist, creating new user");
+        const userData: Omit<User, "id"> = {
+          language: "ja",
+          createdAt: new Date(),
+          lastActiveAt: new Date(),
+        };
+
+        await createUser(firebaseUser.uid, userData);
+        user = {id: firebaseUser.uid, ...userData};
+      } else {
+        console.log("🔥 User already exists");
+      }
+
+      return user;
+    })();
+
+    const user = (await Promise.race([userPromise, timeoutPromise])) as User;
+    console.log("✅ User initialization completed");
+    return user;
+  } catch (error) {
+    console.error("❌ User initialization failed, falling back to mock:", error);
+    // Fallback to mock user if Firestore fails
+    const mockUser: User = {
+      id: firebaseUser.uid,
+      language: "ja",
       createdAt: new Date(),
       lastActiveAt: new Date(),
     };
-
-    await createUser(firebaseUser.uid, userData);
-    user = {id: firebaseUser.uid, ...userData};
+    console.log("✅ User initialization completed (fallback)");
+    return mockUser;
   }
-
-  return user;
 };

@@ -1,29 +1,46 @@
 import {z} from "zod";
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  ENVIRONMENT,
+  FIREBASE_ENV,
+  FIREBASE_AUTH_EMULATOR_HOST,
+  FIREBASE_AUTH_EMULATOR_PORT,
+  FIREBASE_FIRESTORE_EMULATOR_HOST,
+  FIREBASE_FIRESTORE_EMULATOR_PORT,
+  FIREBASE_FUNCTIONS_EMULATOR_HOST,
+  FIREBASE_FUNCTIONS_EMULATOR_PORT,
+} from "@env";
 
 /**
  * 現代的な環境変数管理 - TypeScript + Zod バリデーション
- * Expo SDK 52+ EXPO_PUBLIC_ システムを使用
+ * React Native dotenv システムを使用
  */
 
 const envSchema = z.object({
   // Firebase 設定
-  EXPO_PUBLIC_FIREBASE_API_KEY: z.string().min(1, "Firebase API Key is required"),
-  EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: z.string().min(1, "Firebase Auth Domain is required"),
-  EXPO_PUBLIC_FIREBASE_PROJECT_ID: z.string().min(1, "Firebase Project ID is required"),
-  EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().min(1, "Firebase Storage Bucket is required"),
-  EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().min(1, "Firebase Messaging Sender ID is required"),
-  EXPO_PUBLIC_FIREBASE_APP_ID: z.string().min(1, "Firebase App ID is required"),
+  FIREBASE_API_KEY: z.string().min(1, "Firebase API Key is required"),
+  FIREBASE_AUTH_DOMAIN: z.string().min(1, "Firebase Auth Domain is required"),
+  FIREBASE_PROJECT_ID: z.string().min(1, "Firebase Project ID is required"),
+  FIREBASE_STORAGE_BUCKET: z.string().min(1, "Firebase Storage Bucket is required"),
+  FIREBASE_MESSAGING_SENDER_ID: z.string().min(1, "Firebase Messaging Sender ID is required"),
+  FIREBASE_APP_ID: z.string().min(1, "Firebase App ID is required"),
 
   // 環境設定
-  EXPO_PUBLIC_ENVIRONMENT: z.enum(["development", "staging", "production"]).default("development"),
+  ENVIRONMENT: z.enum(["development", "staging", "production"]).default("development"),
+  FIREBASE_ENV: z.enum(["production", "emulator"]).default("production"),
 
   // Firebase エミュレータ設定（開発時のみ）
-  EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST: z.string().optional(),
-  EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_PORT: z.string().optional(),
-  EXPO_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_HOST: z.string().optional(),
-  EXPO_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_PORT: z.string().optional(),
-  EXPO_PUBLIC_FIREBASE_FUNCTIONS_EMULATOR_HOST: z.string().optional(),
-  EXPO_PUBLIC_FIREBASE_FUNCTIONS_EMULATOR_PORT: z.string().optional(),
+  FIREBASE_AUTH_EMULATOR_HOST: z.string().optional(),
+  FIREBASE_AUTH_EMULATOR_PORT: z.string().optional(),
+  FIREBASE_FIRESTORE_EMULATOR_HOST: z.string().optional(),
+  FIREBASE_FIRESTORE_EMULATOR_PORT: z.string().optional(),
+  FIREBASE_FUNCTIONS_EMULATOR_HOST: z.string().optional(),
+  FIREBASE_FUNCTIONS_EMULATOR_PORT: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -34,13 +51,31 @@ export type Env = z.infer<typeof envSchema>;
  */
 function validateEnv(): Env {
   try {
-    const parsed = envSchema.parse(process.env);
+    const envVars = {
+      FIREBASE_API_KEY,
+      FIREBASE_AUTH_DOMAIN,
+      FIREBASE_PROJECT_ID,
+      FIREBASE_STORAGE_BUCKET,
+      FIREBASE_MESSAGING_SENDER_ID,
+      FIREBASE_APP_ID,
+      ENVIRONMENT,
+      FIREBASE_ENV,
+      FIREBASE_AUTH_EMULATOR_HOST,
+      FIREBASE_AUTH_EMULATOR_PORT,
+      FIREBASE_FIRESTORE_EMULATOR_HOST,
+      FIREBASE_FIRESTORE_EMULATOR_PORT,
+      FIREBASE_FUNCTIONS_EMULATOR_HOST,
+      FIREBASE_FUNCTIONS_EMULATOR_PORT,
+    };
+
+    const parsed = envSchema.parse(envVars);
 
     // 開発時のみデバッグ情報を表示
-    if (parsed.EXPO_PUBLIC_ENVIRONMENT === "development") {
+    if (parsed.ENVIRONMENT === "development") {
       console.log("🔧 Environment validation passed");
-      console.log("🔧 Environment:", parsed.EXPO_PUBLIC_ENVIRONMENT);
-      console.log("🔧 Firebase Project:", parsed.EXPO_PUBLIC_FIREBASE_PROJECT_ID);
+      console.log("🔧 Environment:", parsed.ENVIRONMENT);
+      console.log("🔧 Firebase Project:", parsed.FIREBASE_PROJECT_ID);
+      console.log("🔧 Firebase Env:", parsed.FIREBASE_ENV);
     }
 
     return parsed;
@@ -59,7 +94,7 @@ function validateEnv(): Env {
 export const env = validateEnv();
 
 // 便利なヘルパー関数
-export const isProduction = env.EXPO_PUBLIC_ENVIRONMENT === "production";
-export const isDevelopment = env.EXPO_PUBLIC_ENVIRONMENT === "development";
-export const isStaging = env.EXPO_PUBLIC_ENVIRONMENT === "staging";
-export const useEmulator = isDevelopment || isStaging;
+export const isProduction = env.ENVIRONMENT === "production";
+export const isDevelopment = env.ENVIRONMENT === "development";
+export const isStaging = env.ENVIRONMENT === "staging";
+export const useEmulator = env.FIREBASE_ENV === "emulator";

@@ -80,10 +80,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
     const initializeAuth = async () => {
       try {
-        // Test Firebase connection before setting up auth listener
-        await testFirebaseConnection();
+        console.log("🔥 Initializing Firebase auth...");
 
         unsubscribe = onAuthStateChange(async (firebaseUser) => {
+          console.log("🔥 Auth state changed:", firebaseUser ? `User: ${firebaseUser.uid}` : "No user");
           if (!mounted) return;
 
           clearTimeout(initTimeout);
@@ -94,19 +94,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
           if (firebaseUser) {
             try {
+              console.log("🔥 Initializing user data for:", firebaseUser.uid);
               await initializeUserData(firebaseUser);
 
               // Setup FCM after user is authenticated
+              console.log("🔥 Setting up FCM for user:", firebaseUser.uid);
               await setupFCMForUser(firebaseUser.uid);
             } catch (error) {
-              console.error("User initialization error:", error);
+              console.error("❌ User initialization error:", error);
               // Error state is handled by useUserInitialization hook
             }
           } else {
+            console.log("🔥 Clearing user data");
             clearUser();
           }
 
           if (mounted) {
+            console.log("🔥 Setting loading to false");
             startTransition(() => {
               setLoading(false);
             });
@@ -132,7 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         unsubscribe();
       }
     };
-  }, [initializeUserData, clearUser, setupFCMForUser]);
+  }, []); // Remove dependencies to prevent re-initialization
 
   const value = {
     user,

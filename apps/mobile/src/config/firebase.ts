@@ -10,18 +10,21 @@ const db = firestoreModule();
 const cloudFunctions = functionsModule();
 
 // Configure Firebase based on environment
+console.log("🔧 useEmulator:", useEmulator);
+console.log("🔧 env object:", JSON.stringify(env, null, 2));
+
 if (useEmulator) {
   console.log("🔧 Using Firebase Emulator Environment");
-  console.log("🔧 Environment:", env.EXPO_PUBLIC_ENVIRONMENT);
-  console.log("🔧 Firebase Project:", env.EXPO_PUBLIC_FIREBASE_PROJECT_ID);
+  console.log("🔧 Environment:", env.ENVIRONMENT);
+  console.log("🔧 Firebase Project:", env.FIREBASE_PROJECT_ID);
 
   // Type-safe emulator configuration with defaults
-  const authHost = env.EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST || "10.0.2.2";
-  const authPort = parseInt(env.EXPO_PUBLIC_FIREBASE_AUTH_EMULATOR_PORT || "9098");
-  const firestoreHost = env.EXPO_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_HOST || "10.0.2.2";
-  const firestorePort = parseInt(env.EXPO_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_PORT || "8080");
-  const functionsHost = env.EXPO_PUBLIC_FIREBASE_FUNCTIONS_EMULATOR_HOST || "10.0.2.2";
-  const functionsPort = parseInt(env.EXPO_PUBLIC_FIREBASE_FUNCTIONS_EMULATOR_PORT || "5001");
+  const authHost = env.FIREBASE_AUTH_EMULATOR_HOST || "10.0.2.2";
+  const authPort = parseInt(env.FIREBASE_AUTH_EMULATOR_PORT || "9098");
+  const firestoreHost = env.FIREBASE_FIRESTORE_EMULATOR_HOST || "10.0.2.2";
+  const firestorePort = parseInt(env.FIREBASE_FIRESTORE_EMULATOR_PORT || "8080");
+  const functionsHost = env.FIREBASE_FUNCTIONS_EMULATOR_HOST || "10.0.2.2";
+  const functionsPort = parseInt(env.FIREBASE_FUNCTIONS_EMULATOR_PORT || "5001");
 
   console.log(`🔌 Connecting to Auth Emulator: http://${authHost}:${authPort}`);
   console.log(`🔌 Connecting to Firestore Emulator: ${firestoreHost}:${firestorePort}`);
@@ -43,8 +46,8 @@ if (useEmulator) {
   }
 } else {
   console.log("🚀 Using Firebase Production Environment");
-  console.log("🚀 Environment:", env.EXPO_PUBLIC_ENVIRONMENT);
-  console.log("🚀 Firebase Project:", env.EXPO_PUBLIC_FIREBASE_PROJECT_ID);
+  console.log("🚀 Environment:", env.ENVIRONMENT);
+  console.log("🚀 Firebase Project:", env.FIREBASE_PROJECT_ID);
 }
 
 // Test function for Firebase connectivity

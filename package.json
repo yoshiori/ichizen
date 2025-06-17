@@ -32,6 +32,7 @@
     "functions:typecheck": "turbo run functions:typecheck",
     "functions:deploy": "turbo run functions:deploy",
     "prepare": "husky || true",
+    "dev:android": "./scripts/dev-android.sh",
     "android": "turbo run mobile:prebuild:android && cd apps/mobile && expo run:android",
     "ios": "turbo run mobile:prebuild && cd apps/mobile && expo run:ios"
   },
