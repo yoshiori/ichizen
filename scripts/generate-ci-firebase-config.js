@@ -91,7 +91,13 @@ const googleServicePlist = `<?xml version="1.0" encoding="UTF-8"?>
 </dict>
 </plist>`;
 
-// Write google-services.json
+// Write google-services.json (both in root and android/app/ directory)
+fs.writeFileSync(
+  path.join(mobileDir, "google-services.json"),
+  JSON.stringify(googleServicesJson, null, 2)
+);
+console.log("✅ Created google-services.json in mobile root");
+
 const androidDir = path.join(mobileDir, "android", "app");
 if (!fs.existsSync(androidDir)) {
   fs.mkdirSync(androidDir, { recursive: true });
@@ -102,7 +108,13 @@ fs.writeFileSync(
 );
 console.log("✅ Created google-services.json for Android");
 
-// Write GoogleService-Info.plist
+// Write GoogleService-Info.plist (both in root and ios/ directory)
+fs.writeFileSync(
+  path.join(mobileDir, "GoogleService-Info.plist"),
+  googleServicePlist
+);
+console.log("✅ Created GoogleService-Info.plist in mobile root");
+
 const iosDir = path.join(mobileDir, "ios");
 if (!fs.existsSync(iosDir)) {
   fs.mkdirSync(iosDir, { recursive: true });
