@@ -120,8 +120,14 @@ jobs:
             ${{ runner.os }}-pods-
 
       - name: Install pods
-        working-directory: apps/mobile/ios
         run: |
+          # Check if iOS directory exists, if not, run prebuild
+          if [ ! -d "apps/mobile/ios" ]; then
+            echo "iOS directory not found, running prebuild..."
+            cd apps/mobile && npx expo prebuild --platform ios --clean && cd ../..
+          fi
+
+          cd apps/mobile/ios
           if [ ! -d "Pods" ] || [ ! -f "Podfile.lock" ]; then
             pod install --repo-update
           else

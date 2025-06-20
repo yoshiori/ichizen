@@ -141,12 +141,20 @@ jobs:
           echo "✅ Gradle dependencies pre-downloaded"
 
       - name: Make gradlew executable
-        working-directory: apps/mobile/android
-        run: chmod +x gradlew
+        run: |
+          if [ -f "apps/mobile/android/gradlew" ]; then
+            chmod +x apps/mobile/android/gradlew
+          fi
 
       - name: Check Android build environment
-        working-directory: apps/mobile/android
         run: |
+          # Check if Android directory exists, if not, run prebuild
+          if [ ! -d "apps/mobile/android" ]; then
+            echo "Android directory not found, running prebuild..."
+            cd apps/mobile && npx expo prebuild --platform android --clean && cd ../..
+          fi
+
+          cd apps/mobile/android
           # Check Android SDK and Gradle
           ./gradlew --version
           echo "Available Android SDK packages:"
