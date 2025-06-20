@@ -1,18 +1,14 @@
 import React from "react";
-import {View, ScrollView, StyleSheet, SafeAreaView, Text, Dimensions} from "react-native";
+import {View, ScrollView, StyleSheet, SafeAreaView, Text, TouchableOpacity} from "react-native";
 import {useTranslation} from "react-i18next";
 import {StatusBar} from "expo-status-bar";
 
-import {DailyTask} from "../components/DailyTask";
-import {DoneButton} from "../components/DoneButton";
+import {IllustrationCard} from "../components/IllustrationCard";
 import {DoneFeedback} from "../components/DoneFeedback";
-import {GlobalCounter} from "../components/GlobalCounter";
 import {Language} from "../types";
 import {useAuth} from "../contexts/AuthContext";
 import SignInScreen from "./SignInScreen";
 import {useTaskManager, useGlobalCounter, useAppInitialization, useFeedbackManager} from "../hooks";
-
-const {height} = Dimensions.get("window");
 
 export const MainScreen: React.FC = () => {
   const {t, i18n} = useTranslation();
@@ -20,8 +16,8 @@ export const MainScreen: React.FC = () => {
 
   // Custom hooks for separated concerns
   const {currentTask, refreshUsed, isCompleted, refreshTask, markCompleted} = useTaskManager(user?.id);
-  const {globalCounters, incrementCounter, updateCounters} = useGlobalCounter();
-  const {isInitialized: _isInitialized, initializationError} = useAppInitialization(firebaseUser?.uid);
+  const {incrementCounter} = useGlobalCounter();
+  const {isInitialized: _isInitialized} = useAppInitialization(firebaseUser?.uid);
   const {showFeedback, isLoading, showFeedbackWithDelay, hideFeedback, setLoading} = useFeedbackManager();
 
   const currentLanguage = (user?.language || i18n.language) as Language;
@@ -79,56 +75,50 @@ export const MainScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>今日の小さな善行</Text>
-          <Text style={styles.subtitle}>Today's Small Good Deed</Text>
-          {initializationError && (
-            <Text style={styles.errorText}>
-              {t("error.initialization")}: {initializationError}
+      <View style={styles.contentWrapper}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Illustration Card */}
+          <IllustrationCard category={currentTask.category.en} icon={currentTask.icon} />
+
+          {/* Task Info */}
+          <View style={styles.taskInfo}>
+            <Text style={styles.taskTitle}>{currentTask.text[currentLanguage]}</Text>
+            <Text style={styles.taskDescription}>
+              {currentTask.category[currentLanguage]} • {t("task.todaysTask", "Today's task")}
             </Text>
+          </View>
+
+          {/* Status Text */}
+          {isCompleted && (
+            <View style={styles.statusContainer}>
+              <Text style={styles.completedStatusText}>{t("feedback.celebration")}</Text>
+            </View>
           )}
-        </View>
+        </ScrollView>
 
-        {/* Global Counter */}
-        <GlobalCounter
-          totalCount={globalCounters.totalCount}
-          todayCount={globalCounters.todayCount}
-          animateChanges
-          subscribeToUpdates
-          onCounterUpdate={(data) => {
-            console.log("📊 Counter updated:", data);
-            // Update local state with Firestore data
-            updateCounters({
-              totalCount: data.total,
-              todayCount: data.today,
-            });
-          }}
-        />
-
-        {/* Daily Task */}
-        <DailyTask
-          task={currentTask}
-          language={currentLanguage}
-          onRefresh={!isCompleted ? handleRefreshTask : undefined}
-          refreshUsed={refreshUsed}
-        />
-
-        {/* Done Button */}
+        {/* Action Buttons - Fixed at bottom */}
         <View style={styles.buttonContainer}>
-          <DoneButton onPress={handleDonePress} loading={isLoading} disabled={isCompleted} />
+          <TouchableOpacity
+            style={[styles.button, styles.changeButton, (refreshUsed || isCompleted) && styles.buttonDisabled]}
+            onPress={handleRefreshTask}
+            disabled={refreshUsed || isCompleted}
+          >
+            <Text style={[styles.changeButtonText, (refreshUsed || isCompleted) && styles.buttonTextDisabled]}>
+              {t("task.changeTask", "Change Task")}
+            </Text>
+          </TouchableOpacity>
 
-          {isCompleted && <Text style={styles.completedText}>{t("feedback.celebration")}</Text>}
+          <TouchableOpacity
+            style={[styles.button, styles.completeButton, isCompleted && styles.completeButtonDisabled]}
+            onPress={handleDonePress}
+            disabled={isCompleted || isLoading}
+          >
+            <Text style={styles.completeButtonText}>
+              {isCompleted ? t("task.completed", "Completed") : t("task.complete", "Complete")}
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Status Text */}
-        <View style={styles.statusContainer}>
-          {refreshUsed && !isCompleted && <Text style={styles.statusText}>{t("task.refreshUsed")}</Text>}
-
-          {!refreshUsed && !isCompleted && <Text style={styles.statusText}>{t("task.refreshAvailable")}</Text>}
-        </View>
-      </ScrollView>
+      </View>
 
       {/* Feedback Overlay */}
       <DoneFeedback visible={showFeedback} onComplete={handleFeedbackComplete} />
@@ -139,49 +129,85 @@ export const MainScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#ffffff",
   },
   scrollContent: {
-    minHeight: height - 100,
-    paddingBottom: 40,
+    flexGrow: 1,
   },
-  header: {
-    alignItems: "center",
-    paddingVertical: 24,
+  contentWrapper: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  taskInfo: {
     paddingHorizontal: 20,
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 20,
   },
-  title: {
+  taskTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#333",
+    color: "#1a1a1a",
     textAlign: "center",
+    marginBottom: 12,
   },
-  subtitle: {
+  taskDescription: {
     fontSize: 16,
     color: "#666",
-    marginTop: 4,
     textAlign: "center",
   },
   buttonContainer: {
-    alignItems: "center",
-    marginVertical: 32,
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    gap: 12,
   },
-  completedText: {
-    marginTop: 16,
-    fontSize: 18,
-    color: "#4CAF50",
+  button: {
+    height: 52,
+    borderRadius: 26,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  changeButton: {
+    backgroundColor: "transparent",
+    borderWidth: 1.5,
+    borderColor: "#333",
+    marginBottom: 12,
+  },
+  changeButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#333",
+  },
+  completeButton: {
+    backgroundColor: "#2196F3",
+  },
+  completeButtonDisabled: {
+    backgroundColor: "#4CAF50",
+  },
+  completeButtonText: {
+    fontSize: 16,
     fontWeight: "600",
-    textAlign: "center",
+    color: "#fff",
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonTextDisabled: {
+    opacity: 0.5,
   },
   statusContainer: {
     alignItems: "center",
     paddingHorizontal: 20,
+    marginTop: 24,
   },
-  statusText: {
-    fontSize: 14,
-    color: "#888",
+  completedStatusText: {
+    fontSize: 16,
+    color: "#4CAF50",
+    fontWeight: "600",
     textAlign: "center",
-    fontStyle: "italic",
   },
   loadingContainer: {
     flex: 1,
@@ -191,18 +217,5 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     color: "#666",
-  },
-  authContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  errorText: {
-    fontSize: 14,
-    color: "#ff6b6b",
-    textAlign: "center",
-    marginTop: 8,
-    paddingHorizontal: 16,
   },
 });

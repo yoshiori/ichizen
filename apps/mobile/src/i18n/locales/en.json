@@ -3,7 +3,8 @@
     "done": "DONE!",
     "loading": "Loading...",
     "refresh": "Change",
-    "today": "Today"
+    "today": "Today",
+    "cancel": "Cancel"
   },
   "categories": {
     "relationships": "Relationships",
@@ -27,7 +28,11 @@
   },
   "task": {
     "refreshUsed": "Daily refresh has been used",
-    "refreshAvailable": "You can change once per day"
+    "refreshAvailable": "You can change once per day",
+    "todaysTask": "Today's task",
+    "changeTask": "Change Task",
+    "complete": "Complete",
+    "completed": "Completed"
   },
   "history": {
     "title": "Your Good Deeds History",
@@ -78,7 +83,14 @@
       "anonymous": "Anonymous Sign-In failed. Please try again."
     }
   },
-  "common": {
-    "cancel": "Cancel"
+  "navigation": {
+    "home": "Home",
+    "community": "Community",
+    "profile": "Profile"
+  },
+  "profile": {
+    "title": "Profile",
+    "userId": "User ID",
+    "language": "Language"
   }
 }

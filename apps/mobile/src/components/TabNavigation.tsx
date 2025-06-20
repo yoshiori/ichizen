@@ -3,10 +3,10 @@ import {View, Text, TouchableOpacity, StyleSheet} from "react-native";
 import {useTranslation} from "react-i18next";
 
 import {MainScreen} from "../screens/MainScreen";
-import {HistoryScreen} from "../screens/HistoryScreen";
 import {FollowScreen} from "../screens/FollowScreen";
+import {ProfileScreen} from "../screens/ProfileScreen";
 
-type TabType = "home" | "history" | "follow";
+type TabType = "home" | "community" | "profile";
 
 interface Tab {
   key: TabType;
@@ -22,18 +22,18 @@ export const TabNavigation: React.FC = () => {
     () => [
       {
         key: "home",
-        title: t("common.today", "今日"),
-        icon: "🌟",
+        title: t("navigation.home", "Home"),
+        icon: "🏠",
       },
       {
-        key: "history",
-        title: t("history.title", "履歴"),
-        icon: "📊",
-      },
-      {
-        key: "follow",
-        title: t("follow.title", "フォロー"),
+        key: "community",
+        title: t("navigation.community", "Community"),
         icon: "👥",
+      },
+      {
+        key: "profile",
+        title: t("navigation.profile", "Profile"),
+        icon: "👤",
       },
     ],
     [t]
@@ -43,10 +43,10 @@ export const TabNavigation: React.FC = () => {
     switch (activeTab) {
       case "home":
         return <MainScreen />;
-      case "history":
-        return <HistoryScreen />;
-      case "follow":
+      case "community":
         return <FollowScreen />;
+      case "profile":
+        return <ProfileScreen />;
       default:
         return <MainScreen />;
     }
@@ -65,8 +65,8 @@ export const TabNavigation: React.FC = () => {
             style={[styles.tabItem, activeTab === tab.key && styles.tabItemActive]}
             onPress={() => setActiveTab(tab.key)}
           >
-            <Text style={[styles.tabIcon, activeTab === tab.key && styles.tabIconActive]}>{tab.icon}</Text>
-            <Text style={[styles.tabTitle, activeTab === tab.key && styles.tabTitleActive]}>{tab.title}</Text>
+            <Text style={activeTab === tab.key ? styles.tabIconActive : styles.tabIcon}>{tab.icon}</Text>
+            <Text style={activeTab === tab.key ? styles.tabTitleActive : styles.tabTitle}>{tab.title}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -77,7 +77,7 @@ export const TabNavigation: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#ffffff",
   },
   content: {
     flex: 1,
@@ -86,14 +86,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "#ffffff",
     borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
+    borderTopColor: "#f0f0f0",
     paddingBottom: 34, // Safe area for iPhone X+
-    paddingTop: 8,
+    paddingTop: 10,
     shadowColor: "#000",
     shadowOffset: {width: 0, height: -2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 5,
   },
   tabItem: {
     flex: 1,
@@ -105,20 +105,20 @@ const styles = StyleSheet.create({
     // Active tab style
   },
   tabIcon: {
-    fontSize: 24,
+    fontSize: 22,
     marginBottom: 4,
-    opacity: 0.6,
+    color: "#9E9E9E",
   },
   tabIconActive: {
-    opacity: 1,
+    color: "#1a1a1a",
   },
   tabTitle: {
-    fontSize: 12,
-    color: "#666666",
+    fontSize: 11,
+    color: "#9E9E9E",
     fontWeight: "500",
   },
   tabTitleActive: {
-    color: "#2196F3",
+    color: "#1a1a1a",
     fontWeight: "600",
   },
 });

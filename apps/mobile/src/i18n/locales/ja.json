@@ -3,7 +3,8 @@
     "done": "DONE!",
     "loading": "読み込み中...",
     "refresh": "変更する",
-    "today": "今日"
+    "today": "今日",
+    "cancel": "キャンセル"
   },
   "categories": {
     "relationships": "人間関係",
@@ -27,7 +28,11 @@
   },
   "task": {
     "refreshUsed": "本日の変更は使用済みです",
-    "refreshAvailable": "1日1回変更できます"
+    "refreshAvailable": "1日1回変更できます",
+    "todaysTask": "今日のタスク",
+    "changeTask": "タスクを変更",
+    "complete": "完了",
+    "completed": "完了しました"
   },
   "history": {
     "title": "あなたの善行履歴",
@@ -67,7 +72,7 @@
   "signIn": {
     "subtitle": "世界をより良くする小さな一歩を始めましょう",
     "google": "Googleでサインイン",
-    "apple": "Appleでサインイン", 
+    "apple": "Appleでサインイン",
     "anonymous": "ゲストとして続行",
     "loading": "サインイン中...",
     "disclaimer": "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。",
@@ -78,7 +83,14 @@
       "anonymous": "ゲストサインインに失敗しました。もう一度お試しください。"
     }
   },
-  "common": {
-    "cancel": "キャンセル"
+  "navigation": {
+    "home": "ホーム",
+    "community": "コミュニティ",
+    "profile": "プロフィール"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "userId": "ユーザーID",
+    "language": "言語"
   }
 }
