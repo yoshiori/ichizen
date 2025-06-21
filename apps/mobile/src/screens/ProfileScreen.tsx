@@ -32,7 +32,10 @@ export const ProfileScreen: React.FC = () => {
               await signOut();
             } catch (error) {
               console.error("Sign out error:", error);
-              Alert.alert(t("common.error", "Error"), error instanceof Error ? error.message : "Failed to sign out");
+              Alert.alert(
+                t("common.error", "Error"),
+                t("profile.signOutError", "Failed to sign out. Please try again.")
+              );
             } finally {
               setIsSigningOut(false);
             }

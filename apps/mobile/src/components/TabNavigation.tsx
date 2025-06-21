@@ -19,6 +19,12 @@ interface Tab {
   icon: React.ComponentType<{size?: number; color?: string}>;
 }
 
+// Color constants
+const COLORS = {
+  ACTIVE: "#1a1a1a",
+  INACTIVE: "#9E9E9E",
+};
+
 export const TabNavigation: React.FC = () => {
   const {t} = useTranslation();
   const {user, loading: authLoading} = useAuth();
@@ -62,7 +68,7 @@ export const TabNavigation: React.FC = () => {
   if (authLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{t("common.loading", "Loading...")}</Text>
       </View>
     );
   }
@@ -85,7 +91,7 @@ export const TabNavigation: React.FC = () => {
             style={[styles.tabItem, activeTab === tab.key && styles.tabItemActive]}
             onPress={() => setActiveTab(tab.key)}
           >
-            <tab.icon size={22} color={activeTab === tab.key ? "#1a1a1a" : "#9E9E9E"} />
+            <tab.icon size={22} color={activeTab === tab.key ? COLORS.ACTIVE : COLORS.INACTIVE} />
             <Text style={activeTab === tab.key ? styles.tabTitleActive : styles.tabTitle}>{tab.title}</Text>
           </TouchableOpacity>
         ))}

@@ -96,6 +96,7 @@
     "signOutConfirmTitle": "サインアウト確認",
     "signOutConfirmMessage": "本当にサインアウトしますか？",
     "signOutConfirm": "サインアウト",
-    "signOutCancel": "キャンセル"
+    "signOutCancel": "キャンセル",
+    "signOutError": "サインアウトに失敗しました。もう一度お試しください。"
   }
 }

@@ -96,6 +96,7 @@
     "signOutConfirmTitle": "Confirm Sign Out",
     "signOutConfirmMessage": "Are you sure you want to sign out?",
     "signOutConfirm": "Sign Out",
-    "signOutCancel": "Cancel"
+    "signOutCancel": "Cancel",
+    "signOutError": "Failed to sign out. Please try again."
   }
 }
