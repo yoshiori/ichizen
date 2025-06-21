@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useEffect, useState, ReactNode, startTransition} from "react";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
-import {onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple} from "../services/auth";
+import {onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple, signOut} from "../services/auth";
 import {User} from "../types/firebase";
 import {useFCMSetup} from "../hooks/useFCMSetup";
 import {useUserInitialization} from "../hooks/useUserInitialization";
@@ -13,6 +13,7 @@ interface AuthContextType {
   loading: boolean;
   initError: string | null;
   signIn: (method?: AuthMethod) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,6 +57,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     } catch (error) {
       console.error("Sign in error:", error);
       throw error; // Re-throw to allow UI to handle specific errors
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      setLoading(true);
+      await signOut();
+      // Auth state change will be handled by onAuthStateChange listener
+      // which will clear user data and update loading state
+    } catch (error) {
+      console.error("Sign out error:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -143,6 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     loading,
     initError: authError || initError, // Combine auth errors and user init errors
     signIn,
+    signOut: handleSignOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

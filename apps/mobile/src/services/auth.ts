@@ -33,6 +33,17 @@ export const onAuthStateChange = (callback: (user: FirebaseAuthTypes.User | null
   return auth.onAuthStateChanged(callback);
 };
 
+export const signOut = async (): Promise<void> => {
+  try {
+    console.log("🔄 Starting sign out...");
+    await auth.signOut();
+    console.log("✅ Sign out successful");
+  } catch (error) {
+    console.error("❌ Sign out failed:", error);
+    throw error;
+  }
+};
+
 export const initializeUser = async (firebaseUser: FirebaseAuthTypes.User): Promise<User> => {
   console.log("🔥 Initializing user:", firebaseUser.uid);
   try {
