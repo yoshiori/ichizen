@@ -57,41 +57,75 @@ global.console = {
 // REACT NATIVE MOCKS
 // ============================================================================
 
-// Mock React Native core modules
+// Mock React Native core modules - Alert module specifically
 jest.mock("react-native/Libraries/Alert/Alert", () => ({
   alert: jest.fn(),
 }));
 
-jest.mock("react-native", () => ({
-  View: "View",
-  Text: "Text",
-  TouchableOpacity: "TouchableOpacity",
-  TouchableHighlight: "TouchableHighlight",
-  TouchableWithoutFeedback: "TouchableWithoutFeedback",
-  Pressable: "Pressable",
-  TextInput: "TextInput",
-  ScrollView: "ScrollView",
-  Image: "Image",
-  ActivityIndicator: "ActivityIndicator",
-  SafeAreaView: "SafeAreaView",
-  Alert: {
+// Enhance React Native's Animated module after jest-expo has set up its mocks
+// This runs in setupFilesAfterEnv, so it executes after jest-expo setup
+const ReactNative = require("react-native");
+
+// Create comprehensive Animated.Value mock with all required methods
+const mockAnimatedValue = jest.fn(() => ({
+  interpolate: jest.fn(() => "mocked-interpolated-value"),
+  setValue: jest.fn(),
+  setOffset: jest.fn(),
+  flattenOffset: jest.fn(),
+  extractOffset: jest.fn(),
+  addListener: jest.fn(),
+  removeListener: jest.fn(),
+  removeAllListeners: jest.fn(),
+  stopAnimation: jest.fn(),
+  resetAnimation: jest.fn(),
+}));
+
+// Ensure Alert is properly mocked
+if (!ReactNative.Alert || !ReactNative.Alert.alert) {
+  ReactNative.Alert = {
     alert: jest.fn(),
-  },
-  Animated: {
+  };
+}
+
+// Enhance the existing Animated object from React Native
+if (ReactNative.Animated) {
+  ReactNative.Animated.Value = mockAnimatedValue;
+  ReactNative.Animated.timing = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.spring = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.sequence = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.parallel = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.delay = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.loop = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+} else {
+  // If no Animated exists, create it entirely
+  ReactNative.Animated = {
     View: "Animated.View",
     Text: "Animated.Text",
-    Value: jest.fn(() => ({
-      interpolate: jest.fn(() => "mocked-interpolated-value"),
-      setValue: jest.fn(),
-      setOffset: jest.fn(),
-      flattenOffset: jest.fn(),
-      extractOffset: jest.fn(),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      removeAllListeners: jest.fn(),
-      stopAnimation: jest.fn(),
-      resetAnimation: jest.fn(),
-    })),
+    Value: mockAnimatedValue,
     timing: jest.fn(() => ({
       start: jest.fn(),
       stop: jest.fn(),
@@ -122,33 +156,66 @@ jest.mock("react-native", () => ({
       stop: jest.fn(),
       reset: jest.fn(),
     })),
-  },
-  Dimensions: {
-    get: jest.fn(() => ({width: 375, height: 812})),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-  },
-  Platform: {
-    OS: "ios",
-    select: jest.fn((obj) => obj.ios || obj.default),
-  },
-  StyleSheet: {
-    create: jest.fn((styles) => styles),
-    hairlineWidth: 1,
-    absoluteFill: {},
-    flatten: jest.fn(),
-  },
-  NativeModules: {
-    RNFBAnalyticsModule: {},
-    RNFBAppModule: {},
-    RNFBAuthModule: {},
-    RNFBDatabaseModule: {},
-    RNFBFirestoreModule: {},
-    RNFBFunctionsModule: {},
-    RNFBMessagingModule: {},
-    RNFBStorageModule: {},
-  },
-}));
+  };
+}
+
+// ============================================================================
+// SVG MOCKS
+// ============================================================================
+
+// Mock react-native-svg
+jest.mock("react-native-svg", () => {
+  const React = require("react");
+  const MockedSvg = (props) => React.createElement("Svg", props, props.children);
+  const MockedPath = (props) => React.createElement("Path", props);
+  const MockedCircle = (props) => React.createElement("Circle", props);
+  const MockedEllipse = (props) => React.createElement("Ellipse", props);
+  const MockedG = (props) => React.createElement("G", props, props.children);
+  const MockedText = (props) => React.createElement("Text", props, props.children);
+  const MockedTSpan = (props) => React.createElement("TSpan", props, props.children);
+  const MockedTextPath = (props) => React.createElement("TextPath", props, props.children);
+  const MockedPolygon = (props) => React.createElement("Polygon", props);
+  const MockedPolyline = (props) => React.createElement("Polyline", props);
+  const MockedLine = (props) => React.createElement("Line", props);
+  const MockedRect = (props) => React.createElement("Rect", props);
+  const MockedUse = (props) => React.createElement("Use", props);
+  const MockedImage = (props) => React.createElement("Image", props);
+  const MockedSymbol = (props) => React.createElement("Symbol", props, props.children);
+  const MockedDefs = (props) => React.createElement("Defs", props, props.children);
+  const MockedLinearGradient = (props) => React.createElement("LinearGradient", props, props.children);
+  const MockedRadialGradient = (props) => React.createElement("RadialGradient", props, props.children);
+  const MockedStop = (props) => React.createElement("Stop", props);
+  const MockedClipPath = (props) => React.createElement("ClipPath", props, props.children);
+  const MockedPattern = (props) => React.createElement("Pattern", props, props.children);
+  const MockedMask = (props) => React.createElement("Mask", props, props.children);
+
+  return {
+    __esModule: true,
+    default: MockedSvg,
+    Svg: MockedSvg,
+    Path: MockedPath,
+    Circle: MockedCircle,
+    Ellipse: MockedEllipse,
+    G: MockedG,
+    Text: MockedText,
+    TSpan: MockedTSpan,
+    TextPath: MockedTextPath,
+    Polygon: MockedPolygon,
+    Polyline: MockedPolyline,
+    Line: MockedLine,
+    Rect: MockedRect,
+    Use: MockedUse,
+    Image: MockedImage,
+    Symbol: MockedSymbol,
+    Defs: MockedDefs,
+    LinearGradient: MockedLinearGradient,
+    RadialGradient: MockedRadialGradient,
+    Stop: MockedStop,
+    ClipPath: MockedClipPath,
+    Pattern: MockedPattern,
+    Mask: MockedMask,
+  };
+});
 
 // ============================================================================
 // EXPO MOCKS
@@ -326,6 +393,14 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
   setItem: jest.fn(() => Promise.resolve()),
   removeItem: jest.fn(() => Promise.resolve()),
   clear: jest.fn(() => Promise.resolve()),
+}));
+
+// Mock username utilities
+jest.mock("./src/utils/username", () => ({
+  generateRandomUsername: jest.fn(() => Promise.resolve("test_user123")),
+  isUsernameAvailable: jest.fn(() => Promise.resolve(true)),
+  reserveUsername: jest.fn(() => Promise.resolve()),
+  changeUsername: jest.fn(() => Promise.resolve()),
 }));
 
 // Mock react-native-localize
