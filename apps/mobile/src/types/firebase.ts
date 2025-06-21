@@ -6,9 +6,9 @@ export interface UsernameHistoryEntry {
 
 export interface User {
   id: string; // Firebase UID (内部用のみ)
-  username: string; // 現在のユーザー名（一意、公開）
+  username?: string; // 現在のユーザー名（一意、公開）- backward compatibility
   language: "en" | "ja";
-  usernameHistory: UsernameHistoryEntry[]; // 変更履歴
+  usernameHistory?: UsernameHistoryEntry[]; // 変更履歴 - backward compatibility
   fcmToken?: string;
   createdAt: Date;
   lastActiveAt: Date;

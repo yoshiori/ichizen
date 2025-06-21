@@ -1,5 +1,8 @@
 import {db} from "../config/firebase";
-import {UsernameDoc, UsernameHistoryEntry} from "../types/firebase";
+import {UsernameDoc, User} from "../types/firebase";
+
+// Constants
+const MAX_USERNAME_GENERATION_ATTEMPTS = 10;
 
 /**
  * Generate a random string of specified length using alphanumeric characters
@@ -35,7 +38,7 @@ export const generateRandomUsername = async (): Promise<string> => {
   const prefixes = ["user", "guest", "ichizen"];
   const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
 
-  for (let attempt = 0; attempt < 10; attempt++) {
+  for (let attempt = 0; attempt < MAX_USERNAME_GENERATION_ATTEMPTS; attempt++) {
     const randomSuffix = generateRandomString(6); // a-z, 0-9
     const username = `${prefix}_${randomSuffix}`;
 
@@ -66,6 +69,47 @@ export const reserveUsername = async (username: string, userId: string, isGenera
 };
 
 /**
+ * Atomically reserve username and create user document using Firestore batch
+ */
+export const reserveUsernameAndCreateUser = async (
+  username: string,
+  userId: string,
+  userData: Omit<User, "id">,
+  isGenerated: boolean = true
+): Promise<void> => {
+  try {
+    const batch = db.batch();
+
+    // Prepare username document
+    const usernameData: UsernameDoc = {
+      userId,
+      createdAt: new Date(),
+      isGenerated,
+    };
+
+    // Prepare user document
+    const userDocData = {
+      ...userData,
+      createdAt: new Date(),
+      lastActiveAt: new Date(),
+    };
+
+    // Add operations to batch
+    const usernameRef = db.collection("usernames").doc(username);
+    const userRef = db.collection("users").doc(userId);
+
+    batch.set(usernameRef, usernameData);
+    batch.set(userRef, userDocData);
+
+    // Execute batch atomically
+    await batch.commit();
+  } catch (error) {
+    console.error("Error in atomic username reservation and user creation:", error);
+    throw error;
+  }
+};
+
+/**
  * Change username for a user with atomic batch operation
  */
 export const changeUsername = async (userId: string, newUsername: string): Promise<void> => {
@@ -88,11 +132,11 @@ export const changeUsername = async (userId: string, newUsername: string): Promi
       throw new Error("User not found");
     }
 
-    const userData = userDoc.data() as {username?: string; usernameHistory?: UsernameHistoryEntry[]};
+    const userData = userDoc.data() as User;
     const oldUsername = userData.username;
 
     // 3. Update username history
-    const updatedHistory = userData.usernameHistory || [];
+    const updatedHistory = [...(userData.usernameHistory || [])];
 
     // Close current username entry
     if (updatedHistory.length > 0) {

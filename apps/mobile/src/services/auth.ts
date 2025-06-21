@@ -1,8 +1,8 @@
 import {auth} from "../config/firebase";
-import {createUser, getUser} from "./firestore";
+import {getUser} from "./firestore";
 import {User} from "../types/firebase";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
-import {generateRandomUsername, reserveUsername} from "../utils/username";
+import {generateRandomUsername, reserveUsernameAndCreateUser} from "../utils/username";
 
 export const signInWithGoogle = async (): Promise<FirebaseAuthTypes.User> => {
   // TODO: Implement Google Sign-in for React Native
@@ -75,9 +75,8 @@ export const initializeUser = async (firebaseUser: FirebaseAuthTypes.User): Prom
           lastActiveAt: new Date(),
         };
 
-        // Reserve username and create user atomically
-        await reserveUsername(username, firebaseUser.uid, true);
-        await createUser(firebaseUser.uid, userData);
+        // Reserve username and create user atomically using batch write
+        await reserveUsernameAndCreateUser(username, firebaseUser.uid, userData, true);
         user = {id: firebaseUser.uid, ...userData};
       } else {
         console.log("🔥 User already exists");
