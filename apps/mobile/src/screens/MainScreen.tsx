@@ -98,25 +98,27 @@ export const MainScreen: React.FC = () => {
 
         {/* Action Buttons - Fixed at bottom */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.button, styles.changeButton, (refreshUsed || isCompleted) && styles.buttonDisabled]}
-            onPress={handleRefreshTask}
-            disabled={refreshUsed || isCompleted}
-          >
-            <Text style={[styles.changeButtonText, (refreshUsed || isCompleted) && styles.buttonTextDisabled]}>
-              {t("task.changeTask", "Change Task")}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.button, styles.changeButton, (refreshUsed || isCompleted) && styles.buttonDisabled]}
+              onPress={handleRefreshTask}
+              disabled={refreshUsed || isCompleted}
+            >
+              <Text style={[styles.changeButtonText, (refreshUsed || isCompleted) && styles.buttonTextDisabled]}>
+                {t("task.changeTask", "Change Task")}
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, styles.completeButton, isCompleted && styles.completeButtonDisabled]}
-            onPress={handleDonePress}
-            disabled={isCompleted || isLoading}
-          >
-            <Text style={styles.completeButtonText}>
-              {isCompleted ? t("task.completed", "Completed") : t("task.complete", "Complete")}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.completeButton, isCompleted && styles.completeButtonDisabled]}
+              onPress={handleDonePress}
+              disabled={isCompleted || isLoading}
+            >
+              <Text style={styles.completeButtonText}>
+                {isCompleted ? t("task.completed", "Completed") : t("task.complete", "Complete")}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -162,9 +164,13 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 24,
+  },
+  buttonRow: {
+    flexDirection: "row",
     gap: 12,
   },
   button: {
+    flex: 1,
     height: 52,
     borderRadius: 26,
     justifyContent: "center",
@@ -174,7 +180,6 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderWidth: 1.5,
     borderColor: "#333",
-    marginBottom: 12,
   },
   changeButtonText: {
     fontSize: 16,
