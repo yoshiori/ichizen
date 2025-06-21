@@ -91,6 +91,12 @@
   "profile": {
     "title": "Profile",
     "userId": "User ID",
-    "language": "Language"
+    "language": "Language",
+    "signOut": "Sign Out",
+    "signOutConfirmTitle": "Confirm Sign Out",
+    "signOutConfirmMessage": "Are you sure you want to sign out?",
+    "signOutConfirm": "Sign Out",
+    "signOutCancel": "Cancel",
+    "signOutError": "Failed to sign out. Please try again."
   }
 }

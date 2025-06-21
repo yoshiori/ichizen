@@ -91,6 +91,12 @@
   "profile": {
     "title": "プロフィール",
     "userId": "ユーザーID",
-    "language": "言語"
+    "language": "言語",
+    "signOut": "サインアウト",
+    "signOutConfirmTitle": "サインアウト確認",
+    "signOutConfirmMessage": "本当にサインアウトしますか？",
+    "signOutConfirm": "サインアウト",
+    "signOutCancel": "キャンセル",
+    "signOutError": "サインアウトに失敗しました。もう一度お試しください。"
   }
 }

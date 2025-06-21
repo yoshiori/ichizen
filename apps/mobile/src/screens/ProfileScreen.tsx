@@ -1,16 +1,48 @@
-import React from "react";
-import {View, Text, StyleSheet, SafeAreaView, TouchableOpacity} from "react-native";
+import React, {useState} from "react";
+import {View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert} from "react-native";
 import {useTranslation} from "react-i18next";
 import {useAuth} from "../contexts/AuthContext";
 import {Language} from "../types";
 
 export const ProfileScreen: React.FC = () => {
   const {t, i18n} = useTranslation();
-  const {user} = useAuth();
+  const {user, signOut} = useAuth();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleLanguageChange = async (lang: Language) => {
     await i18n.changeLanguage(lang);
     // In a real app, you would also update the user's language preference in Firestore
+  };
+
+  const handleSignOut = () => {
+    Alert.alert(
+      t("profile.signOutConfirmTitle", "Confirm Sign Out"),
+      t("profile.signOutConfirmMessage", "Are you sure you want to sign out?"),
+      [
+        {
+          text: t("profile.signOutCancel", "Cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("profile.signOutConfirm", "Sign Out"),
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsSigningOut(true);
+              await signOut();
+            } catch (error) {
+              console.error("Sign out error:", error);
+              Alert.alert(
+                t("common.error", "Error"),
+                t("profile.signOutError", "Failed to sign out. Please try again.")
+              );
+            } finally {
+              setIsSigningOut(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const currentLanguage = (user?.language || i18n.language) as Language;
@@ -51,6 +83,19 @@ export const ProfileScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Sign Out Section */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={[styles.signOutButton, isSigningOut && styles.signOutButtonDisabled]}
+            onPress={handleSignOut}
+            disabled={isSigningOut}
+          >
+            <Text style={styles.signOutButtonText}>
+              {isSigningOut ? t("common.loading", "Loading...") : t("profile.signOut", "Sign Out")}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -125,6 +170,23 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   languageButtonTextActive: {
+    color: "#fff",
+  },
+  signOutButton: {
+    backgroundColor: "#ff3b30",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 50,
+  },
+  signOutButtonDisabled: {
+    backgroundColor: "#ff9999",
+    opacity: 0.7,
+  },
+  signOutButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
     color: "#fff",
   },
 });

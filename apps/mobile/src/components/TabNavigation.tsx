@@ -5,17 +5,29 @@ import {useTranslation} from "react-i18next";
 import {MainScreen} from "../screens/MainScreen";
 import {FollowScreen} from "../screens/FollowScreen";
 import {ProfileScreen} from "../screens/ProfileScreen";
+import SignInScreen from "../screens/SignInScreen";
+import {useAuth} from "../contexts/AuthContext";
+import {HomeIcon} from "./icons/HomeIcon";
+import {CommunityIcon} from "./icons/CommunityIcon";
+import {ProfileIcon} from "./icons/ProfileIcon";
 
 type TabType = "home" | "community" | "profile";
 
 interface Tab {
   key: TabType;
   title: string;
-  icon: string;
+  icon: React.ComponentType<{size?: number; color?: string}>;
 }
+
+// Color constants
+const COLORS = {
+  ACTIVE: "#1a1a1a",
+  INACTIVE: "#9E9E9E",
+};
 
 export const TabNavigation: React.FC = () => {
   const {t} = useTranslation();
+  const {user, loading: authLoading} = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("home");
 
   const tabs: Tab[] = useMemo(
@@ -23,17 +35,17 @@ export const TabNavigation: React.FC = () => {
       {
         key: "home",
         title: t("navigation.home", "Home"),
-        icon: "🏠",
+        icon: HomeIcon,
       },
       {
         key: "community",
         title: t("navigation.community", "Community"),
-        icon: "👥",
+        icon: CommunityIcon,
       },
       {
         key: "profile",
         title: t("navigation.profile", "Profile"),
-        icon: "👤",
+        icon: ProfileIcon,
       },
     ],
     [t]
@@ -52,6 +64,20 @@ export const TabNavigation: React.FC = () => {
     }
   };
 
+  // Show loading screen while authenticating
+  if (authLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>{t("common.loading", "Loading...")}</Text>
+      </View>
+    );
+  }
+
+  // Show sign in screen if no user
+  if (!user) {
+    return <SignInScreen />;
+  }
+
   return (
     <View style={styles.container}>
       {/* Main content */}
@@ -65,7 +91,7 @@ export const TabNavigation: React.FC = () => {
             style={[styles.tabItem, activeTab === tab.key && styles.tabItemActive]}
             onPress={() => setActiveTab(tab.key)}
           >
-            <Text style={activeTab === tab.key ? styles.tabIconActive : styles.tabIcon}>{tab.icon}</Text>
+            <tab.icon size={22} color={activeTab === tab.key ? COLORS.ACTIVE : COLORS.INACTIVE} />
             <Text style={activeTab === tab.key ? styles.tabTitleActive : styles.tabTitle}>{tab.title}</Text>
           </TouchableOpacity>
         ))}
@@ -120,5 +146,15 @@ const styles = StyleSheet.create({
   tabTitleActive: {
     color: "#1a1a1a",
     fontWeight: "600",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+  },
+  loadingText: {
+    fontSize: 18,
+    color: "#666",
   },
 });
