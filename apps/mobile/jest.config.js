@@ -6,7 +6,7 @@ export default {
   transformIgnorePatterns: [
     "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|firebase|@firebase/.*|@react-native-firebase/.*)",
   ],
-  testMatch: ["**/__tests__/**/*.(ts|tsx|js)", "**/*.(test|spec).(ts|tsx|js)"],
+  testMatch: ["**/__tests__/**/*.(ts|tsx|js)", "**/*.(test|spec).(ts|tsx|js)", "**/*.emulator.(test|spec).(ts|tsx|js)"],
   testPathIgnorePatterns: ["<rootDir>/e2e/", "<rootDir>/node_modules/"],
   fakeTimers: {
     enableGlobally: false,
@@ -25,7 +25,11 @@ export default {
   ],
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "html"],
-  // Optimize memory usage for CI environments
+  // Unified settings for all environments to ensure consistency
+  clearMocks: true,
+  // Note: resetMocks removed to maintain mock implementations consistency
+  restoreMocks: true,
+  // CI-specific memory optimizations only
   ...(process.env.CI
     ? {
         maxWorkers: 1,
@@ -33,9 +37,6 @@ export default {
         detectOpenHandles: true,
         workerIdleMemoryLimit: "256MB",
         cache: false,
-        clearMocks: true,
-        resetMocks: true,
-        restoreMocks: true,
       }
     : {}),
   // Coverage thresholds (disabled in CI for now)
