@@ -5,6 +5,8 @@ import {useTranslation} from "react-i18next";
 import {MainScreen} from "../screens/MainScreen";
 import {FollowScreen} from "../screens/FollowScreen";
 import {ProfileScreen} from "../screens/ProfileScreen";
+import SignInScreen from "../screens/SignInScreen";
+import {useAuth} from "../contexts/AuthContext";
 import {HomeIcon} from "./icons/HomeIcon";
 import {CommunityIcon} from "./icons/CommunityIcon";
 import {ProfileIcon} from "./icons/ProfileIcon";
@@ -19,6 +21,7 @@ interface Tab {
 
 export const TabNavigation: React.FC = () => {
   const {t} = useTranslation();
+  const {user, loading: authLoading} = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("home");
 
   const tabs: Tab[] = useMemo(
@@ -54,6 +57,20 @@ export const TabNavigation: React.FC = () => {
         return <MainScreen />;
     }
   };
+
+  // Show loading screen while authenticating
+  if (authLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
+  // Show sign in screen if no user
+  if (!user) {
+    return <SignInScreen />;
+  }
 
   return (
     <View style={styles.container}>
@@ -123,5 +140,15 @@ const styles = StyleSheet.create({
   tabTitleActive: {
     color: "#1a1a1a",
     fontWeight: "600",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+  },
+  loadingText: {
+    fontSize: 18,
+    color: "#666",
   },
 });

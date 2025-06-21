@@ -7,12 +7,11 @@ import {IllustrationCard} from "../components/IllustrationCard";
 import {DoneFeedback} from "../components/DoneFeedback";
 import {Language} from "../types";
 import {useAuth} from "../contexts/AuthContext";
-import SignInScreen from "./SignInScreen";
 import {useTaskManager, useGlobalCounter, useAppInitialization, useFeedbackManager} from "../hooks";
 
 export const MainScreen: React.FC = () => {
   const {t, i18n} = useTranslation();
-  const {user, firebaseUser, loading: authLoading} = useAuth();
+  const {user, firebaseUser} = useAuth();
 
   // Custom hooks for separated concerns
   const {currentTask, refreshUsed, isCompleted, refreshTask, markCompleted} = useTaskManager(user?.id);
@@ -54,22 +53,6 @@ export const MainScreen: React.FC = () => {
   const handleFeedbackComplete = () => {
     hideFeedback();
   };
-
-  // Show loading screen while authenticating
-  if (authLoading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Show sign in screen if no user
-  if (!user) {
-    return <SignInScreen />;
-  }
 
   return (
     <SafeAreaView style={styles.container}>
