@@ -5,13 +5,16 @@ import {useTranslation} from "react-i18next";
 import {MainScreen} from "../screens/MainScreen";
 import {FollowScreen} from "../screens/FollowScreen";
 import {ProfileScreen} from "../screens/ProfileScreen";
+import {HomeIcon} from "./icons/HomeIcon";
+import {CommunityIcon} from "./icons/CommunityIcon";
+import {ProfileIcon} from "./icons/ProfileIcon";
 
 type TabType = "home" | "community" | "profile";
 
 interface Tab {
   key: TabType;
   title: string;
-  icon: string;
+  icon: React.ComponentType<{size?: number; color?: string}>;
 }
 
 export const TabNavigation: React.FC = () => {
@@ -23,17 +26,17 @@ export const TabNavigation: React.FC = () => {
       {
         key: "home",
         title: t("navigation.home", "Home"),
-        icon: "🏠",
+        icon: HomeIcon,
       },
       {
         key: "community",
         title: t("navigation.community", "Community"),
-        icon: "👥",
+        icon: CommunityIcon,
       },
       {
         key: "profile",
         title: t("navigation.profile", "Profile"),
-        icon: "👤",
+        icon: ProfileIcon,
       },
     ],
     [t]
@@ -65,7 +68,7 @@ export const TabNavigation: React.FC = () => {
             style={[styles.tabItem, activeTab === tab.key && styles.tabItemActive]}
             onPress={() => setActiveTab(tab.key)}
           >
-            <Text style={activeTab === tab.key ? styles.tabIconActive : styles.tabIcon}>{tab.icon}</Text>
+            <tab.icon size={22} color={activeTab === tab.key ? "#1a1a1a" : "#9E9E9E"} />
             <Text style={activeTab === tab.key ? styles.tabTitleActive : styles.tabTitle}>{tab.title}</Text>
           </TouchableOpacity>
         ))}
