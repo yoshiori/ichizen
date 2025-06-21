@@ -1,25 +1,25 @@
 export interface UsernameHistoryEntry {
-  username: string; // 使用していたユーザー名
-  usedFrom: Date; // 使用開始日時
-  usedUntil?: Date; // 使用終了日時（現在使用中なら未設定）
+  username: string; // Username that was used
+  usedFrom: Date; // Start date of usage
+  usedUntil?: Date; // End date of usage (undefined if currently in use)
 }
 
 export interface User {
-  id: string; // Firebase UID (内部用のみ)
-  username?: string; // 現在のユーザー名（一意、公開）- backward compatibility
+  id: string; // Firebase UID (internal use only)
+  username?: string; // Current username (unique, public) - backward compatibility
   language: "en" | "ja";
-  usernameHistory?: UsernameHistoryEntry[]; // 変更履歴 - backward compatibility
+  usernameHistory?: UsernameHistoryEntry[]; // Username change history - backward compatibility
   fcmToken?: string;
   createdAt: Date;
   lastActiveAt: Date;
 }
 
 // Collection: "usernames"
-// Document ID: ユーザー名（例: "user_abc123"）
+// Document ID: username (e.g., "user_abc123")
 export interface UsernameDoc {
-  userId: string; // このユーザー名を使用しているユーザーのFirebase UID
-  createdAt: Date; // 作成日時
-  isGenerated: boolean; // 自動生成（true）かユーザー設定（false）か
+  userId: string; // Firebase UID of user who owns this username
+  createdAt: Date; // Creation timestamp
+  isGenerated: boolean; // Auto-generated (true) or user-set (false)
 }
 
 export interface Task {
