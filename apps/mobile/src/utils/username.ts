@@ -18,6 +18,7 @@ const generateRandomString = (length: number): string => {
 
 /**
  * Check if a username is available (not taken by another user)
+ * Includes retry logic for emulator connection issues
  */
 export const isUsernameAvailable = async (username: string): Promise<boolean> => {
   try {

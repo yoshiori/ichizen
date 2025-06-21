@@ -47,26 +47,34 @@ export const UsernameEditModal: React.FC<UsernameEditModalProps> = ({
 
       // Initialize validator
       validatorRef.current = new UsernameValidator(currentUsername, {
-        onValidationStart: (username) => {
-          console.log("Validation started for:", username);
+        onValidationStart: () => {
+          // Validation started
         },
         onValidationComplete: (result) => {
-          console.log("Validation completed:", result);
           setValidationMessage(result.messageKey ? t(result.messageKey, result.message) : result.message);
           setIsValid(result.isValid);
         },
-        onAvailabilityCheckStart: (username) => {
-          console.log("Availability check started for:", username);
+        onAvailabilityCheckStart: () => {
           setIsCheckingAvailability(true);
         },
-        onAvailabilityCheckComplete: (username, available) => {
-          console.log("Availability check completed:", username, available);
+        onAvailabilityCheckComplete: () => {
           setIsCheckingAvailability(false);
         },
         onError: (error) => {
-          console.error("Validation error:", error);
           setIsCheckingAvailability(false);
-          setValidationMessage(t("profile.usernameValidation.checkError", "Error checking availability"));
+
+          // Provide more specific error messages
+          let errorMessage = t("profile.usernameValidation.checkError", "Error checking availability");
+          if (error.message.includes("unavailable")) {
+            errorMessage = t(
+              "profile.usernameValidation.serviceUnavailable",
+              "Service temporarily unavailable. Please try again."
+            );
+          } else if (error.message.includes("network") || error.message.includes("connection")) {
+            errorMessage = t("profile.usernameValidation.networkError", "Network error. Please check your connection.");
+          }
+
+          setValidationMessage(errorMessage);
           setIsValid(false);
         },
       });
@@ -91,31 +99,23 @@ export const UsernameEditModal: React.FC<UsernameEditModalProps> = ({
   }, []);
 
   const handleUsernameChange = (text: string) => {
-    console.log("Username change:", text);
-    try {
-      setNewUsername(text);
+    setNewUsername(text);
 
-      // Clear any existing state
-      setValidationMessage("");
-      setIsValid(false);
-      setIsCheckingAvailability(false);
+    // Clear any existing state
+    setValidationMessage("");
+    setIsValid(false);
+    setIsCheckingAvailability(false);
 
-      // Use the new validator
-      if (validatorRef.current) {
-        validatorRef.current.validateUsername(text, isUsernameAvailable, 500);
-      }
-    } catch (error) {
-      console.error("Error in handleUsernameChange:", error);
-      setValidationMessage("An error occurred");
+    // Use the new validator
+    if (validatorRef.current) {
+      validatorRef.current.validateUsername(text, isUsernameAvailable, 500);
     }
   };
 
   const handleSave = async () => {
     const trimmedUsername = newUsername.trim();
-    console.log("Save button pressed. Username:", trimmedUsername);
 
     if (!isValid) {
-      console.log("Validation failed, isValid:", isValid);
       Alert.alert(
         t("common.error", "Error"),
         t("profile.usernameValidation.fixErrors", "Please fix validation errors before saving")
@@ -124,27 +124,21 @@ export const UsernameEditModal: React.FC<UsernameEditModalProps> = ({
     }
 
     if (trimmedUsername === currentUsername) {
-      console.log("Username unchanged, closing modal");
       onClose();
       return;
     }
 
     setIsLoading(true);
     try {
-      console.log("Attempting to change username to:", trimmedUsername);
-      console.log("User ID:", userId);
-
       await changeUsername(userId, trimmedUsername);
 
       onSuccess(trimmedUsername);
       onClose();
       Alert.alert(t("common.success", "Success"), t("profile.usernameChangeSuccess", "Username changed successfully"));
     } catch (error) {
-      console.error("Error changing username:", error);
       let errorMessage = t("profile.usernameChangeError", "Failed to change username");
 
       if (error instanceof Error) {
-        console.error("Error details:", error.message, error.stack);
         if (error.message.includes("Username already taken")) {
           errorMessage = t("profile.usernameValidation.taken", "Username is already taken");
         } else if (error.message.includes("User not found")) {

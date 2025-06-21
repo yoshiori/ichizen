@@ -30,14 +30,21 @@ if (useEmulator) {
   console.log(`🔌 Connecting to Firestore Emulator: ${firestoreHost}:${firestorePort}`);
   console.log(`🔌 Connecting to Functions Emulator: ${functionsHost}:${functionsPort}`);
 
-  // React Native Firebase v22 emulator configuration
+  // React Native Firebase v22 modern emulator configuration
   try {
+    // v22 uses connectAuthEmulator for auth
+    if (!authService.app.options.projectId) {
+      console.warn("⚠️ Project ID not found, using default");
+    }
+
     authService.useEmulator(`http://${authHost}:${authPort}`);
     console.log("✅ Auth emulator configured");
 
+    // v22 uses connectFirestoreEmulator for firestore
     db.useEmulator(firestoreHost, firestorePort);
     console.log("✅ Firestore emulator configured");
 
+    // Functions emulator
     cloudFunctions.useEmulator(functionsHost, functionsPort);
     console.log("✅ Functions emulator configured");
   } catch (error) {
@@ -49,28 +56,6 @@ if (useEmulator) {
   console.log("🚀 Environment:", env.ENVIRONMENT);
   console.log("🚀 Firebase Project:", env.FIREBASE_PROJECT_ID);
 }
-
-// Test function for Firebase connectivity
-export const testFirebaseConnection = async () => {
-  try {
-    console.log("🧪 Testing Firebase connection...");
-
-    // Test Auth
-    console.log("🧪 Testing Auth service...");
-    const currentUser = authService.currentUser;
-    console.log("🧪 Current user:", currentUser?.uid || "No user");
-
-    // Test Firestore (simple read)
-    console.log("🧪 Testing Firestore service...");
-    const testRef = db.collection("test").doc("connectivity");
-    await testRef.get();
-    console.log("✅ Firestore connection OK");
-
-    console.log("✅ Firebase connection test completed");
-  } catch (error) {
-    console.error("❌ Firebase connection test failed:", error);
-  }
-};
 
 // Export Firebase service instances
 export const auth = authService;

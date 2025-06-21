@@ -9,7 +9,7 @@ rm -rf dist android/app/src/main/assets/index.android.bundle
 
 # 2. Build development bundle
 echo "📦 Building development bundle..."
-EXPO_PUBLIC_FIREBASE_ENV=emulator NODE_ENV=development npx expo export --platform android --dev
+FIREBASE_ENV=emulator NODE_ENV=development npx expo export --platform android --dev
 
 # 3. Copy bundle to Android assets
 echo "📋 Copying bundle to Android assets..."

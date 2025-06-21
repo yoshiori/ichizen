@@ -79,8 +79,12 @@ export class DebounceHelper {
 
       // Set new timeout
       this.timeoutRef = setTimeout(() => {
-        func(...args);
-        this.timeoutRef = null;
+        try {
+          func(...args);
+          this.timeoutRef = null;
+        } catch {
+          this.timeoutRef = null;
+        }
       }, delay);
     };
   }
@@ -173,7 +177,9 @@ export class UsernameValidator {
     const debouncedAvailabilityCheck = this.debouncer.debounce(async (username: string) => {
       try {
         this.callbacks.onAvailabilityCheckStart(username);
+
         const available = await checkAvailability(username);
+
         this.callbacks.onAvailabilityCheckComplete(username, available);
 
         this.callbacks.onValidationComplete({
