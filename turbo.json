@@ -100,7 +100,7 @@
       "outputs": [],
       "inputs": ["apps/mobile/src/**/*.{ts,tsx,js,jsx}", "apps/mobile/tsconfig.json", "apps/mobile/eslint.config.js"]
     },
-    "mobile:prebuild": {
+    "mobile#prebuild": {
       "dependsOn": ["mobile:check"],
       "outputs": ["apps/mobile/ios/**", "apps/mobile/android/**"],
       "inputs": [
@@ -112,7 +112,7 @@
       ],
       "cache": true
     },
-    "mobile:prebuild:android": {
+    "mobile#prebuild:android": {
       "dependsOn": ["mobile:check"],
       "outputs": ["apps/mobile/android/**"],
       "inputs": [
@@ -125,7 +125,7 @@
       "cache": true
     },
     "mobile:ios:build": {
-      "dependsOn": ["mobile:prebuild"],
+      "dependsOn": ["mobile#prebuild"],
       "outputs": ["apps/mobile/ios/build/**"],
       "inputs": [
         "apps/mobile/ios/**",
@@ -136,7 +136,7 @@
       "cache": true
     },
     "mobile:android:build": {
-      "dependsOn": ["mobile:prebuild:android"],
+      "dependsOn": ["mobile#prebuild:android"],
       "outputs": ["apps/mobile/android/app/build/**"],
       "inputs": [
         "apps/mobile/android/**",

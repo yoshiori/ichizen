@@ -110,7 +110,7 @@ jobs:
         if: steps.expo-prebuild-cache.outputs.cache-hit != 'true'
         run: |
           # Generate native Android project using Turborepo task
-          npx turbo run mobile:prebuild:android --filter=mobile
+          npx turbo run prebuild:android --filter=mobile
 
       # Optimized Gradle cache with stable key
       - name: Cache Gradle dependencies

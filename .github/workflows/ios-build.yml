@@ -101,7 +101,7 @@ jobs:
         if: steps.expo-prebuild-cache.outputs.cache-hit != 'true'
         run: |
           # Generate native iOS project using Turborepo task
-          npx turbo run mobile:prebuild
+          npx turbo run prebuild --filter=mobile
 
       # Cache CocoaPods
       - name: Get CocoaPods cache key
