@@ -70,6 +70,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate dummy Firebase config for CI
+        run: node scripts/generate-ci-firebase-config.js
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:

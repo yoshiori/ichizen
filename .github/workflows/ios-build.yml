@@ -70,6 +70,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate dummy Firebase config for CI
+        run: node scripts/generate-ci-firebase-config.js
+
       - name: Setup Expo
         uses: expo/expo-github-action@v8
         with:
