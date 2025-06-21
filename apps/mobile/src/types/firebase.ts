@@ -1,9 +1,25 @@
+export interface UsernameHistoryEntry {
+  username: string; // 使用していたユーザー名
+  usedFrom: Date; // 使用開始日時
+  usedUntil?: Date; // 使用終了日時（現在使用中なら未設定）
+}
+
 export interface User {
-  id: string;
-  language: 'en' | 'ja';
+  id: string; // Firebase UID (内部用のみ)
+  username: string; // 現在のユーザー名（一意、公開）
+  language: "en" | "ja";
+  usernameHistory: UsernameHistoryEntry[]; // 変更履歴
   fcmToken?: string;
   createdAt: Date;
   lastActiveAt: Date;
+}
+
+// Collection: "usernames"
+// Document ID: ユーザー名（例: "user_abc123"）
+export interface UsernameDoc {
+  userId: string; // このユーザー名を使用しているユーザーのFirebase UID
+  createdAt: Date; // 作成日時
+  isGenerated: boolean; // 自動生成（true）かユーザー設定（false）か
 }
 
 export interface Task {
@@ -32,7 +48,7 @@ export interface DailyTaskHistory {
 export interface GlobalCounter {
   totalCompleted: number;
   todayCompleted: number;
-  lastUpdated: Date | { seconds: number; nanoseconds: number };
+  lastUpdated: Date | {seconds: number; nanoseconds: number};
 }
 
 export interface Follow {

@@ -2,6 +2,7 @@ import {auth} from "../config/firebase";
 import {createUser, getUser} from "./firestore";
 import {User} from "../types/firebase";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
+import {generateRandomUsername, reserveUsername} from "../utils/username";
 
 export const signInWithGoogle = async (): Promise<FirebaseAuthTypes.User> => {
   // TODO: Implement Google Sign-in for React Native
@@ -57,12 +58,25 @@ export const initializeUser = async (firebaseUser: FirebaseAuthTypes.User): Prom
 
       if (!user) {
         console.log("🔥 User doesn't exist, creating new user");
+
+        // Generate unique username
+        const username = await generateRandomUsername();
+
         const userData: Omit<User, "id"> = {
+          username,
           language: "ja",
+          usernameHistory: [
+            {
+              username,
+              usedFrom: new Date(),
+            },
+          ],
           createdAt: new Date(),
           lastActiveAt: new Date(),
         };
 
+        // Reserve username and create user atomically
+        await reserveUsername(username, firebaseUser.uid, true);
         await createUser(firebaseUser.uid, userData);
         user = {id: firebaseUser.uid, ...userData};
       } else {
@@ -80,7 +94,14 @@ export const initializeUser = async (firebaseUser: FirebaseAuthTypes.User): Prom
     // Fallback to mock user if Firestore fails
     const mockUser: User = {
       id: firebaseUser.uid,
+      username: "user_fallback",
       language: "ja",
+      usernameHistory: [
+        {
+          username: "user_fallback",
+          usedFrom: new Date(),
+        },
+      ],
       createdAt: new Date(),
       lastActiveAt: new Date(),
     };
