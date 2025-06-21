@@ -2,16 +2,26 @@ import React, {useState} from "react";
 import {View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Alert} from "react-native";
 import {useTranslation} from "react-i18next";
 import {useAuth} from "../contexts/AuthContext";
+import {UsernameEditModal} from "../components/UsernameEditModal";
 import {Language} from "../types";
 
 export const ProfileScreen: React.FC = () => {
   const {t, i18n} = useTranslation();
-  const {user, signOut} = useAuth();
+  const {user, signOut, refreshUser} = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
   const handleLanguageChange = async (lang: Language) => {
     await i18n.changeLanguage(lang);
     // In a real app, you would also update the user's language preference in Firestore
+  };
+
+  const handleEditUsername = () => {
+    setIsEditModalVisible(true);
+  };
+
+  const handleUsernameChangeSuccess = async (_newUsername: string) => {
+    await refreshUser();
   };
 
   const handleSignOut = () => {
@@ -54,11 +64,14 @@ export const ProfileScreen: React.FC = () => {
       </View>
 
       <View style={styles.content}>
-        {/* User ID Section */}
+        {/* Username Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t("profile.userId", "User ID")}</Text>
-          <View style={styles.userIdContainer}>
-            <Text style={styles.userId}>{user?.id || "Not available"}</Text>
+          <Text style={styles.sectionTitle}>{t("profile.username", "Username")}</Text>
+          <View style={styles.usernameContainer}>
+            <Text style={styles.username}>{user?.username || "Not available"}</Text>
+            <TouchableOpacity style={styles.editButton} onPress={handleEditUsername}>
+              <Text style={styles.editButtonText}>{t("profile.edit", "Edit")}</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -98,6 +111,15 @@ export const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Username Edit Modal */}
+      <UsernameEditModal
+        visible={isEditModalVisible}
+        currentUsername={user?.username || ""}
+        userId={user?.id || ""}
+        onClose={() => setIsEditModalVisible(false)}
+        onSuccess={handleUsernameChangeSuccess}
+      />
     </SafeAreaView>
   );
 };
@@ -134,18 +156,32 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  userIdContainer: {
+  usernameContainer: {
     backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#e0e0e0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  userId: {
+  username: {
     fontSize: 18,
     fontWeight: "500",
     color: "#333",
-    textAlign: "center",
+    flex: 1,
+  },
+  editButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  editButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
   },
   languageButtons: {
     flexDirection: "row",

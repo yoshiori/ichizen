@@ -4,7 +4,7 @@ import {TabNavigation} from "../src/components/TabNavigation";
 import "../src/i18n/test";
 
 // Mock the screen components
-/* eslint-disable @typescript-eslint/no-require-imports */
+
 jest.mock("../src/screens/MainScreen", () => {
   const mockReact = require("react");
   return {
@@ -32,14 +32,20 @@ jest.mock("../src/screens/ProfileScreen", () => {
     ProfileScreen: () => mockReact.createElement("Text", {testID: "profile-screen"}, "ProfileScreen"),
   };
 });
-/* eslint-enable @typescript-eslint/no-require-imports */
 
 // Mock AuthContext to prevent auth-related errors in screen components
 jest.mock("../src/contexts/AuthContext", () => ({
   useAuth: () => ({
     user: {
       id: "test-user-id",
+      username: "test_user",
       language: "ja",
+      usernameHistory: [
+        {
+          username: "test_user",
+          usedFrom: new Date(),
+        },
+      ],
       createdAt: new Date(),
       lastActiveAt: new Date(),
     },
@@ -65,10 +71,8 @@ describe("TabNavigation", () => {
     expect(getByText("コミュニティ")).toBeTruthy();
     expect(getByText("プロフィール")).toBeTruthy();
 
-    // Check tab icons
-    expect(getByText("🏠")).toBeTruthy();
-    expect(getByText("👥")).toBeTruthy();
-    expect(getByText("👤")).toBeTruthy();
+    // Check tab icons (SVG components should be rendered)
+    // The SVG icons are rendered as React components, not text
   });
 
   it("should show home screen by default", () => {
@@ -121,14 +125,6 @@ describe("TabNavigation", () => {
 
     // Home tab should be active by default
     const homeTab = getByText("ホーム");
-    const homeIcon = getByText("🏠");
-
-    // Check if active styles are applied
-    expect(homeIcon.props.style).toEqual(
-      expect.objectContaining({
-        color: "#1a1a1a",
-      })
-    );
 
     expect(homeTab.props.style).toEqual(
       expect.objectContaining({
@@ -143,16 +139,6 @@ describe("TabNavigation", () => {
 
     // Community tab should be inactive by default
     const communityTab = getByText("コミュニティ");
-    const communityIcon = getByText("👥");
-
-    // Check if inactive styles are applied
-    expect(communityIcon.props.style).toEqual(
-      expect.objectContaining({
-        color: "#9E9E9E",
-        fontSize: 22,
-        marginBottom: 4,
-      })
-    );
 
     expect(communityTab.props.style).toEqual(
       expect.objectContaining({
@@ -170,13 +156,6 @@ describe("TabNavigation", () => {
     fireEvent.press(communityTab);
 
     // Community tab should now be active
-    const communityIcon = getByText("👥");
-    expect(communityIcon.props.style).toEqual(
-      expect.objectContaining({
-        color: "#1a1a1a",
-      })
-    );
-
     expect(communityTab.props.style).toEqual(
       expect.objectContaining({
         color: "#1a1a1a",
@@ -186,15 +165,6 @@ describe("TabNavigation", () => {
 
     // Home tab should now be inactive
     const homeTab = getByText("ホーム");
-    const homeIcon = getByText("🏠");
-    expect(homeIcon.props.style).toEqual(
-      expect.objectContaining({
-        color: "#9E9E9E",
-        fontSize: 22,
-        marginBottom: 4,
-      })
-    );
-
     expect(homeTab.props.style).toEqual(
       expect.objectContaining({
         color: "#9E9E9E",

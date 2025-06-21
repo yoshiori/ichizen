@@ -14,6 +14,7 @@ interface AuthContextType {
   initError: string | null;
   signIn: (method?: AuthMethod) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,6 +74,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
       throw error;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const refreshUser = async () => {
+    if (firebaseUser) {
+      await initializeUserData(firebaseUser);
     }
   };
 
@@ -159,6 +166,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     initError: authError || initError, // Combine auth errors and user init errors
     signIn,
     signOut: handleSignOut,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

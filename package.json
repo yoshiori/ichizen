@@ -18,6 +18,7 @@
     "mobile:dev": "turbo run dev --filter=mobile",
     "mobile:build": "turbo run build --filter=mobile",
     "mobile:test": "turbo run test --filter=mobile",
+    "mobile:test:watch": "turbo run test:watch --filter=mobile",
     "mobile:lint": "turbo run lint --filter=mobile",
     "mobile:typecheck": "turbo run typecheck --filter=mobile",
     "mobile:check": "turbo run mobile:check",
@@ -31,12 +32,15 @@
     "functions:lint": "turbo run functions:lint",
     "functions:typecheck": "turbo run functions:typecheck",
     "functions:deploy": "turbo run functions:deploy",
+    "firestore:test": "firebase emulators:exec --only firestore 'jest firestore.rules.test.js'",
+    "firestore:test:watch": "firebase emulators:exec --only firestore 'jest --watch firestore.rules.test.js'",
     "prepare": "husky || true",
     "dev:android": "./scripts/dev-android.sh",
     "android": "turbo run mobile:prebuild:android && cd apps/mobile && expo run:android",
     "ios": "turbo run mobile:prebuild && cd apps/mobile && expo run:ios"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",

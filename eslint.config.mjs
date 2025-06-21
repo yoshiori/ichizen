@@ -135,7 +135,7 @@ export default [
   },
   // Test files configuration
   {
-    files: ["**/__tests__/**/*.ts", "**/*.test.ts", "**/*.test.tsx"],
+    files: ["**/__tests__/**/*.ts", "**/*.test.ts", "**/*.test.tsx", "**/jest-setup.js", "**/jest.config.js"],
     languageOptions: {
       globals: {
         jest: "readonly",
@@ -150,6 +150,8 @@ export default [
     },
     rules: {
       "@typescript-eslint/no-explicit-any": "off", // Allow any in tests
+      "@typescript-eslint/no-require-imports": "off", // Allow require in test setup
+      "unused-imports/no-unused-vars": "off", // Allow unused vars in test setup
     },
   },
   // Global ignores

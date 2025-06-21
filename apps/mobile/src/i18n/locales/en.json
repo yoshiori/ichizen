@@ -4,7 +4,10 @@
     "loading": "Loading...",
     "refresh": "Change",
     "today": "Today",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "save": "Save",
+    "success": "Success",
+    "error": "Error"
   },
   "categories": {
     "relationships": "Relationships",
@@ -91,12 +94,38 @@
   "profile": {
     "title": "Profile",
     "userId": "User ID",
+    "username": "Username",
+    "edit": "Edit",
     "language": "Language",
     "signOut": "Sign Out",
     "signOutConfirmTitle": "Confirm Sign Out",
     "signOutConfirmMessage": "Are you sure you want to sign out?",
     "signOutConfirm": "Sign Out",
     "signOutCancel": "Cancel",
-    "signOutError": "Failed to sign out. Please try again."
+    "signOutError": "Failed to sign out. Please try again.",
+    "editUsername": "Edit Username",
+    "newUsername": "New Username",
+    "enterUsername": "Enter username",
+    "checkingAvailability": "Checking availability...",
+    "usernameChangeSuccess": "Username changed successfully",
+    "usernameChangeError": "Failed to change username",
+    "usernameValidation": {
+      "tooShort": "Username must be at least 3 characters",
+      "tooLong": "Username must be no more than 20 characters",
+      "invalidChars": "Username can only contain letters, numbers, and underscores",
+      "mustStartWithAlphanumeric": "Username must start with a letter or number",
+      "available": "✓ Username is available",
+      "taken": "Username is already taken",
+      "networkError": "Network error. Please try again.",
+      "checkError": "Error checking availability",
+      "permissionError": "Permission denied. Please check your connection.",
+      "fixErrors": "Please fix validation errors before saving"
+    },
+    "usernameRules": {
+      "title": "Username Rules:",
+      "length": "3-20 characters",
+      "chars": "Letters, numbers, and underscores only",
+      "start": "Must start with letter or number"
+    }
   }
 }
