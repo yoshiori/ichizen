@@ -117,25 +117,62 @@ npm run functions:deploy    # 関数デプロイ
 
 ### Standalone App 開発フロー
 
+#### 🚨 **重要: キャッシュ問題の回避**
+
+React Native + Firebase SDK環境では、コード変更が正しく反映されないキャッシュ問題が頻発します。
+
+**症状:**
+
+- コード変更したのに動作が変わらない
+- バンドルハッシュが同じまま（変更が反映されていない証拠）
+- 古いビルドが残り続ける
+
+**解決法: 必ずクリーンビルドを実行**
+
 ```bash
-# 1. プロダクション Bundle 生成
+# ⚠️ 通常ビルド（キャッシュ問題発生しやすい）
 NODE_ENV=production npx expo export --platform android
 
-# 2. Native プロジェクト準備
-npx expo prebuild --platform android --clean
+# ✅ 推奨: クリーンビルド（確実に最新反映）
+rm -rf dist/ && npx expo export --clear --platform android
+```
 
-# 3. Bundle をアセットに配置 (※手動で実行)
-cp dist/_expo/static/js/android/index-*.hbc android/app/src/main/assets/index.android.bundle
+#### 標準開発フロー
 
-# 4. APK ビルド
+```bash
+# 1. クリーンな Bundle 生成（必須）
+cd apps/mobile
+rm -rf dist/ && npx expo export --clear --platform android
+
+# 2. Bundle をアセットに配置
+cp dist/_expo/static/js/android/*.hbc android/app/src/main/assets/index.android.bundle
+
+# 3. APK ビルド
 cd android && ./gradlew assembleDebug --no-configuration-cache
 
-# 5. エミュレータにインストール・起動
+# 4. エミュレータにインストール・起動
 adb install android/app/build/outputs/apk/debug/app-debug.apk
+adb shell am force-stop dev.yoshiori.ichizen && adb shell pm clear dev.yoshiori.ichizen
 adb shell am start -n dev.yoshiori.ichizen/.MainActivity
 ```
 
-**注意**: 上記手順3は自動化されていないため、Bundle ファイル名を確認して手動でコピーしてください。
+#### トラブルシューティング
+
+**バンドルハッシュで変更確認:**
+
+```bash
+# 新しいハッシュが生成されているか確認
+ls -la dist/_expo/static/js/android/
+# 例: index-ed5cc6262b94c7ce7aaf7bde1bd576bd.hbc（ハッシュが変わっていればOK）
+```
+
+**完全リセット手順:**
+
+```bash
+# Metro・Expo・Gradle キャッシュを全削除
+rm -rf dist/ node_modules/.cache android/build android/.gradle
+npx expo install --fix
+```
 
 ### iOS開発
 
