@@ -1,12 +1,19 @@
 import messaging from "@react-native-firebase/messaging";
 import type {FirebaseMessagingTypes} from "@react-native-firebase/messaging";
 import {Platform} from "react-native";
+import {useEmulator} from "../config/env";
 
 /**
  * Request notification permissions and return FCM token
  */
 export const requestNotificationPermission = async (): Promise<string | null> => {
   try {
+    // Check if running in emulator environment
+    if (useEmulator) {
+      console.log("🔧 FCM disabled in emulator mode - using mock token");
+      return "emulator-mock-fcm-token";
+    }
+
     // Request permission for iOS
     if (Platform.OS === "ios") {
       const authStatus = await messaging().requestPermission();
@@ -26,6 +33,11 @@ export const requestNotificationPermission = async (): Promise<string | null> =>
     return token;
   } catch (error) {
     console.error("Error getting FCM token:", error);
+    // Return mock token in development mode to prevent crashes
+    if (__DEV__) {
+      console.log("🔧 Using mock FCM token in development mode");
+      return "dev-mock-fcm-token";
+    }
     return null;
   }
 };
