@@ -87,12 +87,14 @@ const mockAnimatedValue = jest.fn(() => ({
   resetAnimation: jest.fn(),
 }));
 
-// Ensure Alert is properly mocked
-if (!ReactNative.Alert || !ReactNative.Alert.alert) {
-  ReactNative.Alert = {
-    alert: jest.fn(),
-  };
-}
+// Ensure Alert is properly mocked - jest-expo may not include it
+// This extends jest-expo's existing React Native mock
+Object.defineProperty(ReactNative, "Alert", {
+  value: {alert: jest.fn()},
+  writable: true,
+  enumerable: true,
+  configurable: true,
+});
 
 // Enhance the existing Animated object from React Native
 if (ReactNative.Animated) {
@@ -167,22 +169,10 @@ if (ReactNative.Animated) {
 }
 
 // ============================================================================
-// ENVIRONMENT CONFIGURATION MOCKS
+// ENVIRONMENT CONFIGURATION
 // ============================================================================
 
-// Mock environment configuration for testing to avoid env validation issues
-jest.mock("./src/config/env", () => ({
-  env: {
-    FIREBASE_API_KEY: "test-api-key", // pragma: allowlist secret
-    FIREBASE_AUTH_DOMAIN: "test.firebaseapp.com",
-    FIREBASE_PROJECT_ID: "test-project",
-    FIREBASE_STORAGE_BUCKET: "test-project.appspot.com",
-    FIREBASE_MESSAGING_SENDER_ID: "123456789012",
-    FIREBASE_APP_ID: "1:123456789012:web:test123456",
-    ENVIRONMENT: "development",
-    FIREBASE_ENV: "emulator",
-  },
-}));
+// Environment configuration uses real .env files for proper Firebase emulator integration
 
 // ============================================================================
 // SVG MOCKS
@@ -268,60 +258,8 @@ jest.mock("@react-native-firebase/auth", () => {
   };
 });
 
-jest.mock("@react-native-firebase/firestore", () => {
-  const mockFirestore = jest.fn(() => ({
-    collection: jest.fn(() => ({
-      doc: jest.fn(() => ({
-        get: jest.fn(() =>
-          Promise.resolve({
-            exists: true,
-            id: "test-id",
-            data: jest.fn(() => ({name: "test"})),
-          })
-        ),
-        set: jest.fn(() => Promise.resolve()),
-        update: jest.fn(() => Promise.resolve()),
-        delete: jest.fn(() => Promise.resolve()),
-        onSnapshot: jest.fn((callback) => {
-          callback({
-            exists: () => true,
-            data: () => ({name: "test"}),
-          });
-          return jest.fn();
-        }),
-      })),
-      where: jest.fn(() => ({
-        get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-        orderBy: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          limit: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          })),
-        })),
-        where: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          limit: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          })),
-        })),
-        limit: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-        })),
-      })),
-      get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-      add: jest.fn(() => Promise.resolve({id: "mock-id"})),
-    })),
-  }));
-
-  return {
-    __esModule: true,
-    default: mockFirestore,
-    FieldValue: {
-      increment: jest.fn(),
-      serverTimestamp: jest.fn(),
-    },
-  };
-});
+// Firestore uses real Firebase emulator for integration testing
+// Tests requiring mocks can override specific modules individually
 
 // Web Firebase messaging mock removed - using React Native Firebase instead
 
@@ -364,37 +302,8 @@ jest.mock("@react-native-firebase/functions", () => {
 // PROJECT SPECIFIC MOCKS
 // ============================================================================
 
-// Mock Firebase config files for React Native Firebase v22
-jest.mock("./src/config/firebase", () => ({
-  auth: {
-    currentUser: null,
-    signInAnonymously: jest.fn(() => Promise.resolve({user: {uid: "test-uid"}})),
-    onAuthStateChanged: jest.fn((callback) => {
-      callback(null);
-      return jest.fn();
-    }),
-  },
-  db: {
-    collection: jest.fn(() => ({
-      doc: jest.fn(() => ({
-        get: jest.fn(() =>
-          Promise.resolve({
-            exists: true,
-            id: "test-id",
-            data: jest.fn(() => ({name: "test"})),
-          })
-        ),
-        set: jest.fn(() => Promise.resolve()),
-        update: jest.fn(() => Promise.resolve()),
-      })),
-    })),
-  },
-  cloudFunctions: {
-    region: jest.fn(() => ({
-      httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({data: {}}))),
-    })),
-  },
-}));
+// Firebase config uses real Firebase emulator for integration testing
+// Individual tests can mock specific services if needed
 
 // Mock AsyncStorage
 jest.mock("@react-native-async-storage/async-storage", () => ({

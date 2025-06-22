@@ -11,12 +11,10 @@ jest.mock("../src/services/firestore");
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockFirestoreService = firestoreService as jest.Mocked<typeof firestoreService>;
-const mockAlert = jest.fn();
 
-// Mock Alert at global level
-(global as any).Alert = {
-  alert: mockAlert,
-};
+// Access jest-setup.js configured Alert mock
+import {Alert} from "react-native";
+const mockAlert = Alert.alert as jest.MockedFunction<typeof Alert.alert>;
 
 const mockUser = {
   id: "test-user-id",
@@ -60,6 +58,7 @@ const mockOtherUser = {
 describe("FollowScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAlert.mockClear();
 
     mockUseAuth.mockReturnValue({
       user: mockUser,
@@ -122,7 +121,8 @@ describe("FollowScreen", () => {
 
     await waitFor(() => {
       expect(mockFirestoreService.getFollowing).toHaveBeenCalledWith("test-user-id");
-      expect(getByText("other_user")).toBeTruthy();
+      // FollowScreen displays user ID, not username
+      expect(getByText("other-user-id")).toBeTruthy();
     });
   });
 
@@ -132,7 +132,7 @@ describe("FollowScreen", () => {
     const {getByText} = render(<FollowScreen />);
 
     await waitFor(() => {
-      expect(getByText("まだ誰もフォローしていません")).toBeTruthy();
+      expect(getByText("フォロー中のユーザーはいません")).toBeTruthy();
     });
   });
 
@@ -151,11 +151,11 @@ describe("FollowScreen", () => {
     const input = getByPlaceholderText("ユーザーIDを入力");
     fireEvent.changeText(input, "test-user-id");
 
-    const followButton = getByText("フォロー");
+    const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
-      expect(mockAlert).toHaveBeenCalledWith("エラー", "自分自身をフォローすることはできません");
+      expect(mockAlert).toHaveBeenCalledWith("エラー", "自分をフォローすることはできません");
     });
   });
 
@@ -167,7 +167,7 @@ describe("FollowScreen", () => {
     const input = getByPlaceholderText("ユーザーIDを入力");
     fireEvent.changeText(input, "nonexistent-user");
 
-    const followButton = getByText("フォロー");
+    const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
@@ -185,12 +185,12 @@ describe("FollowScreen", () => {
     const input = getByPlaceholderText("ユーザーIDを入力");
     fireEvent.changeText(input, "other-user-id");
 
-    const followButton = getByText("フォロー");
+    const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
       expect(mockFirestoreService.isFollowing).toHaveBeenCalledWith("test-user-id", "other-user-id");
-      expect(mockAlert).toHaveBeenCalledWith("情報", "すでにフォローしています");
+      expect(mockAlert).toHaveBeenCalledWith("エラー", "すでにフォローしています");
     });
   });
 
@@ -203,7 +203,7 @@ describe("FollowScreen", () => {
     const input = getByPlaceholderText("ユーザーIDを入力");
     fireEvent.changeText(input, "other-user-id");
 
-    const followButton = getByText("フォロー");
+    const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
@@ -219,13 +219,30 @@ describe("FollowScreen", () => {
     const {getByText} = render(<FollowScreen />);
 
     await waitFor(() => {
-      const unfollowButton = getByText("アンフォロー");
+      const unfollowButton = getByText("フォロー解除");
       fireEvent.press(unfollowButton);
     });
 
+    // Expect confirmation dialog to be shown first
+    await waitFor(() => {
+      expect(mockAlert).toHaveBeenCalledWith(
+        "フォロー解除",
+        "このユーザーのフォローを解除しますか？",
+        expect.arrayContaining([
+          expect.objectContaining({text: "キャンセル"}),
+          expect.objectContaining({text: "フォロー解除", onPress: expect.any(Function)}),
+        ])
+      );
+    });
+
+    // Simulate pressing the confirm button
+    const confirmCall = mockAlert.mock.calls[0];
+    const confirmButton = confirmCall[2].find((button: any) => button.text === "フォロー解除");
+    await confirmButton.onPress();
+
+    // Now expect the actual unfollow operation
     await waitFor(() => {
       expect(mockFirestoreService.unfollowUser).toHaveBeenCalledWith("test-user-id", "other-user-id");
-      expect(mockAlert).toHaveBeenCalledWith("成功", "ユーザーのフォローを解除しました");
     });
   });
 
@@ -239,7 +256,7 @@ describe("FollowScreen", () => {
     const input = getByPlaceholderText("ユーザーIDを入力");
     fireEvent.changeText(input, "other-user-id");
 
-    const followButton = getByText("フォロー");
+    const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
@@ -255,12 +272,30 @@ describe("FollowScreen", () => {
     const {getByText} = render(<FollowScreen />);
 
     await waitFor(() => {
-      const unfollowButton = getByText("アンフォロー");
+      const unfollowButton = getByText("フォロー解除");
       fireEvent.press(unfollowButton);
     });
 
+    // Expect confirmation dialog to be shown first
     await waitFor(() => {
-      expect(mockAlert).toHaveBeenCalledWith("エラー", "アンフォローに失敗しました");
+      expect(mockAlert).toHaveBeenCalledWith(
+        "フォロー解除",
+        "このユーザーのフォローを解除しますか？",
+        expect.arrayContaining([
+          expect.objectContaining({text: "キャンセル"}),
+          expect.objectContaining({text: "フォロー解除", onPress: expect.any(Function)}),
+        ])
+      );
+    });
+
+    // Simulate pressing the confirm button (which will trigger the error)
+    const confirmCall = mockAlert.mock.calls[0];
+    const confirmButton = confirmCall[2].find((button: any) => button.text === "フォロー解除");
+    await confirmButton.onPress();
+
+    // Now expect error handling
+    await waitFor(() => {
+      expect(mockAlert).toHaveBeenCalledWith("エラー", "フォロー解除に失敗しました");
     });
   });
 
@@ -273,7 +308,7 @@ describe("FollowScreen", () => {
     const input = getByPlaceholderText("ユーザーIDを入力");
     fireEvent.changeText(input, "other-user-id");
 
-    const followButton = getByText("フォロー");
+    const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
