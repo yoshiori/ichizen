@@ -127,7 +127,7 @@ console.log("✅ Created GoogleService-Info.plist for iOS");
 
 // Write .env file with dummy values
 const envContent = `# CI Dummy Environment Variables
-ENVIRONMENT=test
+ENVIRONMENT=development
 FIREBASE_API_KEY=dummy-api-key-for-ci # pragma: allowlist secret
 FIREBASE_AUTH_DOMAIN=dummy-project.firebaseapp.com
 FIREBASE_PROJECT_ID=dummy-project

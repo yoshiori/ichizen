@@ -167,6 +167,24 @@ if (ReactNative.Animated) {
 }
 
 // ============================================================================
+// ENVIRONMENT CONFIGURATION MOCKS
+// ============================================================================
+
+// Mock environment configuration for testing to avoid env validation issues
+jest.mock("src/config/env", () => ({
+  env: {
+    FIREBASE_API_KEY: "test-api-key", // pragma: allowlist secret
+    FIREBASE_AUTH_DOMAIN: "test.firebaseapp.com",
+    FIREBASE_PROJECT_ID: "test-project",
+    FIREBASE_STORAGE_BUCKET: "test-project.appspot.com",
+    FIREBASE_MESSAGING_SENDER_ID: "123456789012",
+    FIREBASE_APP_ID: "1:123456789012:web:test123456",
+    ENVIRONMENT: "development",
+    FIREBASE_ENV: "emulator",
+  },
+}));
+
+// ============================================================================
 // SVG MOCKS
 // ============================================================================
 
