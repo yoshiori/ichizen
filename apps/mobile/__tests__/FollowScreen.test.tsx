@@ -237,8 +237,10 @@ describe("FollowScreen", () => {
 
     // Simulate pressing the confirm button
     const confirmCall = mockAlert.mock.calls[0];
-    const confirmButton = confirmCall[2].find((button: any) => button.text === "フォロー解除");
-    await confirmButton.onPress();
+    const confirmButton = confirmCall?.[2]?.find((button: any) => button.text === "フォロー解除");
+    if (confirmButton?.onPress) {
+      await confirmButton.onPress();
+    }
 
     // Now expect the actual unfollow operation
     await waitFor(() => {
@@ -290,8 +292,10 @@ describe("FollowScreen", () => {
 
     // Simulate pressing the confirm button (which will trigger the error)
     const confirmCall = mockAlert.mock.calls[0];
-    const confirmButton = confirmCall[2].find((button: any) => button.text === "フォロー解除");
-    await confirmButton.onPress();
+    const confirmButton = confirmCall?.[2]?.find((button: any) => button.text === "フォロー解除");
+    if (confirmButton?.onPress) {
+      await confirmButton.onPress();
+    }
 
     // Now expect error handling
     await waitFor(() => {
@@ -311,6 +315,12 @@ describe("FollowScreen", () => {
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
+    // Wait for follow operation to complete and success alert
+    await waitFor(() => {
+      expect(mockAlert).toHaveBeenCalledWith("成功", "ユーザーをフォローしました");
+    });
+
+    // Then check input field is cleared
     await waitFor(() => {
       expect(queryByDisplayValue("other-user-id")).toBeNull();
     });
