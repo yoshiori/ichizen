@@ -171,7 +171,7 @@ if (ReactNative.Animated) {
 // ============================================================================
 
 // Mock environment configuration for testing to avoid env validation issues
-jest.mock("src/config/env", () => ({
+jest.mock("./src/config/env", () => ({
   env: {
     FIREBASE_API_KEY: "test-api-key", // pragma: allowlist secret
     FIREBASE_AUTH_DOMAIN: "test.firebaseapp.com",
