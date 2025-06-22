@@ -167,19 +167,16 @@ export const GlobalCounter: React.FC<GlobalCounterProps> = ({
     return num.toLocaleString();
   };
 
-  // Handle test environment where interpolate might not be available
-  const earthRotationStyle = earthRotation.interpolate
-    ? {
-        transform: [
-          {
-            rotate: earthRotation.interpolate({
-              inputRange: [0, 1],
-              outputRange: ["0deg", "360deg"],
-            }),
-          },
-        ],
-      }
-    : {};
+  const earthRotationStyle = {
+    transform: [
+      {
+        rotate: earthRotation.interpolate({
+          inputRange: [0, 1],
+          outputRange: ["0deg", "360deg"],
+        }),
+      },
+    ],
+  };
 
   if (!displayTotalCount && !displayTodayCount) {
     return (

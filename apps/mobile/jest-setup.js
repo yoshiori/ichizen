@@ -68,7 +68,14 @@ const ReactNative = require("react-native");
 
 // Create comprehensive Animated.Value mock with all required methods
 const mockAnimatedValue = jest.fn(() => ({
-  interpolate: jest.fn(() => "mocked-interpolated-value"),
+  interpolate: jest.fn((config) => {
+    // Provide a more realistic interpolate mock that simulates actual behavior
+    if (config && config.outputRange && config.outputRange.length > 0) {
+      // Return the first value from outputRange for consistent test behavior
+      return config.outputRange[0];
+    }
+    return "0deg"; // Default rotation value for consistent test results
+  }),
   setValue: jest.fn(),
   setOffset: jest.fn(),
   flattenOffset: jest.fn(),
@@ -163,57 +170,41 @@ if (ReactNative.Animated) {
 // SVG MOCKS
 // ============================================================================
 
-// Mock react-native-svg
+// Mock react-native-svg - selective mocking to preserve library functionality
 jest.mock("react-native-svg", () => {
   const React = require("react");
+
+  // Try to get the actual module first, fall back to mocks if unavailable
+  let actualModule;
+  try {
+    actualModule = jest.requireActual("react-native-svg");
+  } catch {
+    // Fallback to basic mocks if actual module is not available
+    actualModule = {};
+  }
+
+  // Create minimal mocks only for components we use
   const MockedSvg = (props) => React.createElement("Svg", props, props.children);
   const MockedPath = (props) => React.createElement("Path", props);
   const MockedCircle = (props) => React.createElement("Circle", props);
-  const MockedEllipse = (props) => React.createElement("Ellipse", props);
   const MockedG = (props) => React.createElement("G", props, props.children);
-  const MockedText = (props) => React.createElement("Text", props, props.children);
-  const MockedTSpan = (props) => React.createElement("TSpan", props, props.children);
-  const MockedTextPath = (props) => React.createElement("TextPath", props, props.children);
-  const MockedPolygon = (props) => React.createElement("Polygon", props);
-  const MockedPolyline = (props) => React.createElement("Polyline", props);
-  const MockedLine = (props) => React.createElement("Line", props);
-  const MockedRect = (props) => React.createElement("Rect", props);
-  const MockedUse = (props) => React.createElement("Use", props);
-  const MockedImage = (props) => React.createElement("Image", props);
-  const MockedSymbol = (props) => React.createElement("Symbol", props, props.children);
-  const MockedDefs = (props) => React.createElement("Defs", props, props.children);
   const MockedLinearGradient = (props) => React.createElement("LinearGradient", props, props.children);
-  const MockedRadialGradient = (props) => React.createElement("RadialGradient", props, props.children);
   const MockedStop = (props) => React.createElement("Stop", props);
-  const MockedClipPath = (props) => React.createElement("ClipPath", props, props.children);
-  const MockedPattern = (props) => React.createElement("Pattern", props, props.children);
-  const MockedMask = (props) => React.createElement("Mask", props, props.children);
+  const MockedDefs = (props) => React.createElement("Defs", props, props.children);
 
   return {
     __esModule: true,
-    default: MockedSvg,
-    Svg: MockedSvg,
-    Path: MockedPath,
-    Circle: MockedCircle,
-    Ellipse: MockedEllipse,
-    G: MockedG,
-    Text: MockedText,
-    TSpan: MockedTSpan,
-    TextPath: MockedTextPath,
-    Polygon: MockedPolygon,
-    Polyline: MockedPolyline,
-    Line: MockedLine,
-    Rect: MockedRect,
-    Use: MockedUse,
-    Image: MockedImage,
-    Symbol: MockedSymbol,
-    Defs: MockedDefs,
-    LinearGradient: MockedLinearGradient,
-    RadialGradient: MockedRadialGradient,
-    Stop: MockedStop,
-    ClipPath: MockedClipPath,
-    Pattern: MockedPattern,
-    Mask: MockedMask,
+    // Spread actual module first to preserve real functionality
+    ...actualModule,
+    // Override only the specific components we need for testing
+    default: actualModule.default || MockedSvg,
+    Svg: actualModule.Svg || MockedSvg,
+    Path: actualModule.Path || MockedPath,
+    Circle: actualModule.Circle || MockedCircle,
+    G: actualModule.G || MockedG,
+    LinearGradient: actualModule.LinearGradient || MockedLinearGradient,
+    Stop: actualModule.Stop || MockedStop,
+    Defs: actualModule.Defs || MockedDefs,
   };
 });
 
