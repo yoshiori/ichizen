@@ -16,7 +16,14 @@ const mockGetUserTaskHistoryWithTasks = getUserTaskHistoryWithTasks as jest.Mock
 
 const mockUser = {
   id: "test-user-id",
+  username: "test_user",
   language: "ja" as const,
+  usernameHistory: [
+    {
+      username: "test_user",
+      usedFrom: new Date(),
+    },
+  ],
   createdAt: new Date(),
   lastActiveAt: new Date(),
 };
@@ -98,6 +105,7 @@ describe("HistoryScreen", () => {
       initError: null,
       signIn: jest.fn(),
       signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([]);
@@ -166,6 +174,7 @@ describe("HistoryScreen", () => {
       initError: null,
       signIn: jest.fn(),
       signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([]);
@@ -356,6 +365,7 @@ describe("HistoryScreen", () => {
       initError: null,
       signIn: jest.fn(),
       signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     render(<HistoryScreen />);
@@ -394,6 +404,7 @@ describe("HistoryScreen", () => {
       initError: null,
       signIn: jest.fn(),
       signOut: jest.fn(),
+      refreshUser: jest.fn(),
     });
 
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryEntry]);

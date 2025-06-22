@@ -97,4 +97,5 @@ export const env = validateEnv();
 export const isProduction = env.ENVIRONMENT === "production";
 export const isDevelopment = env.ENVIRONMENT === "development";
 export const isStaging = env.ENVIRONMENT === "staging";
+// Emulator mode configuration
 export const useEmulator = env.FIREBASE_ENV === "emulator";

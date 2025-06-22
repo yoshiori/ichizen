@@ -121,6 +121,11 @@ npm run functions:deploy    # Deploy functions with Turbo optimization
 # Install Firebase CLI
 npm install -g firebase-tools
 
+# 🔧 Setup Firebase configuration for development (first time only)
+# This creates google-services.json with DUMMY values for emulator testing
+# The package name must match your app, but all other values are fake
+npm run setup:dev
+
 # Start Firebase emulators (separate terminal)
 npx firebase emulators:start --only firestore,auth,functions
 
@@ -129,7 +134,10 @@ node scripts/setup-initial-data.js
 
 # Configure mobile app for emulator
 cd apps/mobile
-# Edit .env: EXPO_PUBLIC_FIREBASE_ENV=emulator
+# Edit .env: FIREBASE_ENV=emulator
+
+# Build and run Android app with emulators
+npm run dev:android
 
 # Build and test Standalone App
 NODE_ENV=production npx expo export --platform android

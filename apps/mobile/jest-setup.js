@@ -57,41 +57,84 @@ global.console = {
 // REACT NATIVE MOCKS
 // ============================================================================
 
-// Mock React Native core modules
+// Mock React Native core modules - Alert module specifically
 jest.mock("react-native/Libraries/Alert/Alert", () => ({
   alert: jest.fn(),
 }));
 
-jest.mock("react-native", () => ({
-  View: "View",
-  Text: "Text",
-  TouchableOpacity: "TouchableOpacity",
-  TouchableHighlight: "TouchableHighlight",
-  TouchableWithoutFeedback: "TouchableWithoutFeedback",
-  Pressable: "Pressable",
-  TextInput: "TextInput",
-  ScrollView: "ScrollView",
-  Image: "Image",
-  ActivityIndicator: "ActivityIndicator",
-  SafeAreaView: "SafeAreaView",
-  Alert: {
-    alert: jest.fn(),
-  },
-  Animated: {
+// Enhance React Native's Animated module after jest-expo has set up its mocks
+// This runs in setupFilesAfterEnv, so it executes after jest-expo setup
+const ReactNative = require("react-native");
+
+// Create comprehensive Animated.Value mock with all required methods
+const mockAnimatedValue = jest.fn(() => ({
+  interpolate: jest.fn((config) => {
+    // Provide a more realistic interpolate mock that simulates actual behavior
+    if (config && config.outputRange && config.outputRange.length > 0) {
+      // Return the first value from outputRange for consistent test behavior
+      return config.outputRange[0];
+    }
+    return "0deg"; // Default rotation value for consistent test results
+  }),
+  setValue: jest.fn(),
+  setOffset: jest.fn(),
+  flattenOffset: jest.fn(),
+  extractOffset: jest.fn(),
+  addListener: jest.fn(),
+  removeListener: jest.fn(),
+  removeAllListeners: jest.fn(),
+  stopAnimation: jest.fn(),
+  resetAnimation: jest.fn(),
+}));
+
+// Ensure Alert is properly mocked - jest-expo may not include it
+// This extends jest-expo's existing React Native mock
+Object.defineProperty(ReactNative, "Alert", {
+  value: {alert: jest.fn()},
+  writable: true,
+  enumerable: true,
+  configurable: true,
+});
+
+// Enhance the existing Animated object from React Native
+if (ReactNative.Animated) {
+  ReactNative.Animated.Value = mockAnimatedValue;
+  ReactNative.Animated.timing = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.spring = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.sequence = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.parallel = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.delay = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+  ReactNative.Animated.loop = jest.fn(() => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+    reset: jest.fn(),
+  }));
+} else {
+  // If no Animated exists, create it entirely
+  ReactNative.Animated = {
     View: "Animated.View",
     Text: "Animated.Text",
-    Value: jest.fn(() => ({
-      interpolate: jest.fn(() => "mocked-interpolated-value"),
-      setValue: jest.fn(),
-      setOffset: jest.fn(),
-      flattenOffset: jest.fn(),
-      extractOffset: jest.fn(),
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      removeAllListeners: jest.fn(),
-      stopAnimation: jest.fn(),
-      resetAnimation: jest.fn(),
-    })),
+    Value: mockAnimatedValue,
     timing: jest.fn(() => ({
       start: jest.fn(),
       stop: jest.fn(),
@@ -122,33 +165,69 @@ jest.mock("react-native", () => ({
       stop: jest.fn(),
       reset: jest.fn(),
     })),
-  },
-  Dimensions: {
-    get: jest.fn(() => ({width: 375, height: 812})),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-  },
-  Platform: {
-    OS: "ios",
-    select: jest.fn((obj) => obj.ios || obj.default),
-  },
-  StyleSheet: {
-    create: jest.fn((styles) => styles),
-    hairlineWidth: 1,
-    absoluteFill: {},
-    flatten: jest.fn(),
-  },
-  NativeModules: {
-    RNFBAnalyticsModule: {},
-    RNFBAppModule: {},
-    RNFBAuthModule: {},
-    RNFBDatabaseModule: {},
-    RNFBFirestoreModule: {},
-    RNFBFunctionsModule: {},
-    RNFBMessagingModule: {},
-    RNFBStorageModule: {},
+  };
+}
+
+// ============================================================================
+// ENVIRONMENT CONFIGURATION
+// ============================================================================
+
+// Consistent environment configuration for all test environments
+// This ensures tests behave the same way in CI and local development
+jest.mock("./src/config/env", () => ({
+  env: {
+    FIREBASE_API_KEY: "test-api-key", // pragma: allowlist secret
+    FIREBASE_AUTH_DOMAIN: "test.firebaseapp.com",
+    FIREBASE_PROJECT_ID: "test-project",
+    FIREBASE_STORAGE_BUCKET: "test-project.appspot.com",
+    FIREBASE_MESSAGING_SENDER_ID: "123456789012",
+    FIREBASE_APP_ID: "1:123456789012:web:test123456",
+    ENVIRONMENT: "development",
+    FIREBASE_ENV: "emulator",
   },
 }));
+
+// ============================================================================
+// SVG MOCKS
+// ============================================================================
+
+// Mock react-native-svg - selective mocking to preserve library functionality
+jest.mock("react-native-svg", () => {
+  const React = require("react");
+
+  // Try to get the actual module first, fall back to mocks if unavailable
+  let actualModule;
+  try {
+    actualModule = jest.requireActual("react-native-svg");
+  } catch {
+    // Fallback to basic mocks if actual module is not available
+    actualModule = {};
+  }
+
+  // Create minimal mocks only for components we use
+  const MockedSvg = (props) => React.createElement("Svg", props, props.children);
+  const MockedPath = (props) => React.createElement("Path", props);
+  const MockedCircle = (props) => React.createElement("Circle", props);
+  const MockedG = (props) => React.createElement("G", props, props.children);
+  const MockedLinearGradient = (props) => React.createElement("LinearGradient", props, props.children);
+  const MockedStop = (props) => React.createElement("Stop", props);
+  const MockedDefs = (props) => React.createElement("Defs", props, props.children);
+
+  return {
+    __esModule: true,
+    // Spread actual module first to preserve real functionality
+    ...actualModule,
+    // Override only the specific components we need for testing
+    default: actualModule.default || MockedSvg,
+    Svg: actualModule.Svg || MockedSvg,
+    Path: actualModule.Path || MockedPath,
+    Circle: actualModule.Circle || MockedCircle,
+    G: actualModule.G || MockedG,
+    LinearGradient: actualModule.LinearGradient || MockedLinearGradient,
+    Stop: actualModule.Stop || MockedStop,
+    Defs: actualModule.Defs || MockedDefs,
+  };
+});
 
 // ============================================================================
 // EXPO MOCKS
@@ -192,60 +271,8 @@ jest.mock("@react-native-firebase/auth", () => {
   };
 });
 
-jest.mock("@react-native-firebase/firestore", () => {
-  const mockFirestore = jest.fn(() => ({
-    collection: jest.fn(() => ({
-      doc: jest.fn(() => ({
-        get: jest.fn(() =>
-          Promise.resolve({
-            exists: true,
-            id: "test-id",
-            data: jest.fn(() => ({name: "test"})),
-          })
-        ),
-        set: jest.fn(() => Promise.resolve()),
-        update: jest.fn(() => Promise.resolve()),
-        delete: jest.fn(() => Promise.resolve()),
-        onSnapshot: jest.fn((callback) => {
-          callback({
-            exists: () => true,
-            data: () => ({name: "test"}),
-          });
-          return jest.fn();
-        }),
-      })),
-      where: jest.fn(() => ({
-        get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-        orderBy: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          limit: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          })),
-        })),
-        where: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          limit: jest.fn(() => ({
-            get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-          })),
-        })),
-        limit: jest.fn(() => ({
-          get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-        })),
-      })),
-      get: jest.fn(() => Promise.resolve({size: 0, docs: []})),
-      add: jest.fn(() => Promise.resolve({id: "mock-id"})),
-    })),
-  }));
-
-  return {
-    __esModule: true,
-    default: mockFirestore,
-    FieldValue: {
-      increment: jest.fn(),
-      serverTimestamp: jest.fn(),
-    },
-  };
-});
+// Firestore uses real Firebase emulator for integration testing
+// Tests requiring mocks can override specific modules individually
 
 // Web Firebase messaging mock removed - using React Native Firebase instead
 
@@ -288,37 +315,8 @@ jest.mock("@react-native-firebase/functions", () => {
 // PROJECT SPECIFIC MOCKS
 // ============================================================================
 
-// Mock Firebase config files for React Native Firebase v22
-jest.mock("./src/config/firebase", () => ({
-  auth: {
-    currentUser: null,
-    signInAnonymously: jest.fn(() => Promise.resolve({user: {uid: "test-uid"}})),
-    onAuthStateChanged: jest.fn((callback) => {
-      callback(null);
-      return jest.fn();
-    }),
-  },
-  db: {
-    collection: jest.fn(() => ({
-      doc: jest.fn(() => ({
-        get: jest.fn(() =>
-          Promise.resolve({
-            exists: true,
-            id: "test-id",
-            data: jest.fn(() => ({name: "test"})),
-          })
-        ),
-        set: jest.fn(() => Promise.resolve()),
-        update: jest.fn(() => Promise.resolve()),
-      })),
-    })),
-  },
-  cloudFunctions: {
-    region: jest.fn(() => ({
-      httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({data: {}}))),
-    })),
-  },
-}));
+// Firebase config uses real Firebase emulator for integration testing
+// Individual tests can mock specific services if needed
 
 // Mock AsyncStorage
 jest.mock("@react-native-async-storage/async-storage", () => ({
@@ -326,6 +324,14 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
   setItem: jest.fn(() => Promise.resolve()),
   removeItem: jest.fn(() => Promise.resolve()),
   clear: jest.fn(() => Promise.resolve()),
+}));
+
+// Mock username utilities
+jest.mock("./src/utils/username", () => ({
+  generateRandomUsername: jest.fn(() => Promise.resolve("test_user123")),
+  isUsernameAvailable: jest.fn(() => Promise.resolve(true)),
+  reserveUsername: jest.fn(() => Promise.resolve()),
+  changeUsername: jest.fn(() => Promise.resolve()),
 }));
 
 // Mock react-native-localize
