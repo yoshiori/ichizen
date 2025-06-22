@@ -35,6 +35,7 @@
     "firestore:test": "firebase emulators:exec --only firestore 'jest firestore.rules.test.js'",
     "firestore:test:watch": "firebase emulators:exec --only firestore 'jest --watch firestore.rules.test.js'",
     "prepare": "husky || true",
+    "setup:dev": "node scripts/setup-dev-firebase.js",
     "dev:android": "./scripts/dev-android.sh",
     "android": "turbo run mobile:prebuild:android && cd apps/mobile && expo run:android",
     "ios": "turbo run mobile:prebuild && cd apps/mobile && expo run:ios"
