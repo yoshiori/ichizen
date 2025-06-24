@@ -32,9 +32,10 @@ const createMockDocumentReference = (collectionName, docId) => {
       return Promise.resolve();
     }),
     update: jest.fn(async (data) => {
-      if (mockDocuments[docPath]) {
-        mockDocuments[docPath] = {...mockDocuments[docPath], ...data};
+      if (!mockDocuments[docPath]) {
+        return Promise.reject(new Error(`Mock Firestore: No document to update at path "${docPath}"`));
       }
+      mockDocuments[docPath] = {...mockDocuments[docPath], ...data};
       return Promise.resolve();
     }),
     delete: jest.fn(async () => {
@@ -54,6 +55,9 @@ const createMockCollectionReference = (collectionName) => ({
     return docRef;
   }),
   where: jest.fn(() => ({
+    // NOTE: This is a simplified mock and does not perform actual filtering.
+    // It will always return an empty result set.
+    // For tests requiring query capabilities, this mock will need to be extended.
     where: jest.fn(() => ({
       where: jest.fn(() => ({
         orderBy: jest.fn(() => ({
@@ -181,6 +185,22 @@ const mockFirestore = () => ({
     return mockDocuments[`${collectionName}/${docId}`];
   },
 });
+
+// Mock FieldValue for advanced operations
+export const FieldValue = {
+  serverTimestamp: jest.fn(() => new Date()),
+  delete: jest.fn(() => Symbol("delete")),
+  increment: jest.fn((n) => n),
+  arrayUnion: jest.fn((...items) => items),
+  arrayRemove: jest.fn((...items) => items),
+};
+
+// Mock Timestamp for date handling
+export const Timestamp = {
+  now: jest.fn(() => new Date()),
+  fromDate: jest.fn((date) => date),
+  fromMillis: jest.fn((millis) => new Date(millis)),
+};
 
 // Export with both default and named exports for compatibility
 export default mockFirestore;

@@ -13,10 +13,10 @@ describe("changeUsername - Function Call Spy Testing", () => {
   const currentUsername = "olduser";
   const newUsername = "newuser";
 
-  let userDocRef: any;
-  let newUsernameDocRef: any;
-  let oldUsernameDocRef: any;
-  let batchMock: any;
+  let userDocRef: {get: jest.Mock; update: jest.Mock};
+  let newUsernameDocRef: {get: jest.Mock; set: jest.Mock};
+  let oldUsernameDocRef: {delete: jest.Mock};
+  let batchMock: {set: jest.Mock; update: jest.Mock; delete: jest.Mock; commit: jest.Mock};
 
   beforeEach(() => {
     // Reset all mocks and spies
@@ -50,16 +50,16 @@ describe("changeUsername - Function Call Spy Testing", () => {
       (collectionName: string) =>
         ({
           doc: jest.fn((docId: string) => {
-            if (collectionName === "users" && docId === testUserId) {
-              return userDocRef;
+            switch (`${collectionName}/${docId}`) {
+              case `users/${testUserId}`:
+                return userDocRef;
+              case `usernames/${newUsername}`:
+                return newUsernameDocRef;
+              case `usernames/${currentUsername}`:
+                return oldUsernameDocRef;
+              default:
+                throw new Error(`Unexpected doc reference: ${collectionName}/${docId}`);
             }
-            if (collectionName === "usernames" && docId === newUsername) {
-              return newUsernameDocRef;
-            }
-            if (collectionName === "usernames" && docId === currentUsername) {
-              return oldUsernameDocRef;
-            }
-            throw new Error(`Unexpected doc reference: ${collectionName}/${docId}`);
           }),
         }) as any
     );
