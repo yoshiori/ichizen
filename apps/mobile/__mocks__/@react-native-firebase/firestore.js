@@ -54,6 +54,51 @@ const createMockCollectionReference = (collectionName) => ({
     return docRef;
   }),
   where: jest.fn(() => ({
+    where: jest.fn(() => ({
+      where: jest.fn(() => ({
+        orderBy: jest.fn(() => ({
+          get: jest.fn(() =>
+            Promise.resolve({
+              docs: [],
+              size: 0,
+              empty: true,
+            })
+          ),
+        })),
+        get: jest.fn(() =>
+          Promise.resolve({
+            docs: [],
+            size: 0,
+            empty: true,
+          })
+        ),
+      })),
+      orderBy: jest.fn(() => ({
+        get: jest.fn(() =>
+          Promise.resolve({
+            docs: [],
+            size: 0,
+            empty: true,
+          })
+        ),
+      })),
+      get: jest.fn(() =>
+        Promise.resolve({
+          docs: [],
+          size: 0,
+          empty: true,
+        })
+      ),
+    })),
+    orderBy: jest.fn(() => ({
+      get: jest.fn(() =>
+        Promise.resolve({
+          docs: [],
+          size: 0,
+          empty: true,
+        })
+      ),
+    })),
     get: jest.fn(() =>
       Promise.resolve({
         docs: [],

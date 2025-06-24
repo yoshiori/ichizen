@@ -178,7 +178,7 @@ describe("changeUsername - Function Call Spy Testing", () => {
     await changeUsername(testUserId, newUsername);
 
     // Extract the usernameHistory argument passed to batch.update
-    const updateCall = batchMock.update.mock.calls.find((call) => call[0] === userDocRef);
+    const updateCall = batchMock.update.mock.calls.find((call: any) => call[0] === userDocRef);
     expect(updateCall).toBeDefined();
 
     const updatedData = updateCall[1];
