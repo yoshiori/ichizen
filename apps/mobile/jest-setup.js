@@ -248,68 +248,8 @@ jest.mock("expo-constants", () => ({
 // FIREBASE MOCKS
 // ============================================================================
 
-// Mock React Native Firebase SDK
-jest.mock("@react-native-firebase/app", () => ({
-  firebase: {
-    app: jest.fn(() => ({})),
-  },
-}));
-
-jest.mock("@react-native-firebase/auth", () => {
-  const mockAuth = jest.fn(() => ({
-    currentUser: null,
-    signInAnonymously: jest.fn(() => Promise.resolve({user: {uid: "test-uid"}})),
-    onAuthStateChanged: jest.fn((callback) => {
-      callback(null);
-      return jest.fn();
-    }),
-  }));
-
-  return {
-    __esModule: true,
-    default: mockAuth,
-  };
-});
-
-// Firestore uses real Firebase emulator for integration testing
-// Tests requiring mocks can override specific modules individually
-
-// Web Firebase messaging mock removed - using React Native Firebase instead
-
-// Mock React Native Firebase
-jest.mock("@react-native-firebase/messaging", () => ({
-  __esModule: true,
-  default: () => ({
-    requestPermission: jest.fn(() => Promise.resolve(true)),
-    getToken: jest.fn(() => Promise.resolve("mock-token")),
-    onTokenRefresh: jest.fn(),
-    onMessage: jest.fn(),
-    onNotificationOpenedApp: jest.fn(),
-    getInitialNotification: jest.fn(() => Promise.resolve(null)),
-    setBackgroundMessageHandler: jest.fn(),
-    hasPermission: jest.fn(() => Promise.resolve(true)),
-  }),
-}));
-
-jest.mock("@react-native-firebase/functions", () => {
-  const mockFunctions = jest.fn(() => ({
-    region: jest.fn(() => ({
-      httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({data: {}}))),
-    })),
-    httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({data: {}}))),
-  }));
-
-  // Mock modular API for v22
-  const mockGetFunctions = jest.fn(() => ({}));
-  const mockHttpsCallable = jest.fn(() => jest.fn(() => Promise.resolve({data: {}})));
-
-  return {
-    __esModule: true,
-    default: mockFunctions,
-    getFunctions: mockGetFunctions,
-    httpsCallable: mockHttpsCallable,
-  };
-});
+// All Firebase modules are mocked by files in __mocks__/@react-native-firebase/
+// This provides better organization and easier maintenance
 
 // ============================================================================
 // PROJECT SPECIFIC MOCKS
@@ -326,13 +266,8 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
   clear: jest.fn(() => Promise.resolve()),
 }));
 
-// Mock username utilities
-jest.mock("./src/utils/username", () => ({
-  generateRandomUsername: jest.fn(() => Promise.resolve("test_user123")),
-  isUsernameAvailable: jest.fn(() => Promise.resolve(true)),
-  reserveUsername: jest.fn(() => Promise.resolve()),
-  changeUsername: jest.fn(() => Promise.resolve()),
-}));
+// Username utilities use real Firebase emulator for integration testing
+// Individual tests can mock specific username functions if needed
 
 // Mock react-native-localize
 jest.mock("react-native-localize", () => ({

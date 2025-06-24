@@ -154,6 +154,24 @@ export default [
       "unused-imports/no-unused-vars": "off", // Allow unused vars in test setup
     },
   },
+  // Mock files configuration
+  {
+    files: ["**/__mocks__/**/*.js"],
+    languageOptions: {
+      globals: {
+        jest: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
+        module: "readonly",
+        exports: "readonly",
+        require: "readonly",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // Allow any in mocks
+      "unused-imports/no-unused-vars": "off", // Allow unused vars in mocks
+    },
+  },
   // Global ignores
   {
     ignores: [
