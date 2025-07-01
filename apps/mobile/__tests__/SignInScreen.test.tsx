@@ -347,7 +347,13 @@ describe("SignInScreen Loading UI", () => {
       // Simulate screen transition completion
       mockUseAuth.mockReturnValue({
         signIn: mockSignIn,
-        user: {id: "user123", username: "testuser"},
+        user: {
+          id: "user123",
+          username: "testuser",
+          language: "ja" as const,
+          createdAt: new Date(),
+          lastActiveAt: new Date(),
+        },
         firebaseUser: null,
         loading: false,
         initError: null,
@@ -436,7 +442,13 @@ describe("SignInScreen Loading UI", () => {
       // Simulate screen transition completion
       mockUseAuth.mockReturnValue({
         signIn: mockSignIn,
-        user: {id: "user123", username: "testuser"},
+        user: {
+          id: "user123",
+          username: "testuser",
+          language: "ja" as const,
+          createdAt: new Date(),
+          lastActiveAt: new Date(),
+        },
         firebaseUser: null,
         loading: false,
         initError: null,
