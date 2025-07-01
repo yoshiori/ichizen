@@ -51,7 +51,13 @@ jest.mock("../src/contexts/AuthContext", () => ({
     },
     firebaseUser: {uid: "test-user-id"},
     loading: false,
+    initError: null,
     signIn: jest.fn(),
+    signOut: jest.fn(),
+    refreshUser: jest.fn(),
+    isSigningIn: false,
+    signingInMethod: null,
+    markTransitionComplete: jest.fn(),
   }),
 }));
 

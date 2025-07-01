@@ -1,5 +1,5 @@
 import React, {useState, useMemo, useEffect} from "react";
-import {View, Text, TouchableOpacity, StyleSheet} from "react-native";
+import {View, Text, TouchableOpacity, StyleSheet, InteractionManager} from "react-native";
 import {useTranslation} from "react-i18next";
 
 import {MainScreen} from "../screens/MainScreen";
@@ -76,12 +76,12 @@ export const TabNavigation: React.FC = () => {
   // Notify transition completion when user is authenticated and main content is displayed
   useEffect(() => {
     if (user && !authLoading) {
-      // Add a delay to ensure the UI has fully transitioned
-      const timer = setTimeout(() => {
+      // Use InteractionManager to run task after animations are complete
+      const interaction = InteractionManager.runAfterInteractions(() => {
         markTransitionComplete();
-      }, 300); // Delay to ensure smooth transition
+      });
 
-      return () => clearTimeout(timer);
+      return () => interaction.cancel();
     }
   }, [user, authLoading, markTransitionComplete]);
 

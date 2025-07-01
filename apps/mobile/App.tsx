@@ -1,6 +1,7 @@
 import React, {Suspense} from "react";
 import {View, Text, ActivityIndicator, StyleSheet} from "react-native";
 import "./src/i18n";
+import {useTranslation} from "react-i18next";
 import {ErrorBoundary} from "./src/components/ErrorBoundary";
 import {AuthProvider} from "./src/contexts/AuthContext";
 import {TabNavigation} from "./src/components/TabNavigation";
@@ -16,17 +17,18 @@ const LoadingScreen = () => (
 
 const AppContent = () => {
   const {isSigningIn, signingInMethod} = useAuth();
+  const {t} = useTranslation();
 
   const getLoadingMessage = (method: string) => {
     switch (method) {
       case "google":
-        return "Googleでサインイン中...";
+        return t("signIn.loading.google");
       case "apple":
-        return "Appleでサインイン中...";
+        return t("signIn.loading.apple");
       case "anonymous":
-        return "ゲストとしてサインイン中...";
+        return t("signIn.loading.guest");
       default:
-        return "サインイン中...";
+        return t("signIn.loading");
     }
   };
 
