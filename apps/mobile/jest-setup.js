@@ -1,5 +1,4 @@
 // Import polyfills for Jest environment
-import "react-native-gesture-handler/jestSetup";
 
 // Import i18n test configuration
 import "./src/i18n/test";
@@ -232,11 +231,6 @@ jest.mock("react-native-svg", () => {
 // ============================================================================
 // EXPO MOCKS
 // ============================================================================
-
-// Mock expo-status-bar (no longer used, but keep for compatibility)
-jest.mock("expo-status-bar", () => ({
-  StatusBar: ({children, ...props}) => children,
-}));
 
 // Mock React Native StatusBar
 jest.mock("react-native/Libraries/Components/StatusBar/StatusBar", () => ({
