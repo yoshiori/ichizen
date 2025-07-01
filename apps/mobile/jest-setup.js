@@ -249,13 +249,6 @@ jest.mock("react-native/Libraries/Components/StatusBar/StatusBar", () => ({
   setTranslucent: jest.fn(),
 }));
 
-jest.mock("expo-constants", () => ({
-  default: {
-    debugMode: false,
-    manifest: {},
-  },
-}));
-
 // ============================================================================
 // FIREBASE MOCKS
 // ============================================================================
