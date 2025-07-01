@@ -1,7 +1,6 @@
 import React from "react";
-import {View, ScrollView, StyleSheet, SafeAreaView, Text, TouchableOpacity} from "react-native";
+import {View, ScrollView, StyleSheet, SafeAreaView, Text, TouchableOpacity, StatusBar} from "react-native";
 import {useTranslation} from "react-i18next";
-import {StatusBar} from "expo-status-bar";
 
 import {IllustrationCard} from "../components/IllustrationCard";
 import {DoneFeedback} from "../components/DoneFeedback";
@@ -56,7 +55,7 @@ export const MainScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={styles.contentWrapper}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
