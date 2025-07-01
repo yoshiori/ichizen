@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useEffect, useState, ReactNode, startTransition} from "react";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
+import {InteractionManager} from "react-native";
 import {onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple, signOut} from "../services/auth";
 import {User} from "../types/firebase";
 import {useFCMSetup} from "../hooks/useFCMSetup";
@@ -17,7 +18,6 @@ interface AuthContextType {
   signIn: (method?: AuthMethod) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  markTransitionComplete: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,11 +70,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const markTransitionComplete = () => {
-    setIsSigningIn(false);
-    setSigningInMethod(null);
   };
 
   const handleSignOut = async () => {
@@ -173,6 +168,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     };
   }, []); // Remove dependencies to prevent re-initialization
 
+  // Auto-complete sign-in when user authentication and data initialization are complete
+  useEffect(() => {
+    if (user && !loading && isSigningIn) {
+      // Use InteractionManager to complete sign-in after all animations/interactions finish
+      const interaction = InteractionManager.runAfterInteractions(() => {
+        setIsSigningIn(false);
+        setSigningInMethod(null);
+      });
+
+      return () => interaction.cancel();
+    }
+  }, [user, loading, isSigningIn]);
+
   const value = {
     user,
     firebaseUser,
@@ -183,7 +191,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     signIn,
     signOut: handleSignOut,
     refreshUser,
-    markTransitionComplete,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

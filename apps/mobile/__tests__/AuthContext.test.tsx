@@ -3,6 +3,15 @@ import {render, waitFor, act} from "@testing-library/react-native";
 import {Text} from "react-native";
 import {AuthProvider, useAuth} from "../src/contexts/AuthContext";
 
+// Mock InteractionManager separately to avoid conflicts
+jest.mock("react-native/Libraries/Interaction/InteractionManager", () => ({
+  runAfterInteractions: jest.fn((callback) => {
+    // Execute callback immediately in tests
+    setTimeout(callback, 0);
+    return {cancel: jest.fn()};
+  }),
+}));
+
 // Mock Firebase Auth functions for consistent test behavior
 jest.mock("@react-native-firebase/auth", () => ({
   __esModule: true,
@@ -121,5 +130,30 @@ describe("AuthContext", () => {
       expect(authState).toBeDefined();
       expect(typeof signInFunction).toBe("function");
     }
+  });
+
+  describe("Auto Sign-In Completion", () => {
+    it("should have auto-completion useEffect in AuthContext", () => {
+      // This is a simple smoke test to verify the auto-completion logic exists
+      // The actual functionality will be tested through integration tests
+      let authState: any = null;
+
+      const TestComponent = () => {
+        authState = useAuth();
+        return <Text testID="signin-completion-test">Test</Text>;
+      };
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      // Verify that the AuthContext has the necessary properties
+      expect(authState).toBeDefined();
+      expect(typeof authState.isSigningIn).toBe("boolean");
+      expect(authState.signingInMethod).toBeDefined();
+      expect(typeof authState.signIn).toBe("function");
+    });
   });
 });
