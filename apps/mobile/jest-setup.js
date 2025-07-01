@@ -1,5 +1,4 @@
 // Import polyfills for Jest environment
-import "react-native-gesture-handler/jestSetup";
 
 // Import i18n test configuration
 import "./src/i18n/test";
@@ -233,15 +232,15 @@ jest.mock("react-native-svg", () => {
 // EXPO MOCKS
 // ============================================================================
 
-jest.mock("expo-status-bar", () => ({
-  StatusBar: ({children, ...props}) => children,
-}));
-
-jest.mock("expo-constants", () => ({
-  default: {
-    debugMode: false,
-    manifest: {},
-  },
+// Mock React Native StatusBar
+jest.mock("react-native/Libraries/Components/StatusBar/StatusBar", () => ({
+  __esModule: true,
+  default: jest.fn(() => null),
+  setBarStyle: jest.fn(),
+  setBackgroundColor: jest.fn(),
+  setHidden: jest.fn(),
+  setNetworkActivityIndicatorVisible: jest.fn(),
+  setTranslucent: jest.fn(),
 }));
 
 // ============================================================================

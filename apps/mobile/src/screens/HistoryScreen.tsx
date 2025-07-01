@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  StatusBar,
 } from "react-native";
 import {useTranslation} from "react-i18next";
-import {StatusBar} from "expo-status-bar";
 
 import {useAuth} from "../contexts/AuthContext";
 import {Language} from "../types";
@@ -52,7 +52,7 @@ export const HistoryScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Header */}
       <View style={styles.header}>
