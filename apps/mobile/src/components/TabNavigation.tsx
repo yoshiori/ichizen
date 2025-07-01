@@ -1,5 +1,5 @@
-import React, {useState, useMemo, useEffect} from "react";
-import {View, Text, TouchableOpacity, StyleSheet, InteractionManager} from "react-native";
+import React, {useState, useMemo} from "react";
+import {View, Text, TouchableOpacity, StyleSheet} from "react-native";
 import {useTranslation} from "react-i18next";
 
 import {MainScreen} from "../screens/MainScreen";
@@ -27,7 +27,7 @@ const COLORS = {
 
 export const TabNavigation: React.FC = () => {
   const {t} = useTranslation();
-  const {user, loading: authLoading, markTransitionComplete} = useAuth();
+  const {user, loading: authLoading} = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>("home");
 
   const tabs: Tab[] = useMemo(
@@ -72,18 +72,6 @@ export const TabNavigation: React.FC = () => {
       </View>
     );
   }
-
-  // Notify transition completion when user is authenticated and main content is displayed
-  useEffect(() => {
-    if (user && !authLoading) {
-      // Use InteractionManager to run task after animations are complete
-      const interaction = InteractionManager.runAfterInteractions(() => {
-        markTransitionComplete();
-      });
-
-      return () => interaction.cancel();
-    }
-  }, [user, authLoading, markTransitionComplete]);
 
   // Show sign in screen if no user
   if (!user) {

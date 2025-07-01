@@ -108,7 +108,6 @@ describe("HistoryScreen", () => {
       refreshUser: jest.fn(),
       isSigningIn: false,
       signingInMethod: null,
-      markTransitionComplete: jest.fn(),
     });
 
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([]);
@@ -180,7 +179,6 @@ describe("HistoryScreen", () => {
       refreshUser: jest.fn(),
       isSigningIn: false,
       signingInMethod: null,
-      markTransitionComplete: jest.fn(),
     });
 
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([]);
@@ -374,7 +372,6 @@ describe("HistoryScreen", () => {
       refreshUser: jest.fn(),
       isSigningIn: false,
       signingInMethod: null,
-      markTransitionComplete: jest.fn(),
     });
 
     render(<HistoryScreen />);
@@ -416,7 +413,6 @@ describe("HistoryScreen", () => {
       refreshUser: jest.fn(),
       isSigningIn: false,
       signingInMethod: null,
-      markTransitionComplete: jest.fn(),
     });
 
     mockGetUserTaskHistoryWithTasks.mockResolvedValue([mockHistoryEntry]);

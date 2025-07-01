@@ -57,7 +57,6 @@ jest.mock("../src/contexts/AuthContext", () => ({
     refreshUser: jest.fn(),
     isSigningIn: false,
     signingInMethod: null,
-    markTransitionComplete: jest.fn(),
   }),
 }));
 

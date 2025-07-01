@@ -52,7 +52,6 @@ describe("SignInScreen Loading UI", () => {
       signingInMethod: null,
       signOut: jest.fn(),
       refreshUser: jest.fn(),
-      markTransitionComplete: jest.fn(),
     });
   });
 
@@ -73,7 +72,6 @@ describe("SignInScreen Loading UI", () => {
           signingInMethod: "google",
           signOut: jest.fn(),
           refreshUser: jest.fn(),
-          markTransitionComplete: jest.fn(),
         });
         return new Promise(() => {}); // Never resolves
       });
@@ -121,7 +119,6 @@ describe("SignInScreen Loading UI", () => {
           signingInMethod: "apple",
           signOut: jest.fn(),
           refreshUser: jest.fn(),
-          markTransitionComplete: jest.fn(),
         });
         return new Promise(() => {});
       });
@@ -164,7 +161,6 @@ describe("SignInScreen Loading UI", () => {
           signingInMethod: "anonymous",
           signOut: jest.fn(),
           refreshUser: jest.fn(),
-          markTransitionComplete: jest.fn(),
         });
         return new Promise(() => {});
       });
@@ -272,7 +268,6 @@ describe("SignInScreen Loading UI", () => {
         signingInMethod: "google",
         signOut: jest.fn(),
         refreshUser: jest.fn(),
-        markTransitionComplete: jest.fn(),
       });
 
       rerender(<SignInScreen />);
@@ -302,7 +297,6 @@ describe("SignInScreen Loading UI", () => {
           signingInMethod: "anonymous",
           signOut: jest.fn(),
           refreshUser: jest.fn(),
-          markTransitionComplete: jest.fn(),
         });
 
         return new Promise<void>((resolve) => {
@@ -361,7 +355,6 @@ describe("SignInScreen Loading UI", () => {
         signingInMethod: null,
         signOut: jest.fn(),
         refreshUser: jest.fn(),
-        markTransitionComplete: jest.fn(),
       });
 
       // Re-render with transition completed
@@ -396,7 +389,6 @@ describe("SignInScreen Loading UI", () => {
           signingInMethod: "anonymous",
           signOut: jest.fn(),
           refreshUser: jest.fn(),
-          markTransitionComplete: jest.fn(),
         });
 
         return new Promise<void>((resolve) => {
@@ -456,7 +448,6 @@ describe("SignInScreen Loading UI", () => {
         signingInMethod: null,
         signOut: jest.fn(),
         refreshUser: jest.fn(),
-        markTransitionComplete: jest.fn(),
       });
 
       // Re-render with transition completed
