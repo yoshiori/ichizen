@@ -11,7 +11,7 @@ const SignInScreen: React.FC = () => {
   // Computed property for button disabled state
   const isButtonDisabled = loading || signingInMethod !== null;
 
-  const getLoadingMessage = (method: string) => {
+  const getLoadingMessage = (method: AuthMethod) => {
     switch (method) {
       case "google":
         return t("signIn.loading.google");
@@ -82,6 +82,7 @@ const SignInScreen: React.FC = () => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
+          testID="google-signin-button"
           style={getButtonStyle("google")}
           onPress={() => handleSignIn("google")}
           disabled={isButtonDisabled}
@@ -91,6 +92,7 @@ const SignInScreen: React.FC = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="apple-signin-button"
           style={getButtonStyle("apple")}
           onPress={() => handleSignIn("apple")}
           disabled={isButtonDisabled}
@@ -100,6 +102,7 @@ const SignInScreen: React.FC = () => {
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="guest-signin-button"
           style={getButtonStyle("anonymous")}
           onPress={() => handleSignIn("anonymous")}
           disabled={isButtonDisabled}

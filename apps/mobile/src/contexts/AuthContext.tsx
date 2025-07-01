@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
           await signInAnonymous();
           break;
       }
-      // Don't call setLoading(false) here - let onAuthStateChange handle it
+      // On success, let onAuthStateChange handle loading state to prevent race conditions
     } catch (error) {
       console.error("Sign in error:", error);
       setSigningInMethod(null); // Reset on error
