@@ -2,13 +2,27 @@ import React from "react";
 import {View, Text, TouchableOpacity, StyleSheet, Alert} from "react-native";
 import {useAuth, AuthMethod} from "../contexts/AuthContext";
 import {useTranslation} from "react-i18next";
+import {GlobalLoadingOverlay} from "../components/GlobalLoadingOverlay";
 
 const SignInScreen: React.FC = () => {
-  const {signIn, loading, signingInMethod} = useAuth();
+  const {signIn, loading, signingInMethod, isSigningIn} = useAuth();
   const {t} = useTranslation();
 
   // Computed property for button disabled state
   const isButtonDisabled = loading || signingInMethod !== null;
+
+  const getLoadingMessage = (method: string) => {
+    switch (method) {
+      case "google":
+        return t("signIn.loading.google");
+      case "apple":
+        return t("signIn.loading.apple");
+      case "anonymous":
+        return t("signIn.loading.guest");
+      default:
+        return t("signIn.loading");
+    }
+  };
 
   const handleSignIn = async (method: AuthMethod) => {
     try {
@@ -96,6 +110,11 @@ const SignInScreen: React.FC = () => {
       </View>
 
       <Text style={styles.footer}>{t("signIn.privacy")}</Text>
+
+      <GlobalLoadingOverlay
+        visible={isSigningIn}
+        message={signingInMethod ? getLoadingMessage(signingInMethod) : undefined}
+      />
     </View>
   );
 };

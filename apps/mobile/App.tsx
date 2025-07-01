@@ -1,12 +1,9 @@
 import React, {Suspense} from "react";
 import {View, Text, ActivityIndicator, StyleSheet} from "react-native";
 import "./src/i18n";
-import {useTranslation} from "react-i18next";
 import {ErrorBoundary} from "./src/components/ErrorBoundary";
 import {AuthProvider} from "./src/contexts/AuthContext";
 import {TabNavigation} from "./src/components/TabNavigation";
-import {GlobalLoadingOverlay} from "./src/components/GlobalLoadingOverlay";
-import {useAuth} from "./src/contexts/AuthContext";
 
 const LoadingScreen = () => (
   <View style={styles.loadingContainer}>
@@ -16,31 +13,7 @@ const LoadingScreen = () => (
 );
 
 const AppContent = () => {
-  const {isSigningIn, signingInMethod} = useAuth();
-  const {t} = useTranslation();
-
-  const getLoadingMessage = (method: string) => {
-    switch (method) {
-      case "google":
-        return t("signIn.loading.google");
-      case "apple":
-        return t("signIn.loading.apple");
-      case "anonymous":
-        return t("signIn.loading.guest");
-      default:
-        return t("signIn.loading");
-    }
-  };
-
-  return (
-    <>
-      <TabNavigation />
-      <GlobalLoadingOverlay
-        visible={isSigningIn}
-        message={signingInMethod ? getLoadingMessage(signingInMethod) : undefined}
-      />
-    </>
-  );
+  return <TabNavigation />;
 };
 
 export default function App() {
