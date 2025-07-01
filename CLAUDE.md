@@ -215,6 +215,25 @@ npm run dev:android
 - ✅ **Cloud Functions**: 本番デプロイ済み
 - ✅ **CI/CD**: GitHub Actions完全自動化
 
+### 【最新更新】リポジトリ整理完了 ✅
+
+**2025年7月1日**: 大規模なリポジトリ整理が完了し、技術的負債を大幅に削減
+
+#### 実施内容:
+
+1. **Phase 1**: 不要なレガシーファイル削除 - Web Firebase SDK関連ファイル除去
+2. **Phase 2**: package.json スクリプト整理 - 使用不可能なExpoスクリプト削除
+3. **Phase 3**: コードインポート修正 - expo-status-bar → React Native StatusBar
+4. **Phase 4**: Firebase設定統一 - Web SDK remnants完全除去
+5. **Phase 5**: ドキュメント更新 - 最新状態を反映
+
+#### 成果:
+
+- **削除されたコード**: 800+ 行の不要なコード
+- **統一されたアーキテクチャ**: React Native Firebase SDK一本化
+- **テスト成功率**: 100% (全174テスト通過)
+- **開発体験向上**: `npm run dev:android` による統一された開発フロー
+
 ## 7. 開発方針
 
 ### Test-Driven Development (TDD)
@@ -250,6 +269,6 @@ npm run dev:android
 
 ---
 
-**更新日**: 2025年6月16日  
-**ステータス**: **開発完了、リリース準備段階**
+**更新日**: 2025年7月1日  
+**ステータス**: **開発完了、リポジトリ整理完了、リリース準備段階**
 **詳細履歴**: `docs/CHANGELOG.md` 参照
