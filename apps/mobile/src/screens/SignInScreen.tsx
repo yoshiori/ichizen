@@ -1,30 +1,23 @@
-import React, {useState} from "react";
+import React from "react";
 import {View, Text, TouchableOpacity, StyleSheet, Alert} from "react-native";
 import {useAuth, AuthMethod} from "../contexts/AuthContext";
 import {useTranslation} from "react-i18next";
 
 const SignInScreen: React.FC = () => {
-  const {signIn} = useAuth();
+  const {signIn, isSigningIn} = useAuth();
   const {t} = useTranslation();
-  const [loading, setLoading] = useState<AuthMethod | null>(null);
 
   const handleSignIn = async (method: AuthMethod) => {
     try {
-      setLoading(method);
       await signIn(method);
+      // Global loading overlay will handle the loading state
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : t("signIn.error.general");
       Alert.alert(t("signIn.error.title"), errorMessage);
-    } finally {
-      setLoading(null);
     }
   };
 
   const getButtonText = (method: AuthMethod) => {
-    if (loading === method) {
-      return t("signIn.loading");
-    }
-
     switch (method) {
       case "google":
         return t("signIn.google");
@@ -74,17 +67,13 @@ const SignInScreen: React.FC = () => {
         <TouchableOpacity
           style={getButtonStyle("google")}
           onPress={() => handleSignIn("google")}
-          disabled={loading !== null}
+          disabled={isSigningIn}
         >
           <Text style={styles.buttonIcon}>🌐</Text>
           <Text style={getTextStyle("google")}>{getButtonText("google")}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={getButtonStyle("apple")}
-          onPress={() => handleSignIn("apple")}
-          disabled={loading !== null}
-        >
+        <TouchableOpacity style={getButtonStyle("apple")} onPress={() => handleSignIn("apple")} disabled={isSigningIn}>
           <Text style={styles.buttonIcon}>🍎</Text>
           <Text style={getTextStyle("apple")}>{getButtonText("apple")}</Text>
         </TouchableOpacity>
@@ -92,7 +81,7 @@ const SignInScreen: React.FC = () => {
         <TouchableOpacity
           style={getButtonStyle("anonymous")}
           onPress={() => handleSignIn("anonymous")}
-          disabled={loading !== null}
+          disabled={isSigningIn}
         >
           <Text style={styles.buttonIcon}>👤</Text>
           <Text style={getTextStyle("anonymous")}>{getButtonText("anonymous")}</Text>

@@ -12,9 +12,12 @@ interface AuthContextType {
   firebaseUser: FirebaseAuthTypes.User | null;
   loading: boolean;
   initError: string | null;
+  isSigningIn: boolean;
+  signingInMethod: AuthMethod | null;
   signIn: (method?: AuthMethod) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  markTransitionComplete: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +38,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [signingInMethod, setSigningInMethod] = useState<AuthMethod | null>(null);
 
   // Custom hooks for separated concerns
   const {user, initError, initializeUserData, clearUser} = useUserInitialization();
@@ -43,6 +48,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
   const signIn = async (method: AuthMethod = "anonymous") => {
     try {
       setLoading(true);
+      setIsSigningIn(true);
+      setSigningInMethod(method);
       switch (method) {
         case "google":
           await signInWithGoogle();
@@ -57,10 +64,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
       }
     } catch (error) {
       console.error("Sign in error:", error);
+      setIsSigningIn(false); // Reset on error
+      setSigningInMethod(null);
       throw error; // Re-throw to allow UI to handle specific errors
     } finally {
       setLoading(false);
     }
+  };
+
+  const markTransitionComplete = () => {
+    setIsSigningIn(false);
+    setSigningInMethod(null);
   };
 
   const handleSignOut = async () => {
@@ -164,9 +178,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     firebaseUser,
     loading,
     initError: authError || initError, // Combine auth errors and user init errors
+    isSigningIn,
+    signingInMethod,
     signIn,
     signOut: handleSignOut,
     refreshUser,
+    markTransitionComplete,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

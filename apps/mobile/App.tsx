@@ -4,6 +4,8 @@ import "./src/i18n";
 import {ErrorBoundary} from "./src/components/ErrorBoundary";
 import {AuthProvider} from "./src/contexts/AuthContext";
 import {TabNavigation} from "./src/components/TabNavigation";
+import {GlobalLoadingOverlay} from "./src/components/GlobalLoadingOverlay";
+import {useAuth} from "./src/contexts/AuthContext";
 
 const LoadingScreen = () => (
   <View style={styles.loadingContainer}>
@@ -12,12 +14,39 @@ const LoadingScreen = () => (
   </View>
 );
 
+const AppContent = () => {
+  const {isSigningIn, signingInMethod} = useAuth();
+
+  const getLoadingMessage = (method: string) => {
+    switch (method) {
+      case "google":
+        return "Googleでサインイン中...";
+      case "apple":
+        return "Appleでサインイン中...";
+      case "anonymous":
+        return "ゲストとしてサインイン中...";
+      default:
+        return "サインイン中...";
+    }
+  };
+
+  return (
+    <>
+      <TabNavigation />
+      <GlobalLoadingOverlay
+        visible={isSigningIn}
+        message={signingInMethod ? getLoadingMessage(signingInMethod) : undefined}
+      />
+    </>
+  );
+};
+
 export default function App() {
   return (
     <ErrorBoundary>
       <Suspense fallback={<LoadingScreen />}>
         <AuthProvider>
-          <TabNavigation />
+          <AppContent />
         </AuthProvider>
       </Suspense>
     </ErrorBoundary>
