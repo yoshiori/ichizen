@@ -83,7 +83,6 @@
     "loading.apple": "Signing in with Apple...",
     "loading.guest": "Signing in as guest...",
     "privacy": "By continuing, you agree to our terms of service and privacy policy.",
-    "disclaimer": "By continuing, you agree to our terms of service and privacy policy.",
     "error": {
       "title": "Sign-In Error",
       "general": "Sign-in failed",
