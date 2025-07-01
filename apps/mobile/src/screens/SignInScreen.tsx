@@ -4,8 +4,11 @@ import {useAuth, AuthMethod} from "../contexts/AuthContext";
 import {useTranslation} from "react-i18next";
 
 const SignInScreen: React.FC = () => {
-  const {signIn, isSigningIn} = useAuth();
+  const {signIn, loading, signingInMethod} = useAuth();
   const {t} = useTranslation();
+
+  // Computed property for button disabled state
+  const isButtonDisabled = loading || signingInMethod !== null;
 
   const handleSignIn = async (method: AuthMethod) => {
     try {
@@ -67,13 +70,17 @@ const SignInScreen: React.FC = () => {
         <TouchableOpacity
           style={getButtonStyle("google")}
           onPress={() => handleSignIn("google")}
-          disabled={isSigningIn}
+          disabled={isButtonDisabled}
         >
           <Text style={styles.buttonIcon}>🌐</Text>
           <Text style={getTextStyle("google")}>{getButtonText("google")}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={getButtonStyle("apple")} onPress={() => handleSignIn("apple")} disabled={isSigningIn}>
+        <TouchableOpacity
+          style={getButtonStyle("apple")}
+          onPress={() => handleSignIn("apple")}
+          disabled={isButtonDisabled}
+        >
           <Text style={styles.buttonIcon}>🍎</Text>
           <Text style={getTextStyle("apple")}>{getButtonText("apple")}</Text>
         </TouchableOpacity>
@@ -81,7 +88,7 @@ const SignInScreen: React.FC = () => {
         <TouchableOpacity
           style={getButtonStyle("anonymous")}
           onPress={() => handleSignIn("anonymous")}
-          disabled={isSigningIn}
+          disabled={isButtonDisabled}
         >
           <Text style={styles.buttonIcon}>👤</Text>
           <Text style={getTextStyle("anonymous")}>{getButtonText("anonymous")}</Text>

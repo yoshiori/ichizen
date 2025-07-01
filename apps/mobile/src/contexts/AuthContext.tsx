@@ -38,8 +38,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [isSigningIn, setIsSigningIn] = useState(false);
   const [signingInMethod, setSigningInMethod] = useState<AuthMethod | null>(null);
+
+  // Computed property: derive signing in state from signing in method
+  const isSigningIn = signingInMethod !== null;
 
   // Custom hooks for separated concerns
   const {user, initError, initializeUserData, clearUser} = useUserInitialization();
@@ -47,8 +49,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
   const signIn = async (method: AuthMethod = "anonymous") => {
     try {
-      setLoading(true);
-      setIsSigningIn(true);
       setSigningInMethod(method);
       switch (method) {
         case "google":
@@ -65,8 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
       // Don't call setLoading(false) here - let onAuthStateChange handle it
     } catch (error) {
       console.error("Sign in error:", error);
-      setIsSigningIn(false); // Reset on error
-      setSigningInMethod(null);
+      setSigningInMethod(null); // Reset on error
       setLoading(false); // Only reset loading on error
       throw error; // Re-throw to allow UI to handle specific errors
     }
@@ -170,16 +169,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
   // Auto-complete sign-in when user authentication and data initialization are complete
   useEffect(() => {
-    if (user && !loading && isSigningIn) {
+    if (user && signingInMethod !== null) {
       // Use InteractionManager to complete sign-in after all animations/interactions finish
       const interaction = InteractionManager.runAfterInteractions(() => {
-        setIsSigningIn(false);
         setSigningInMethod(null);
       });
 
       return () => interaction.cancel();
     }
-  }, [user, loading, isSigningIn]);
+  }, [user, signingInMethod]);
 
   const value = {
     user,
