@@ -115,29 +115,32 @@ npm run functions:dev       # Cloud Functionsのみ
 npm run functions:deploy    # 関数デプロイ
 ```
 
-### Standalone App 開発フロー
+### エミュレータでの開発フロー
 
-#### 🚨 **重要: キャッシュ問題の回避**
+#### 🚀 **推奨: npm run dev:android コマンド**
 
-React Native + Firebase SDK環境では、コード変更が正しく反映されないキャッシュ問題が頻発します。
-
-**症状:**
-
-- コード変更したのに動作が変わらない
-- バンドルハッシュが同じまま（変更が反映されていない証拠）
-- 古いビルドが残り続ける
-
-**解決法: 必ずクリーンビルドを実行**
+エミュレータでの動作確認は、以下のコマンドを使用してください：
 
 ```bash
-# ⚠️ 通常ビルド（キャッシュ問題発生しやすい）
-NODE_ENV=production npx expo export --platform android
-
-# ✅ 推奨: クリーンビルド（確実に最新反映）
-rm -rf dist/ && npx expo export --clear --platform android
+npm run dev:android
 ```
 
-#### 標準開発フロー
+このコマンドは以下を自動的に実行します：
+
+- Firebase エミュレータの起動（Firestore, Auth, Functions）
+- Android エミュレータの起動
+- アプリのビルド・インストール・起動
+- 全てのプロセスの監視
+
+**注意事項:**
+
+- このコマンドは終了時にエミュレータも停止します
+- Firebase エミュレータが既に起動している場合はエラーになります
+- 別プロセスで実行する場合は、先に既存のFirebaseエミュレータを停止してください
+
+#### 手動での Standalone App 開発フロー
+
+`npm run dev:android` を使用せず、手動でビルド・テストする場合：
 
 ```bash
 # 1. クリーンな Bundle 生成（必須）
@@ -184,19 +187,13 @@ npm run mobile:ios:build                  # iOS archive作成
 ### Firebase エミュレータでの開発
 
 ```bash
-# 1. Firebase エミュレータ起動（別ターミナル）
-npx firebase emulators:start --only firestore,auth,functions
+# 推奨: 自動化されたコマンドを使用
+npm run dev:android
 
-# 2. エミュレータ用環境変数設定
-# .env ファイルで EXPO_PUBLIC_FIREBASE_ENV=emulator に変更
-
-# 3. Standalone App ビルド・インストール（上記手順と同じ）
-NODE_ENV=production npx expo export --platform android
-npx expo prebuild --platform android --clean
-cp dist/_expo/static/js/android/index-*.hbc android/app/src/main/assets/index.android.bundle
-cd android && ./gradlew assembleDebug --no-configuration-cache
-adb install android/app/build/outputs/apk/debug/app-debug.apk
-adb shell am start -n dev.yoshiori.ichizen/.MainActivity
+# このコマンドが全て自動で実行します：
+# - Firebase エミュレータの起動
+# - Android エミュレータの起動
+# - アプリのビルド・インストール・起動
 ```
 
 **エミュレータUI:** http://127.0.0.1:4002/

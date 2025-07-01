@@ -136,7 +136,7 @@ node scripts/setup-initial-data.js
 cd apps/mobile
 # Edit .env: FIREBASE_ENV=emulator
 
-# Build and run Android app with emulators
+# Build and run Android app with emulators (recommended)
 npm run dev:android
 
 # Build and test Standalone App

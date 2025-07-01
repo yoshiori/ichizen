@@ -27,6 +27,22 @@ npm install -g firebase-tools
 
 **完全なFirebaseエミュレータ開発環境を構築:**
 
+#### 🚀 推奨: 自動化されたAndroid開発環境
+
+```bash
+# すべてを自動実行（エミュレータ起動 → アプリビルド → 起動）
+npm run dev:android
+```
+
+このコマンドは以下を自動的に実行します：
+
+- Firebase エミュレータの起動（Firestore, Auth, Functions）
+- Android エミュレータの起動
+- アプリのビルド・インストール・起動
+- 開発環境完了通知
+
+#### 手動セットアップ（個別実行）
+
 ```bash
 # 1. Firebase エミュレータ起動 (別ターミナル)
 npx firebase emulators:start --only firestore,auth,functions
@@ -85,6 +101,7 @@ npm run typecheck          # TypeScript validation all packages
 npm run format              # Format code with Prettier
 
 # Mobile Platform Development
+npm run dev:android         # Android開発環境一括起動（エミュレータ + アプリ）
 npm run android             # Android: prebuild → expo run:android
 npm run ios                 # iOS: prebuild → expo run:ios
 

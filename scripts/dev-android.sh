@@ -26,7 +26,16 @@ cleanup() {
 # Setup cleanup handler for Ctrl+C
 trap cleanup INT TERM EXIT
 
-# 1. Start Firebase emulators in background
+# 1. Check if Firebase emulators are already running
+echo "🔥 Checking Firebase emulators..."
+if curl -s http://localhost:8080 > /dev/null 2>&1; then
+    echo "⚠️  Firebase emulators are already running!"
+    echo "  - Please stop them first with: npx firebase emulators:stop"
+    echo "  - Or kill the process using port 8080"
+    exit 1
+fi
+
+# Start Firebase emulators in background
 echo "🔥 Starting Firebase emulators..."
 npx firebase emulators:start --only firestore,auth,functions > firebase-emulator.log 2>&1 &
 FIREBASE_PID=$!
