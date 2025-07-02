@@ -3,14 +3,17 @@ import {render, waitFor, fireEvent} from "@testing-library/react-native";
 import {FollowScreen} from "../src/screens/FollowScreen";
 import {useAuth} from "../src/contexts/AuthContext";
 import * as firestoreService from "../src/services/firestore";
+import * as usernameUtils from "../src/utils/username";
 import "../src/i18n/test";
 
 // Mock dependencies
 jest.mock("../src/contexts/AuthContext");
 jest.mock("../src/services/firestore");
+jest.mock("../src/utils/username");
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockFirestoreService = firestoreService as jest.Mocked<typeof firestoreService>;
+const mockUsernameUtils = usernameUtils as jest.Mocked<typeof usernameUtils>;
 
 // Access jest-setup.js configured Alert mock
 import {Alert} from "react-native";
@@ -77,6 +80,10 @@ describe("FollowScreen", () => {
     mockFirestoreService.followUser.mockResolvedValue(undefined);
     mockFirestoreService.unfollowUser.mockResolvedValue(undefined);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
+
+    // Default username utils mocks
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue(null);
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(null);
   });
 
   it("should render follow screen when user is authenticated", async () => {
@@ -85,7 +92,7 @@ describe("FollowScreen", () => {
     await waitFor(() => {
       expect(getByText("フォロー管理")).toBeTruthy();
       expect(getByText("あなたのユーザーID")).toBeTruthy();
-      expect(getByText("test-user-id")).toBeTruthy();
+      expect(getByText("test_user")).toBeTruthy();
       expect(getByText("ユーザーをフォロー")).toBeTruthy();
     });
   });
@@ -108,12 +115,12 @@ describe("FollowScreen", () => {
     expect(getByText("ログインが必要です")).toBeTruthy();
   });
 
-  it("should display user ID and hint message", async () => {
+  it("should display username and hint message", async () => {
     const {getByText} = render(<FollowScreen />);
 
     await waitFor(() => {
-      expect(getByText("test-user-id")).toBeTruthy();
-      expect(getByText("このIDを友達に共有してフォローしてもらいましょう")).toBeTruthy();
+      expect(getByText("test_user")).toBeTruthy();
+      expect(getByText("このユーザー名を友達に共有してフォローしてもらいましょう")).toBeTruthy();
     });
   });
 
@@ -125,8 +132,8 @@ describe("FollowScreen", () => {
 
     await waitFor(() => {
       expect(mockFirestoreService.getFollowing).toHaveBeenCalledWith("test-user-id");
-      // FollowScreen displays user ID, not username
-      expect(getByText("other-user-id")).toBeTruthy();
+      // FollowScreen now displays username, not user ID
+      expect(getByText("other_user")).toBeTruthy();
     });
   });
 
@@ -143,17 +150,17 @@ describe("FollowScreen", () => {
   it("should handle input changes in follow user field", async () => {
     const {getByDisplayValue, getByPlaceholderText} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "new-user-id");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "new_username");
 
-    expect(getByDisplayValue("new-user-id")).toBeTruthy();
+    expect(getByDisplayValue("new_username")).toBeTruthy();
   });
 
   it("should prevent following self", async () => {
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "test-user-id");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "test_user");
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
@@ -164,53 +171,60 @@ describe("FollowScreen", () => {
   });
 
   it("should handle following non-existent user", async () => {
-    mockFirestoreService.getUser.mockResolvedValue(null);
+    // Mock that username doesn't exist
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue(null);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "nonexistent-user");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "nonexistent_user");
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
-      expect(mockFirestoreService.getUser).toHaveBeenCalledWith("nonexistent-user");
+      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("nonexistent_user");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "ユーザーが見つかりません");
     });
   });
 
   it("should handle following already followed user", async () => {
+    // Mock username lookup and following check
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
     mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(true);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "other-user-id");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "other_user");
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
+      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("other_user");
       expect(mockFirestoreService.isFollowing).toHaveBeenCalledWith("test-user-id", "other-user-id");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "すでにフォローしています");
     });
   });
 
   it("should successfully follow a user", async () => {
+    // Mock username lookup and successful follow
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
     mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "other-user-id");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "other_user");
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
+      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("other_user");
       expect(mockFirestoreService.followUser).toHaveBeenCalledWith("test-user-id", "other-user-id");
       expect(mockAlert).toHaveBeenCalledWith("成功", "ユーザーをフォローしました");
     });
@@ -253,14 +267,16 @@ describe("FollowScreen", () => {
   });
 
   it("should handle errors during follow operation", async () => {
+    // Mock username lookup and failed follow
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
     mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
     mockFirestoreService.followUser.mockRejectedValue(new Error("Network error"));
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "other-user-id");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "other_user");
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
@@ -308,13 +324,15 @@ describe("FollowScreen", () => {
   });
 
   it("should clear input field after successful follow", async () => {
+    // Mock username lookup and successful follow
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
     mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
 
     const {getByPlaceholderText, getByText, queryByDisplayValue} = render(<FollowScreen />);
 
-    const input = getByPlaceholderText("ユーザーIDを入力");
-    fireEvent.changeText(input, "other-user-id");
+    const input = getByPlaceholderText("ユーザー名を入力");
+    fireEvent.changeText(input, "other_user");
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
@@ -326,7 +344,7 @@ describe("FollowScreen", () => {
 
     // Then check input field is cleared
     await waitFor(() => {
-      expect(queryByDisplayValue("other-user-id")).toBeNull();
+      expect(queryByDisplayValue("other_user")).toBeNull();
     });
   });
 });
