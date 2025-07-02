@@ -73,14 +73,19 @@
     "authRequired": "ログインが必要です"
   },
   "signIn": {
+    "title": "いちぜん",
     "subtitle": "世界をより良くする小さな一歩を始めましょう",
     "google": "Googleでサインイン",
     "apple": "Appleでサインイン",
     "anonymous": "ゲストとして続行",
     "loading": "サインイン中...",
-    "disclaimer": "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。",
+    "loading.google": "Googleでサインイン中...",
+    "loading.apple": "Appleでサインイン中...",
+    "loading.guest": "ゲストとしてサインイン中...",
+    "privacy": "続行することで、利用規約とプライバシーポリシーに同意したものとみなされます。",
     "error": {
       "title": "サインインエラー",
+      "general": "サインインに失敗しました",
       "google": "Googleサインインに失敗しました。もう一度お試しください。",
       "apple": "Appleサインインに失敗しました。もう一度お試しください。",
       "anonymous": "ゲストサインインに失敗しました。もう一度お試しください。"

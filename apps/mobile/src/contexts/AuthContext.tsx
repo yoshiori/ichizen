@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useEffect, useState, ReactNode, startTransition} from "react";
 import {FirebaseAuthTypes} from "@react-native-firebase/auth";
+import {InteractionManager} from "react-native";
 import {onAuthStateChange, signInAnonymous, signInWithGoogle, signInWithApple, signOut} from "../services/auth";
 import {User} from "../types/firebase";
 import {useFCMSetup} from "../hooks/useFCMSetup";
@@ -12,6 +13,8 @@ interface AuthContextType {
   firebaseUser: FirebaseAuthTypes.User | null;
   loading: boolean;
   initError: string | null;
+  isSigningIn: boolean;
+  signingInMethod: AuthMethod | null;
   signIn: (method?: AuthMethod) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -35,6 +38,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [signingInMethod, setSigningInMethod] = useState<AuthMethod | null>(null);
+
+  // Computed property: derive signing in state from signing in method
+  const isSigningIn = signingInMethod !== null;
 
   // Custom hooks for separated concerns
   const {user, initError, initializeUserData, clearUser} = useUserInitialization();
@@ -42,7 +49,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
 
   const signIn = async (method: AuthMethod = "anonymous") => {
     try {
-      setLoading(true);
+      setSigningInMethod(method);
       switch (method) {
         case "google":
           await signInWithGoogle();
@@ -55,11 +62,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
           await signInAnonymous();
           break;
       }
+      // On success, let onAuthStateChange handle loading state to prevent race conditions
     } catch (error) {
       console.error("Sign in error:", error);
+      setSigningInMethod(null); // Reset on error
+      // Let onAuthStateChange handle loading state to prevent race conditions
       throw error; // Re-throw to allow UI to handle specific errors
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -159,11 +167,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     };
   }, []); // Remove dependencies to prevent re-initialization
 
+  // Auto-complete sign-in when user authentication and data initialization are complete
+  useEffect(() => {
+    if (user && signingInMethod !== null) {
+      // Use InteractionManager to complete sign-in after all animations/interactions finish
+      const interaction = InteractionManager.runAfterInteractions(() => {
+        setSigningInMethod(null);
+      });
+
+      return () => interaction.cancel();
+    }
+  }, [user, signingInMethod]);
+
   const value = {
     user,
     firebaseUser,
     loading,
     initError: authError || initError, // Combine auth errors and user init errors
+    isSigningIn,
+    signingInMethod,
     signIn,
     signOut: handleSignOut,
     refreshUser,

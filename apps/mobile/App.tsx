@@ -12,12 +12,16 @@ const LoadingScreen = () => (
   </View>
 );
 
+const AppContent = () => {
+  return <TabNavigation />;
+};
+
 export default function App() {
   return (
     <ErrorBoundary>
       <Suspense fallback={<LoadingScreen />}>
         <AuthProvider>
-          <TabNavigation />
+          <AppContent />
         </AuthProvider>
       </Suspense>
     </ErrorBoundary>

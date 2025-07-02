@@ -1,30 +1,40 @@
-import React, {useState} from "react";
+import React from "react";
 import {View, Text, TouchableOpacity, StyleSheet, Alert} from "react-native";
 import {useAuth, AuthMethod} from "../contexts/AuthContext";
 import {useTranslation} from "react-i18next";
+import {GlobalLoadingOverlay} from "../components/GlobalLoadingOverlay";
 
 const SignInScreen: React.FC = () => {
-  const {signIn} = useAuth();
+  const {signIn, signingInMethod, isSigningIn} = useAuth();
   const {t} = useTranslation();
-  const [loading, setLoading] = useState<AuthMethod | null>(null);
+
+  // Computed property for button disabled state
+  const isButtonDisabled = signingInMethod !== null;
+
+  const getLoadingMessage = (method: AuthMethod) => {
+    switch (method) {
+      case "google":
+        return t("signIn.loading.google");
+      case "apple":
+        return t("signIn.loading.apple");
+      case "anonymous":
+        return t("signIn.loading.guest");
+      default:
+        return t("signIn.loading");
+    }
+  };
 
   const handleSignIn = async (method: AuthMethod) => {
     try {
-      setLoading(method);
       await signIn(method);
+      // Global loading overlay will handle the loading state
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : t("signIn.error.general");
       Alert.alert(t("signIn.error.title"), errorMessage);
-    } finally {
-      setLoading(null);
     }
   };
 
   const getButtonText = (method: AuthMethod) => {
-    if (loading === method) {
-      return t("signIn.loading");
-    }
-
     switch (method) {
       case "google":
         return t("signIn.google");
@@ -72,27 +82,30 @@ const SignInScreen: React.FC = () => {
 
       <View style={styles.buttonContainer}>
         <TouchableOpacity
+          testID="google-signin-button"
           style={getButtonStyle("google")}
           onPress={() => handleSignIn("google")}
-          disabled={loading !== null}
+          disabled={isButtonDisabled}
         >
           <Text style={styles.buttonIcon}>🌐</Text>
           <Text style={getTextStyle("google")}>{getButtonText("google")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="apple-signin-button"
           style={getButtonStyle("apple")}
           onPress={() => handleSignIn("apple")}
-          disabled={loading !== null}
+          disabled={isButtonDisabled}
         >
           <Text style={styles.buttonIcon}>🍎</Text>
           <Text style={getTextStyle("apple")}>{getButtonText("apple")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
+          testID="guest-signin-button"
           style={getButtonStyle("anonymous")}
           onPress={() => handleSignIn("anonymous")}
-          disabled={loading !== null}
+          disabled={isButtonDisabled}
         >
           <Text style={styles.buttonIcon}>👤</Text>
           <Text style={getTextStyle("anonymous")}>{getButtonText("anonymous")}</Text>
@@ -100,6 +113,11 @@ const SignInScreen: React.FC = () => {
       </View>
 
       <Text style={styles.footer}>{t("signIn.privacy")}</Text>
+
+      <GlobalLoadingOverlay
+        visible={isSigningIn}
+        message={signingInMethod ? getLoadingMessage(signingInMethod) : undefined}
+      />
     </View>
   );
 };

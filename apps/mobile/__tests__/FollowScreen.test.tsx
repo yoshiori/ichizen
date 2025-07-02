@@ -68,6 +68,8 @@ describe("FollowScreen", () => {
       signIn: jest.fn(),
       signOut: jest.fn(),
       refreshUser: jest.fn(),
+      isSigningIn: false,
+      signingInMethod: null,
     });
 
     mockFirestoreService.getFollowing.mockResolvedValue([]);
@@ -97,6 +99,8 @@ describe("FollowScreen", () => {
       signIn: jest.fn(),
       signOut: jest.fn(),
       refreshUser: jest.fn(),
+      isSigningIn: false,
+      signingInMethod: null,
     });
 
     const {getByText} = render(<FollowScreen />);
