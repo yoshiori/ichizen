@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     } catch (error) {
       console.error("Sign in error:", error);
       setSigningInMethod(null); // Reset on error
-      setLoading(false); // Only reset loading on error
+      // Let onAuthStateChange handle loading state to prevent race conditions
       throw error; // Re-throw to allow UI to handle specific errors
     }
   };

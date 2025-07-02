@@ -5,11 +5,11 @@ import {useTranslation} from "react-i18next";
 import {GlobalLoadingOverlay} from "../components/GlobalLoadingOverlay";
 
 const SignInScreen: React.FC = () => {
-  const {signIn, loading, signingInMethod, isSigningIn} = useAuth();
+  const {signIn, signingInMethod, isSigningIn} = useAuth();
   const {t} = useTranslation();
 
   // Computed property for button disabled state
-  const isButtonDisabled = loading || signingInMethod !== null;
+  const isButtonDisabled = signingInMethod !== null;
 
   const getLoadingMessage = (method: AuthMethod) => {
     switch (method) {
