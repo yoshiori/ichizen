@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator} from "react-native";
 import {useTranslation} from "react-i18next";
 import {useAuth} from "../contexts/AuthContext";
@@ -19,6 +19,7 @@ export const FollowScreen: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [followingUsers, setFollowingUsers] = useState<FollowingUser[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const isMounted = useRef(true);
 
   const loadFollowing = async () => {
     if (!user) return;
@@ -40,13 +41,21 @@ export const FollowScreen: React.FC = () => {
       console.error("Error loading following:", error);
       Alert.alert(t("follow.error", "エラー"), t("follow.loadError", "フォロー一覧の読み込みに失敗しました"));
     } finally {
-      setRefreshing(false);
+      if (isMounted.current) {
+        setRefreshing(false);
+      }
     }
   };
 
   useEffect(() => {
     loadFollowing();
   }, [user]);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const handleFollow = async () => {
     if (!user || !followingId.trim()) return;
@@ -91,7 +100,9 @@ export const FollowScreen: React.FC = () => {
       console.error("Follow error:", error);
       Alert.alert(t("follow.error", "エラー"), t("follow.followError", "フォローに失敗しました"));
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -118,7 +129,9 @@ export const FollowScreen: React.FC = () => {
               console.error("Unfollow error:", error);
               Alert.alert(t("follow.error", "エラー"), t("follow.unfollowError", "フォロー解除に失敗しました"));
             } finally {
-              setLoading(false);
+              if (isMounted.current) {
+                setLoading(false);
+              }
             }
           },
         },
