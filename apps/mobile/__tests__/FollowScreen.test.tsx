@@ -126,12 +126,17 @@ describe("FollowScreen", () => {
 
   it("should load and display following list", async () => {
     mockFirestoreService.getFollowing.mockResolvedValue([mockFollowData]);
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    // Mock getUsersBatch instead of getUser
+    const mockFirestoreServiceWithBatch = mockFirestoreService as any;
+    mockFirestoreServiceWithBatch.getUsersBatch = jest.fn().mockResolvedValue({
+      "other-user-id": mockOtherUser,
+    });
 
     const {getByText} = render(<FollowScreen />);
 
     await waitFor(() => {
       expect(mockFirestoreService.getFollowing).toHaveBeenCalledWith("test-user-id");
+      expect(mockFirestoreServiceWithBatch.getUsersBatch).toHaveBeenCalledWith(["other-user-id"]);
       // FollowScreen now displays username, not user ID
       expect(getByText("other_user")).toBeTruthy();
     });
@@ -157,8 +162,8 @@ describe("FollowScreen", () => {
   });
 
   it("should prevent following self", async () => {
-    // Mock username resolution to current user's ID
-    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("test-user-id");
+    // Mock username resolution to current user
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(mockUser);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
@@ -169,14 +174,14 @@ describe("FollowScreen", () => {
     fireEvent.press(followButton);
 
     await waitFor(() => {
-      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("test_user");
+      expect(mockUsernameUtils.getUserByUsername).toHaveBeenCalledWith("test_user");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "自分をフォローすることはできません");
     });
   });
 
   it("should handle following non-existent user", async () => {
     // Mock that username doesn't exist
-    mockUsernameUtils.getUserIdByUsername.mockResolvedValue(null);
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(null);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
@@ -187,15 +192,14 @@ describe("FollowScreen", () => {
     fireEvent.press(followButton);
 
     await waitFor(() => {
-      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("nonexistent_user");
+      expect(mockUsernameUtils.getUserByUsername).toHaveBeenCalledWith("nonexistent_user");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "ユーザーが見つかりません");
     });
   });
 
   it("should handle following already followed user", async () => {
     // Mock username lookup and following check
-    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(true);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
@@ -207,7 +211,7 @@ describe("FollowScreen", () => {
     fireEvent.press(followButton);
 
     await waitFor(() => {
-      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("other_user");
+      expect(mockUsernameUtils.getUserByUsername).toHaveBeenCalledWith("other_user");
       expect(mockFirestoreService.isFollowing).toHaveBeenCalledWith("test-user-id", "other-user-id");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "すでにフォローしています");
     });
@@ -215,8 +219,7 @@ describe("FollowScreen", () => {
 
   it("should successfully follow a user", async () => {
     // Mock username lookup and successful follow
-    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
 
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
@@ -228,7 +231,7 @@ describe("FollowScreen", () => {
     fireEvent.press(followButton);
 
     await waitFor(() => {
-      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("other_user");
+      expect(mockUsernameUtils.getUserByUsername).toHaveBeenCalledWith("other_user");
       expect(mockFirestoreService.followUser).toHaveBeenCalledWith("test-user-id", "other-user-id");
       expect(mockAlert).toHaveBeenCalledWith("成功", "ユーザーをフォローしました");
     });
@@ -236,7 +239,11 @@ describe("FollowScreen", () => {
 
   it("should successfully unfollow a user", async () => {
     mockFirestoreService.getFollowing.mockResolvedValue([mockFollowData]);
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    // Mock getUsersBatch for unfollow test
+    const mockFirestoreServiceWithBatch = mockFirestoreService as any;
+    mockFirestoreServiceWithBatch.getUsersBatch = jest.fn().mockResolvedValue({
+      "other-user-id": mockOtherUser,
+    });
 
     const {getByText} = render(<FollowScreen />);
 
@@ -272,8 +279,7 @@ describe("FollowScreen", () => {
 
   it("should handle errors during follow operation", async () => {
     // Mock username lookup and failed follow
-    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
     mockFirestoreService.followUser.mockRejectedValue(new Error("Network error"));
 
@@ -292,7 +298,11 @@ describe("FollowScreen", () => {
 
   it("should handle errors during unfollow operation", async () => {
     mockFirestoreService.getFollowing.mockResolvedValue([mockFollowData]);
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    // Mock getUsersBatch for error test
+    const mockFirestoreServiceWithBatch = mockFirestoreService as any;
+    mockFirestoreServiceWithBatch.getUsersBatch = jest.fn().mockResolvedValue({
+      "other-user-id": mockOtherUser,
+    });
     mockFirestoreService.unfollowUser.mockRejectedValue(new Error("Network error"));
 
     const {getByText} = render(<FollowScreen />);
@@ -329,8 +339,7 @@ describe("FollowScreen", () => {
 
   it("should clear input field after successful follow", async () => {
     // Mock username lookup and successful follow
-    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("other-user-id");
-    mockFirestoreService.getUser.mockResolvedValue(mockOtherUser);
+    mockUsernameUtils.getUserByUsername.mockResolvedValue(mockOtherUser);
     mockFirestoreService.isFollowing.mockResolvedValue(false);
 
     const {getByPlaceholderText, getByText, queryByDisplayValue} = render(<FollowScreen />);
@@ -349,6 +358,45 @@ describe("FollowScreen", () => {
     // Then check input field is cleared
     await waitFor(() => {
       expect(queryByDisplayValue("other_user")).toBeNull();
+    });
+  });
+
+  // Username system specific tests
+  describe("Username system", () => {
+    it("should display user's username instead of Firebase UID", async () => {
+      const {getByText, queryByText} = render(<FollowScreen />);
+
+      await waitFor(() => {
+        expect(getByText("あなたのユーザーID")).toBeTruthy();
+        expect(getByText("test_user")).toBeTruthy();
+        // Should not display Firebase UID
+        expect(queryByText("test-user-id")).toBeNull();
+      });
+    });
+
+    it("should accept username input instead of user ID", async () => {
+      const {getByPlaceholderText} = render(<FollowScreen />);
+
+      await waitFor(() => {
+        expect(getByPlaceholderText("ユーザー名を入力")).toBeTruthy();
+      });
+    });
+
+    it("should handle users without username in following list", async () => {
+      const userWithoutUsername = {...mockOtherUser, username: undefined};
+      mockFirestoreService.getFollowing.mockResolvedValue([mockFollowData]);
+      // Mock getUsersBatch for username system test
+      const mockFirestoreServiceWithBatch = mockFirestoreService as any;
+      mockFirestoreServiceWithBatch.getUsersBatch = jest.fn().mockResolvedValue({
+        "other-user-id": userWithoutUsername,
+      });
+
+      const {getByText} = render(<FollowScreen />);
+
+      await waitFor(() => {
+        // Should display fallback for users without username
+        expect(getByText("Unknown User")).toBeTruthy();
+      });
     });
   });
 });

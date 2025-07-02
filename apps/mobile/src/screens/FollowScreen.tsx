@@ -2,8 +2,8 @@ import React, {useState, useEffect, useRef} from "react";
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, ActivityIndicator} from "react-native";
 import {useTranslation} from "react-i18next";
 import {useAuth} from "../contexts/AuthContext";
-import {followUser, unfollowUser, getFollowing, isFollowing, getUser} from "../services/firestore";
-import {getUserIdByUsername} from "../utils/username";
+import {followUser, unfollowUser, getFollowing, isFollowing, getUsersBatch} from "../services/firestore";
+import {getUserByUsername} from "../utils/username";
 import {formatDateByLanguage} from "../utils/dateFormat";
 import {Follow, User} from "../types/firebase";
 
@@ -28,13 +28,14 @@ export const FollowScreen: React.FC = () => {
       setRefreshing(true);
       const follows = await getFollowing(user.id);
 
-      // Get user details for each follow
-      const followingWithUsers = await Promise.all(
-        follows.map(async (follow) => {
-          const userData = await getUser(follow.followingId);
-          return {follow, user: userData};
-        })
-      );
+      // Get user details for all follows in batch to prevent N+1 queries
+      const userIds = follows.map((follow) => follow.followingId);
+      const users = await getUsersBatch(userIds);
+
+      const followingWithUsers = follows.map((follow) => ({
+        follow,
+        user: users[follow.followingId] || null,
+      }));
 
       setFollowingUsers(followingWithUsers);
     } catch (error) {
@@ -63,23 +64,18 @@ export const FollowScreen: React.FC = () => {
     try {
       setLoading(true);
 
-      // Convert username to user ID
-      const targetUserId = await getUserIdByUsername(followingId);
-      if (!targetUserId) {
+      // Find user by username
+      const targetUser = await getUserByUsername(followingId);
+      if (!targetUser) {
         Alert.alert(t("follow.error", "エラー"), t("follow.userNotFound", "ユーザーが見つかりません"));
         return;
       }
+
+      const targetUserId = targetUser.id;
 
       // Check if trying to follow self using authoritative user ID
       if (targetUserId === user.id) {
         Alert.alert(t("follow.error", "エラー"), t("follow.selfFollowError", "自分をフォローすることはできません"));
-        return;
-      }
-
-      // Check if user exists
-      const targetUser = await getUser(targetUserId);
-      if (!targetUser) {
-        Alert.alert(t("follow.error", "エラー"), t("follow.userNotFound", "ユーザーが見つかりません"));
         return;
       }
 
