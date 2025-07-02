@@ -111,6 +111,66 @@ export const reserveUsernameAndCreateUser = async (
 };
 
 /**
+ * Get user by username
+ * Returns the user data if found, null otherwise
+ */
+export const getUserByUsername = async (username: string): Promise<User | null> => {
+  // Handle empty username
+  if (!username || !username.trim()) {
+    return null;
+  }
+
+  try {
+    // First, get the username document to find the userId
+    const usernameDoc = await db.collection("usernames").doc(username).get();
+
+    if (!usernameDoc.exists()) {
+      return null;
+    }
+
+    const usernameData = usernameDoc.data() as UsernameDoc;
+
+    // Then, get the user document
+    const userDoc = await db.collection("users").doc(usernameData.userId).get();
+
+    if (!userDoc.exists()) {
+      return null;
+    }
+
+    return userDoc.data() as User;
+  } catch (error) {
+    console.error("Error getting user by username:", error);
+    throw error;
+  }
+};
+
+/**
+ * Get user ID by username
+ * Returns the Firebase UID if found, null otherwise
+ */
+export const getUserIdByUsername = async (username: string): Promise<string | null> => {
+  // Handle empty username
+  if (!username || !username.trim()) {
+    return null;
+  }
+
+  try {
+    // Get the username document to find the userId
+    const usernameDoc = await db.collection("usernames").doc(username).get();
+
+    if (!usernameDoc.exists()) {
+      return null;
+    }
+
+    const usernameData = usernameDoc.data() as UsernameDoc;
+    return usernameData.userId;
+  } catch (error) {
+    console.error("Error getting user ID by username:", error);
+    throw error;
+  }
+};
+
+/**
  * Change username for a user with atomic batch operation
  */
 export const changeUsername = async (userId: string, newUsername: string): Promise<void> => {

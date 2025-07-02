@@ -206,47 +206,62 @@ const changeUsername = async (userId: string, newUsername: string): Promise<void
 └─────────────────────────┘
 ```
 
-## 実装ステップ
+## 実装ステータス（全て完了 ✅）
 
-### 1. 型定義とスキーマ更新
+#### 1. 型定義とスキーマ更新
 
-- [ ] `User` interfaceに `username`, `usernameHistory` フィールド追加
-- [ ] `UsernameHistoryEntry` interface作成
-- [ ] `UsernameDoc` interface作成
+- ✅ `User` interfaceに `username`, `usernameHistory` フィールド追加
+- ✅ `UsernameHistoryEntry` interface作成
+- ✅ `UsernameDoc` interface作成
 
-### 2. ユーティリティ関数実装
+#### 2. ユーティリティ関数実装
 
-- [ ] `generateRandomUsername()` 関数
-- [ ] `isUsernameAvailable(username)` 関数
-- [ ] `changeUsername(userId, newUsername)` 関数
+- ✅ `generateRandomUsername()` 関数
+- ✅ `isUsernameAvailable(username)` 関数
+- ✅ `changeUsername(userId, newUsername)` 関数
+- ✅ `getUserByUsername(username)` 関数（新規追加）
+- ✅ `getUserIdByUsername(username)` 関数（新規追加）
 
-### 3. 既存ユーザーへの移行処理
+#### 3. 既存ユーザーへの移行処理
 
-- [ ] 初回起動時の自動ユーザー名割り当て
-- [ ] 履歴の初期化処理
+- ✅ 初回起動時の自動ユーザー名割り当て
+- ✅ 履歴の初期化処理
 
-### 4. ProfileScreen更新
+#### 4. ProfileScreen更新
 
-- [ ] UserID表示をusername表示に変更
-- [ ] 編集ボタン追加
-- [ ] ユーザー名編集モーダル/画面作成
+- ✅ UserID表示をusername表示に変更
+- ✅ 編集ボタン追加
+- ✅ ユーザー名編集モーダル/画面作成（`UsernameEditModal`）
 
-### 5. バリデーション実装
+#### 5. FollowScreen更新（新規追加）
 
-- [ ] ユーザー名の文字制限チェック（3-20文字、英数字\_のみ）
-- [ ] 重複チェック
-- [ ] 予約語チェック（admin, system等）
+- ✅ Firebase UID表示をusername表示に変更
+- ✅ ユーザーID入力をusername入力に変更
+- ✅ username→UID変換処理追加
+- ✅ フォロー中リストでのusername表示
 
-### 6. 多言語対応
+#### 6. バリデーション実装
 
-- [ ] ユーザー名関連の文言追加
-- [ ] エラーメッセージの翻訳
+- ✅ ユーザー名の文字制限チェック（3-20文字、英数字\_のみ）
+- ✅ 重複チェック
+- ✅ 予約語チェック（admin, system等）
 
-### 7. エラーハンドリング
+#### 7. 多言語対応
 
-- [ ] ネットワークエラー
-- [ ] ユーザー名重複エラー
-- [ ] バリデーションエラー
+- ✅ ユーザー名関連の文言追加（日本語・英語）
+- ✅ エラーメッセージの翻訳
+
+#### 8. エラーハンドリング
+
+- ✅ ネットワークエラー
+- ✅ ユーザー名重複エラー
+- ✅ バリデーションエラー
+
+#### 9. テスト実装
+
+- ✅ `getUserByUsername` / `getUserIdByUsername` のユニットテスト
+- ✅ `FollowScreen` のusername機能テスト
+- ✅ 既存テストの更新（100%通過）
 
 ## 注意事項
 
@@ -282,6 +297,46 @@ const changeUsername = async (userId: string, newUsername: string): Promise<void
 
 ---
 
+## 新機能：Follow機能でのUsername利用
+
+### 2025年7月2日追加実装
+
+#### 機能概要
+
+Communicationタブ（FollowScreen）で、Firebase UIDの代わりにusernameを使用して、よりユーザーフレンドリーなフォロー機能を実現。
+
+#### 実装内容
+
+1. **自分のusername表示**
+
+   - Firebase UIDの代わりにusernameを表示
+   - 共有用のヒントメッセージもusernameベースに変更
+
+2. **username入力でのフォロー**
+
+   - プレースホルダー：「ユーザーIDを入力」→「ユーザー名を入力」
+   - 入力されたusernameを内部的にFirebase UIDに変換
+   - 自分のusernameでのフォロー防止機能
+
+3. **フォロー中リストでのusername表示**
+
+   - 各フォロー対象ユーザーをusernameで表示
+   - Firebase UIDは内部処理でのみ使用
+
+4. **後方互換性**
+   - 内部的なフォローシステムはFirebase UIDベースを維持
+   - 既存のフォロー関係に影響なし
+
+#### 技術実装
+
+- **新関数**: `getUserByUsername()`, `getUserIdByUsername()`
+- **更新画面**: `FollowScreen.tsx`
+- **多言語対応**: 日本語・英語の翻訳追加
+- **テスト**: 包括的なユニット・統合テスト
+
+---
+
 **作成日**: 2024年6月21日  
-**ステータス**: 設計完了、実装待ち  
-**優先度**: 中（セキュリティ改善のため）
+**最終更新**: 2025年7月2日  
+**ステータス**: **実装完了、Follow機能統合完了**  
+**優先度**: 完了

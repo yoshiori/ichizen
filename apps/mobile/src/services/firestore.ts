@@ -4,18 +4,10 @@
  */
 
 // Re-export all user-related functions
-export {
-  createUser,
-  getUser,
-  updateUser,
-  updateUserFCMToken
-} from './userService';
+export {createUser, getUser, getUsersBatch, updateUser, updateUserFCMToken} from "./userService";
 
 // Re-export all task-related functions
-export {
-  getTasks,
-  getTask
-} from './taskService';
+export {getTasks, getTask} from "./taskService";
 
 // Re-export all history-related functions
 export {
@@ -23,21 +15,11 @@ export {
   getUserTaskHistory,
   getUserTaskHistoryRange,
   getUserTaskHistoryWithTasks,
-  markTaskAsCompleted
-} from './historyService';
+  markTaskAsCompleted,
+} from "./historyService";
 
 // Re-export all counter-related functions
-export {
-  getGlobalCounter,
-  incrementGlobalCounter
-} from './counterService';
+export {getGlobalCounter, incrementGlobalCounter} from "./counterService";
 
 // Re-export all follow-related functions
-export {
-  followUser,
-  unfollowUser,
-  getFollowedUsers,
-  getFollowers,
-  getFollowing,
-  isFollowing
-} from './followService';
+export {followUser, unfollowUser, getFollowedUsers, getFollowers, getFollowing, isFollowing} from "./followService";
