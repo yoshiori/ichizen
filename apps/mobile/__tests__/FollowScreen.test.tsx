@@ -157,6 +157,9 @@ describe("FollowScreen", () => {
   });
 
   it("should prevent following self", async () => {
+    // Mock username resolution to current user's ID
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("test-user-id");
+
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
     const input = getByPlaceholderText("ユーザー名を入力");
@@ -166,6 +169,7 @@ describe("FollowScreen", () => {
     fireEvent.press(followButton);
 
     await waitFor(() => {
+      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("test_user");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "自分をフォローすることはできません");
     });
   });

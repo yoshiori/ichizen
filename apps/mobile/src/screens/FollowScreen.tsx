@@ -51,12 +51,6 @@ export const FollowScreen: React.FC = () => {
   const handleFollow = async () => {
     if (!user || !followingId.trim()) return;
 
-    // Check if trying to follow self by username
-    if (followingId === user.username) {
-      Alert.alert(t("follow.error", "エラー"), t("follow.selfFollowError", "自分をフォローすることはできません"));
-      return;
-    }
-
     try {
       setLoading(true);
 
@@ -64,6 +58,12 @@ export const FollowScreen: React.FC = () => {
       const targetUserId = await getUserIdByUsername(followingId);
       if (!targetUserId) {
         Alert.alert(t("follow.error", "エラー"), t("follow.userNotFound", "ユーザーが見つかりません"));
+        return;
+      }
+
+      // Check if trying to follow self using authoritative user ID
+      if (targetUserId === user.id) {
+        Alert.alert(t("follow.error", "エラー"), t("follow.selfFollowError", "自分をフォローすることはできません"));
         return;
       }
 

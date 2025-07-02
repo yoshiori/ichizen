@@ -173,18 +173,22 @@ describe("FollowScreen with Username", () => {
     });
   });
 
-  it("should prevent following self by username", async () => {
+  it("should prevent following self by username resolved to own user ID", async () => {
+    // Mock that the input username resolves to the current user's ID
+    mockUsernameUtils.getUserIdByUsername.mockResolvedValue("test-user-id");
+
     const {getByPlaceholderText, getByText} = render(<FollowScreen />);
 
     const input = getByPlaceholderText("ユーザー名を入力");
-    fireEvent.changeText(input, "test_user");
+    fireEvent.changeText(input, "past_username"); // Could be an old username that resolves to same user
 
     const followButton = getByText("フォローする");
     fireEvent.press(followButton);
 
     await waitFor(() => {
+      expect(mockUsernameUtils.getUserIdByUsername).toHaveBeenCalledWith("past_username");
       expect(mockAlert).toHaveBeenCalledWith("エラー", "自分をフォローすることはできません");
-      expect(mockUsernameUtils.getUserIdByUsername).not.toHaveBeenCalled();
+      expect(mockFirestoreService.followUser).not.toHaveBeenCalled();
     });
   });
 
